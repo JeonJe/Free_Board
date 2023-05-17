@@ -1,6 +1,7 @@
 package board;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class Board {
     private int boardId;
@@ -11,10 +12,22 @@ public class Board {
     private String content;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
-
     private int visitCount;
+
     public Board() {
-        // 기본 생성자 추가
+
+    }
+
+    public Board(int boardId, String category, String writer, String password, String title, String content, LocalDateTime createdAt, LocalDateTime modifiedAt, int visitCount) {
+        this.boardId = boardId;
+        this.category = category;
+        this.writer = writer;
+        this.password = password;
+        this.title = title;
+        this.content = content;
+        this.createdAt = createdAt;
+        this.modifiedAt = modifiedAt;
+        this.visitCount = visitCount;
     }
 
     public int getBoardId() {
@@ -65,16 +78,18 @@ public class Board {
         this.content = content;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
+    public String getCreatedAt() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm");
+        return createdAt.format(formatter);
     }
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public LocalDateTime getModifiedAt() {
-        return modifiedAt;
+    public String getModifiedAt() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm");
+        return modifiedAt.format(formatter);
     }
 
     public void setModifiedAt(LocalDateTime modifiedAt) {

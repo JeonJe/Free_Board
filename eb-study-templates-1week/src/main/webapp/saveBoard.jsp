@@ -24,11 +24,10 @@
     board.setPassword(password);
     board.setTitle(title);
     board.setContent(content);
-    board.setCreatedAt(((Timestamp) new java.sql.Timestamp(System.currentTimeMillis())).toLocalDateTime());
-    board.setModifiedAt(((Timestamp) new java.sql.Timestamp(System.currentTimeMillis())).toLocalDateTime());
+    board.setVisitCount(0);
 
     BoardDAO boardDAO = new BoardDAO();
     boardDAO.save(board);
 
-    response.sendRedirect("index.jsp");
+    response.sendRedirect("list.jsp");
 %>

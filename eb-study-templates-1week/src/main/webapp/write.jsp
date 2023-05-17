@@ -25,7 +25,7 @@
     <label for="content">내용:</label><br>
     <textarea id="content" name="content" required></textarea><br>
     <input type="submit" value="저장">
-    <input type="button" value="취소" onclick="location.href='listBoard.jsp'">
+    <input type="button" value="취소" onclick="location.href='list.jsp'">
 </form>
 </body>
 </html>
