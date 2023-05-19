@@ -13,8 +13,7 @@
 <%@page import="com.oreilly.servlet.multipart.DefaultFileRenamePolicy" %>
 <%@page import="com.oreilly.servlet.MultipartRequest" %>
 <%@ page import="java.util.Enumeration" %>
-<%@ page import="java.util.List" %>
-<%@ page import="java.util.ArrayList" %>
+
 <%@ page import="attachment.Attachment" %>
 <%@ page import="attachment.AttachmentDAO" %>
 <%@ page import="java.io.File" %>
@@ -22,7 +21,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
     // 업로드할 디렉토리 위치를 구해옴
-//    String uploadPath = request.getRealPath("upload");
     String uploadPath = request.getRealPath("upload");
     System.out.println("path=" + uploadPath);
 
@@ -74,7 +72,6 @@
         while (files.hasMoreElements()) {
             String file = (String) files.nextElement();
             String fileName = multi.getFilesystemName(file);
-//            String originFileName = multi.getOriginalFileName(file);
             System.out.println(fileName);
             if (fileName != null) {
                 Attachment attachment = new Attachment(boardId,fileName,fileName);

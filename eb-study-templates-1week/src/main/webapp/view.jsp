@@ -33,15 +33,14 @@
 <head>
     <title>게시판 - 보기</title>
     <link rel="stylesheet" type="text/css" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.min.js"></script>
     <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap JS, Popper.js -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-    <style>
 
-    </style>
 </head>
 <body>
 <div class="container my-5">
@@ -153,7 +152,7 @@
         <% } %>
     </div>
     <br>
-    
+
     <div>
         <% if (comments != null && comments.size() > 0) { %>
 

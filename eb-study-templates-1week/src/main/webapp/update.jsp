@@ -10,7 +10,7 @@
 <%@ page import="utils.PasswordUtils" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
-
+  request.setCharacterEncoding("UTF-8");
   int id = Integer.parseInt(request.getParameter("id"));
   String writer = request.getParameter("writer");
   String password = request.getParameter("password");
