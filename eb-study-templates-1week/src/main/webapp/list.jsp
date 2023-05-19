@@ -13,6 +13,7 @@
 <html>
 <head>
     <title>자유 게시판</title>
+
 </head>
 <body>
 <h1>자유 게시판 목록</h1>
@@ -24,7 +25,7 @@
     <label for="endDate"> ~ </label>
     <input type="date" id="endDate" name="endDate" value="<%= (request.getParameter("endDate") != null) ? request.getParameter("endDate") : LocalDate.now() %>">
 
-    <label for="category">카테고리:</label>
+
     <select id="category" name="category">
         <option value="all">전체 카테고리</option>
         <option value="JAVA">JAVA</option>
@@ -47,8 +48,7 @@
         <th>등록일시</th>
         <th>수정일시</th>
     </tr>
-
-
+    
     <%
         String search = request.getParameter("search");
         String category = request.getParameter("category");

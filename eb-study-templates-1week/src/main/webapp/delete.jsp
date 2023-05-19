@@ -6,9 +6,7 @@
   To change this template use File | Settings | File Templates.
 --%>
 
-<%@ page import="board.Board" %>
 <%@ page import="board.BoardDAO" %>
-<%@ page import="java.sql.Timestamp" %>
 <%@ page import="utils.PasswordUtils" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%

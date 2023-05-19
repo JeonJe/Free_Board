@@ -19,7 +19,8 @@ public class BoardDAO {
         return DriverManager.getConnection(DB_URL, USER, PASS);
     }
 
-    public void save(Board board) throws Exception {
+    public int save(Board board) throws Exception {
+        int boardId = 0;
 
         try (Connection conn = getConnection()) {
             LocalDateTime currentTime = LocalDateTime.now();
@@ -27,7 +28,8 @@ public class BoardDAO {
             board.setModifiedAt(currentTime);
 
             String sql = "INSERT INTO board (category, writer, password, title, content, createdAt, modifiedAt,visitCount) VALUES (?, ?, ?, ?, ?, ?, ?,?)";
-            PreparedStatement pstmt = conn.prepareStatement(sql);
+
+            PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             pstmt.setString(1, board.getCategory());
             pstmt.setString(2, board.getWriter());
             pstmt.setString(3, board.getPassword());
@@ -38,10 +40,17 @@ public class BoardDAO {
             pstmt.setInt(8, board.getVisitCount());
             pstmt.executeUpdate();
 
+            try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    boardId = generatedKeys.getInt(1);
+                } else {
+                    throw new SQLException("게시글 생성에 실패했습니다.");
+                }
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
+        return boardId;
     }
 
     public void delete(int id) throws Exception {

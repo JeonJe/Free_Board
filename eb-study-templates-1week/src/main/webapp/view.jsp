@@ -10,6 +10,8 @@
 <%@ page import="comment.CommentDAO" %>
 <%@ page import="comment.Comment" %>
 <%@ page import="java.util.List" %>
+<%@ page import="attachment.Attachment" %>
+<%@ page import="attachment.AttachmentDAO" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
 <%
@@ -18,6 +20,9 @@
     Board board = boardDAO.getBoardById(id);  // id에 해당하는 게시글 객체 가져오기
     boardDAO.updateVisitCount(board.getBoardId(), board.getVisitCount());
     int updatedVisitCount = boardDAO.getBoardById(id).getVisitCount();  // id에 해당하는 게시글 객체 가져오기
+    AttachmentDAO attachmentDAO = new AttachmentDAO();
+    List<Attachment> attachments = attachmentDAO.getAttachmentsByBoardId(board.getBoardId());
+
 %>
 
 <html>
@@ -80,6 +85,10 @@
         }
     }
 
+    async function downloadFile(attachmentId, fileName) {
+        console.log(attachmentId, fileName);
+    }
+
 </script>
 
 <!-- 비밀번호 확인 모달 -->
@@ -122,9 +131,20 @@
         <td colspan="4"><%= board.getContent() %>
         </td>
     </tr>
+    <% if (attachments != null && attachments.size() > 0) { %>
     <tr>
-        <td colspan="4">첨부파일 명: <%-- 첨부파일이 있을 경우 파일 이름을 출력 --%></td>
+        <td colspan="4">첨부파일 명:
+            <%
+                for (Attachment attachment : attachments) {
+            %>
+            <p><%= attachment.getFileName() %></p>
+            <a href="download.jsp?fileName=<%=attachment.getFileName()%>">다운로드</a>
+            <%
+                }
+            %>
+        </td>
     </tr>
+    <% } %>
 </table>
 
 <%
@@ -166,7 +186,9 @@
 <div class="buttons">
     <a href="list.jsp">
         <button>목록으로</button>
+
     </a>
+
     <button onclick="showPasswordModal('edit')">수정</button>
     <button onclick="showPasswordModal('delete')">삭제</button>
 </div>

@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class Comment {
-    private int commentID;
+    private int commentId;
     private int boardId;
     private String writer;
     private String content;
@@ -13,20 +13,20 @@ public class Comment {
     public Comment() {
     }
 
-    public Comment(int commentID, int boardId, String writer, String content, LocalDateTime createdAt) {
-        this.commentID = commentID;
+    public Comment(int commentId, int boardId, String writer, String content, LocalDateTime createdAt) {
+        this.commentId = commentId;
         this.boardId = boardId;
         this.writer = writer;
         this.content = content;
         this.createdAt = createdAt;
     }
 
-    public int getCommentID() {
-        return commentID;
+    public int getCommentId() {
+        return commentId;
     }
 
-    public void setCommentID(int commentID) {
-        this.commentID = commentID;
+    public void setCommentId(int commentId) {
+        this.commentId = commentId;
     }
 
     public int getBoardId() {
