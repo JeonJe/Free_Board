@@ -9,6 +9,7 @@
 <html>
 <head>
     <title>게시글 작성</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
 
 </head>
 <body>

@@ -20,6 +20,10 @@
     Board board = boardDAO.getBoardById(id);  // id에 해당하는 게시글 객체 가져오기
     boardDAO.updateVisitCount(board.getBoardId(), board.getVisitCount());
     int updatedVisitCount = boardDAO.getBoardById(id).getVisitCount();  // id에 해당하는 게시글 객체 가져오기
+
+    CommentDAO commentDAO = new CommentDAO();
+    List<Comment> comments = commentDAO.getCommentsByBoardId(board.getBoardId());
+
     AttachmentDAO attachmentDAO = new AttachmentDAO();
     List<Attachment> attachments = attachmentDAO.getAttachmentsByBoardId(board.getBoardId());
 
@@ -29,168 +33,177 @@
 <head>
     <title>게시판 - 보기</title>
     <link rel="stylesheet" type="text/css" href="styles.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap JS, Popper.js -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <style>
 
+    </style>
 </head>
 <body>
-<h1>게시판 - 보기</h1>
-<script>
-    var isEdit = false;
+<div class="container my-5">
+    <h1 class="my-4">게시판 - 보기</h1>
+    <script>
+        var isEdit = false;
 
-    function hidePasswordModal() {
-        var modal = document.getElementById('passwordModal');
-        modal.style.display = 'none';
-    }
-
-    function showPasswordModal(action) {
-        var modal = document.getElementById('passwordModal');
-        modal.style.display = 'block';
-        if (action === 'edit') {
-            isEdit = true;
-        } else {
-            isEdit = false;
+        function hidePasswordModal() {
+            var modal = document.getElementById('passwordModal');
+            modal.style.display = 'none';
         }
-    }
 
-    async function validatePassword(form) {
-        var password = '<%= board.getPassword() %>';
-        var enteredPassword = form.password.value;
-        var hashedPassword = CryptoJS.SHA256(enteredPassword).toString();
-
-        if (hashedPassword === password) {
-            hidePasswordModal();
-            if (isEdit) {
-                window.location.replace("modify.jsp?id=<%= board.getBoardId() %>")
+        function showPasswordModal(action) {
+            var modal = document.getElementById('passwordModal');
+            modal.style.display = 'block';
+            if (action === 'edit') {
+                isEdit = true;
             } else {
-                try {
-                    const response = await fetch('delete.jsp', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                        },
-                        body: 'id=' + <%= board.getBoardId() %> +'&password=' + enteredPassword
-                    });
-                    if (!response.ok) {
-                        alert("삭제에 실패하였습니다");
-                    }
-                    window.location.replace("list.jsp")
-
-                } catch (error) {
-                    alert(error);
-                }
+                isEdit = false;
             }
-        } else {
-            var errorDiv = document.getElementById('passwordError');
-            errorDiv.textContent = '비밀번호가 일치하지 않습니다.';
         }
-    }
 
-    async function downloadFile(attachmentId, fileName) {
-        console.log(attachmentId, fileName);
-    }
+        async function validatePassword(form) {
+            var password = '<%= board.getPassword() %>';
+            var enteredPassword = form.password.value;
+            var hashedPassword = CryptoJS.SHA256(enteredPassword).toString();
 
-</script>
+            if (hashedPassword === password) {
+                hidePasswordModal();
+                if (isEdit) {
+                    window.location.replace("modify.jsp?id=<%= board.getBoardId() %>")
+                } else {
+                    try {
+                        const response = await fetch('delete.jsp', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                            },
+                            body: 'id=' + <%= board.getBoardId() %> +'&password=' + enteredPassword
+                        });
+                        if (!response.ok) {
+                            alert("삭제에 실패하였습니다");
+                        }
+                        window.location.replace("list.jsp")
 
-<!-- 비밀번호 확인 모달 -->
-<div id="passwordModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="hidePasswordModal()">&times;</span>
-        <h2>비밀번호 확인</h2>
-        <form id="passwordForm" onsubmit="validatePassword(this); return false;">
-            <input type="password" id="passwordInput" name="password" required>
-            <br>
-            <div id="passwordError" class="error-message"></div>
-            <br>
-            <input type="submit" value="확인">
+                    } catch (error) {
+                        alert(error);
+                    }
+                }
+            } else {
+                var errorDiv = document.getElementById('passwordError');
+                errorDiv.textContent = '비밀번호가 일치하지 않습니다.';
+            }
+        }
+
+        async function downloadFile(attachmentId, fileName) {
+            console.log(attachmentId, fileName);
+        }
+
+    </script>
+
+    <!-- 비밀번호 확인 모달 -->
+    <div id="passwordModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="hidePasswordModal()">&times;</span>
+            <h2>비밀번호 확인</h2>
+            <form id="passwordForm" onsubmit="validatePassword(this); return false;">
+                <input type="password" id="passwordInput" name="password" required>
+                <br>
+                <div id="passwordError" class="error-message"></div>
+                <br>
+                <input type="submit" value="확인">
+            </form>
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header bg-transparent pb-0">
+            <div class="d-flex justify-content-between">
+                <p class="mb-0">작성자: <%= board.getWriter() %>
+                </p>
+                <div class="d-flex">
+                    <p class="mb-0 me-4 mr-2">등록일시: <%= board.getCreatedAt()%>
+                    </p>
+                    <p class="mb-0">수정일시: <%= board.getModifiedAt() %>
+                    </p>
+                </div>
+            </div>
+            <div class="d-flex justify-content-between pt-2">
+                <h5 class="card-title mb-4">[<%= board.getCategory() %>]: <%= board.getTitle() %>
+                </h5>
+                <p class="card-text mb-4">조회수: <%= updatedVisitCount %>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="card-body border">
+        <div class="card-text">
+            <%= board.getContent() %>
+        </div>
+    </div>
+
+    <br>
+    <div>
+        <% for (Attachment attachment : attachments) { %>
+        <a href="download.jsp?fileName=<%=attachment.getFileName()%>" class="mb-2 text-decoration-underline d-block">
+            <%=attachment.getFileName()%>
+        </a>
+        <% } %>
+    </div>
+    <br>
+    
+    <div>
+        <% if (comments != null && comments.size() > 0) { %>
+
+        <div class="list-group comment-item bg-light"> <!-- 아이템 그룹에 회색 배경 적용 -->
+            <% for (Comment comment : comments) { %>
+            <div class="list-group-item comment-item">
+                <div class="d-flex justify-content-between">
+                    <small class="mb-1"><%= comment.getCreatedAt() %>
+                    </small>
+                </div>
+                <p class="mb-1"><%= comment.getContent() %>
+                </p>
+            </div>
+            <% } %>
+        </div> <!-- 아이템 그룹 닫기 -->
+
+        <% } else { %>
+        <p>댓글이 없습니다.</p>
+        <% } %>
+    </div>
+
+    <!-- 댓글 작성 -->
+    <div class="d-flex justify-content-center my-3"> <!-- 댓글 입력 폼을 상하 마진 추가 -->
+        <form action="addComment.jsp" method="post" class="w-75"> <!-- 폼의 가로 크기를 늘림 -->
+            <input type="hidden" name="id" value="<%= board.getBoardId() %>">
+            <div class="row">
+                <div class="col-8">
+                    <div class="form-group">
+                        <textarea class="form-control" name="content" rows="4" placeholder="댓글을 입력해주세요."></textarea>
+                    </div>
+                </div>
+                <div class="col-4 d-flex align-items-center">
+                    <button class="btn btn-primary" type="submit">댓글 등록</button>
+                </div>
+            </div>
         </form>
+    </div>
+
+
+    <!-- 버튼 그룹 -->
+    <div class="d-flex justify-content-center mt-3">
+        <div class="buttons">
+        <a href="list.jsp">
+            <button class="btn btn-secondary">목록으로</button>
+        </a>
+        <button class="btn btn-primary" onclick="showPasswordModal('edit')">수정</button>
+        <button class="btn btn-primary" onclick="showPasswordModal('delete')">삭제</button>
+        </div>
     </div>
 </div>
 
-
-<% if (board != null) { %>
-<table>
-    <tr>
-        <td colspan="2">작성자: <%= board.getWriter() %>
-        </td>
-        <td>등록일시: <%= board.getCreatedAt() %>
-        </td>
-        <td>수정일시: <%= board.getModifiedAt() %>
-        </td>
-    </tr>
-    <tr>
-        <td colspan="2">[<%= board.getCategory() %>]</td>
-        <td colspan="2">제목: <%= board.getTitle() %>
-        </td>
-    </tr>
-    <tr>
-        <td>조회수: <%= updatedVisitCount %>
-        </td>
-        <td colspan="3"></td>
-    </tr>
-    <tr>
-        <td colspan="4"><%= board.getContent() %>
-        </td>
-    </tr>
-    <% if (attachments != null && attachments.size() > 0) { %>
-    <tr>
-        <td colspan="4">첨부파일 명:
-            <%
-                for (Attachment attachment : attachments) {
-            %>
-            <p><%= attachment.getFileName() %></p>
-            <a href="download.jsp?fileName=<%=attachment.getFileName()%>">다운로드</a>
-            <%
-                }
-            %>
-        </td>
-    </tr>
-    <% } %>
-</table>
-
-<%
-    CommentDAO commentDAO = new CommentDAO();
-    List<Comment> comments = commentDAO.getCommentsByBoardId(board.getBoardId());
-
-    if (comments != null && comments.size() > 0) {
-%>
-<h2>댓글 목록</h2>
-<table>
-    <% for (Comment comment : comments) { %>
-    <tr>
-        <td><%= comment.getCreatedAt() %>
-        </td>
-        <td>댓글 내용: <%= comment.getContent() %>
-        </td>
-    </tr>
-    <% } %>
-</table>
-<% } else { %>
-<p>댓글이 없습니다.</p>
-<% } %>
-
-
-<% } else { %>
-<p>해당 게시글을 찾을 수 없습니다.</p>
-<a href="list.jsp">목록으로</a>
-<% } %>
-
-<h2>댓글 작성</h2>
-<form action="addComment.jsp" method="post">
-    <input type="hidden" name="id" value="<%= board.getBoardId() %>">
-    <textarea name="content" rows="4" cols="50"></textarea>
-    <br>
-    <input type="submit" value="댓글 등록">
-</form>
-
-
-<div class="buttons">
-    <a href="list.jsp">
-        <button>목록으로</button>
-
-    </a>
-
-    <button onclick="showPasswordModal('edit')">수정</button>
-    <button onclick="showPasswordModal('delete')">삭제</button>
-</div>
 </body>
 </html>

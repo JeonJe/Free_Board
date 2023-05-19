@@ -30,7 +30,7 @@
     <input type="text" id="writer" name="writer" value="<%= board.getWriter() %>"><br>
 
     <label for="password">비밀번호:</label><br>
-    <input type="password" id="password" name="password"><br>
+    <input type="password" id="password" name="password" required><br>
 
     <label for="title">제목:</label><br>
     <input type="text" id="title" name="title" value="<%= board.getTitle() %>"><br>

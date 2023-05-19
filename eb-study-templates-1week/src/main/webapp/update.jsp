@@ -22,7 +22,7 @@
   Board board = boardDAO.getBoardById(id);
 
   if (board != null && board.getPassword().equals(hashedPassword)) {
-    boardDAO.update(id, password, writer, title, content);
+    boardDAO.update(id, hashedPassword, writer, title, content);
     response.sendRedirect("list.jsp");
   } else {
 

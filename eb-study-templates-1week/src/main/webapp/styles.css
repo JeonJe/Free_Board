@@ -44,3 +44,8 @@
 .error-message {
     color: red;
 }
+
+
+.comment-item {
+    background-color: #f8f9fa; /* 회색 배경색 설정 */
+}
