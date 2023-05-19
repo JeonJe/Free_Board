@@ -11,7 +11,7 @@
     <title>게시글 작성</title>
 </head>
 <body>
-<form action="saveBoard.jsp" method="post">
+<form action="save.jsp" method="post">
     <label for="category">카테고리:</label><br>
     <input type="text" id="category" name="category" required><br>
     <label for="writer">작성자:</label><br>

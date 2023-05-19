@@ -13,10 +13,10 @@
 
 
 <%
-
     ConnectionTest t = new ConnectionTest();
     out.println(t.getConnection());
-
+    String redirectURL = "list.jsp";
+    response.sendRedirect(redirectURL);
 %>
 
 </body>

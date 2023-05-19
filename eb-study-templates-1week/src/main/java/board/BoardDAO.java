@@ -1,7 +1,6 @@
 package board;
 
 import java.sql.*;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -17,13 +16,12 @@ public class BoardDAO {
     static final String PASS = "ebsoft";
 
     private Connection getConnection() throws Exception {
-        Class.forName("com.mysql.jdbc.Driver");
         return DriverManager.getConnection(DB_URL, USER, PASS);
     }
 
     public void save(Board board) throws Exception {
-        try (Connection conn = getConnection()) {
 
+        try (Connection conn = getConnection()) {
             LocalDateTime currentTime = LocalDateTime.now();
             board.setCreatedAt(currentTime);
             board.setModifiedAt(currentTime);
@@ -43,6 +41,79 @@ public class BoardDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
+    }
+
+    public void delete(int id) throws Exception {
+
+        try (Connection conn = getConnection()) {
+            String sql = "DELETE FROM board WHERE board_id = ?";
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, id);
+            pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void update(int id, String password, String writer, String title, String content) throws Exception {
+
+        try (Connection conn = getConnection()) {
+            if (validatePassword(id, password)) {
+                LocalDateTime currentTime = LocalDateTime.now();
+                String sql = "UPDATE board SET writer = ?, title = ?, content = ?, modifiedAt = ? WHERE board_id = ?";
+                PreparedStatement pstmt = conn.prepareStatement(sql);
+                pstmt.setString(1, writer);
+                pstmt.setString(2, title);
+                pstmt.setString(3, content);
+                pstmt.setTimestamp(4, Timestamp.valueOf(currentTime));
+                pstmt.setInt(5, id);
+                pstmt.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public boolean validatePassword(int boardId, String enteredPassword) throws Exception {
+
+        try (Connection conn = getConnection()) {
+            String sql = "SELECT password FROM board WHERE board_id = ?";
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, boardId);
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                String password = rs.getString("password");
+                return password.equals(enteredPassword);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    private void applySearchConditions(StringBuilder sqlBuilder, List<Object> params, LocalDate startDate, LocalDate endDate, String category, String search) {
+        //특정 카테고리 선택 시
+        if (category != null && !category.isEmpty() && !category.equalsIgnoreCase("all")) {
+            sqlBuilder.append(" AND category = ?");
+            params.add(category);
+        }
+        //특정 검색어 입력 시
+        if (search != null && !search.isEmpty()) {
+            sqlBuilder.append(" AND (title LIKE ? OR content LIKE ? OR writer LIKE ?)");
+            params.add("%" + search + "%");
+            params.add("%" + search + "%");
+            params.add("%" + search + "%");
+        }
+        //등록일 입력 시
+        if (startDate != null && endDate != null) {
+            sqlBuilder.append(" AND createdAt BETWEEN ? AND ?");
+            params.add(Timestamp.valueOf(startDate.atStartOfDay()));
+            params.add(Timestamp.valueOf(endDate.atStartOfDay().plusDays(1)));
+        }
     }
 
     public List<Board> searchBoards(LocalDate startDate, LocalDate endDate, String category, String search, int currentPage, int pageSize) throws Exception {
@@ -52,24 +123,7 @@ public class BoardDAO {
             StringBuilder sqlBuilder = new StringBuilder("SELECT * FROM board WHERE 1=1");
             List<Object> params = new ArrayList<>();
 
-            //특정 카테고리 선택 시
-            if (category != null && !category.isEmpty() && !category.equalsIgnoreCase("all")) {
-                sqlBuilder.append(" AND category = ?");
-                params.add(category);
-            }
-            //특정 검색어 입력 시
-            if (search != null && !search.isEmpty()) {
-                sqlBuilder.append(" AND (title LIKE ? OR content LIKE ? OR writer LIKE ?)");
-                params.add("%" + search + "%");
-                params.add("%" + search + "%");
-                params.add("%" + search + "%");
-            }
-            //등록일 입력 시
-            if (startDate != null && endDate != null) {
-                sqlBuilder.append(" AND createdAt BETWEEN ? AND ?");
-                params.add(Timestamp.valueOf(startDate.atStartOfDay()));
-                params.add(Timestamp.valueOf(endDate.atStartOfDay().plusDays(1)));
-            }
+            applySearchConditions(sqlBuilder, params, startDate, endDate, category, search);
 
             int offset = (currentPage - 1) * pageSize;
             sqlBuilder.append(" ORDER BY createdAt DESC LIMIT ?, ?");
@@ -110,24 +164,7 @@ public class BoardDAO {
             StringBuilder sqlBuilder = new StringBuilder("SELECT COUNT(*) FROM board WHERE 1=1");
             List<Object> params = new ArrayList<>();
 
-            //특정 카테고리 선택 시
-            if (category != null && !category.isEmpty() && !category.equalsIgnoreCase("all")) {
-                sqlBuilder.append(" AND category = ?");
-                params.add(category);
-            }
-            //특정 검색어 입력 시
-            if (search != null && !search.isEmpty()) {
-                sqlBuilder.append(" AND (title LIKE ? OR content LIKE ? OR writer LIKE ?)");
-                params.add("%" + search + "%");
-                params.add("%" + search + "%");
-                params.add("%" + search + "%");
-            }
-            //등록일 입력 시
-            if (startDate != null && endDate != null) {
-                sqlBuilder.append(" AND createdAt BETWEEN ? AND ?");
-                params.add(Timestamp.valueOf(startDate.atStartOfDay()));
-                params.add(Timestamp.valueOf(endDate.atStartOfDay().plusDays(1)));
-            }
+            applySearchConditions(sqlBuilder, params, startDate, endDate, category, search);
 
             String sql = sqlBuilder.toString();
             PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -147,15 +184,18 @@ public class BoardDAO {
 
     }
 
+
+
     public Board getBoardById(int id) throws Exception {
         Board board = null;
+
         try (Connection conn = getConnection()) {
             String sql = "SELECT * FROM board WHERE board_id = ?";
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setInt(1, id);
             ResultSet rs = pstmt.executeQuery();
 
-            if (rs.next()){
+            if (rs.next()) {
                 board = new Board();
                 board.setBoardId(rs.getInt("board_id"));
                 board.setCategory(rs.getString("category"));
@@ -172,5 +212,22 @@ public class BoardDAO {
             e.printStackTrace();
         }
         return board;
+    }
+
+    public void updateVisitCount(int id, int visitCount) throws Exception {
+
+        try (Connection conn = getConnection()) {
+
+
+            String sql = "UPDATE board SET visitCount = ? WHERE board_id = ?";
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+
+            pstmt.setInt(1, visitCount+1);
+            pstmt.setInt(2, id);
+            pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }
