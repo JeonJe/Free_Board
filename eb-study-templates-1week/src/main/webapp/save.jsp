@@ -20,9 +20,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
     // 업로드할 서버 디렉토리 위치
-//    String uploadPath = request.getRealPath("upload");
     String uploadPath = "/Users/premise/Desktop/github/Java/ebrain/upload";
-    System.out.println("path=" + uploadPath);
 
     File dir = new File(uploadPath);
     if (!dir.exists()) {
@@ -49,14 +47,13 @@
         String hashedPassword = BoardUtils.hashPassword(password);
 
         boolean isValid = BoardUtils.checkFormValidation(writer, password, passwordConfirm, title, content);
-
         if (!isValid) {
             return;
         }
 
         //게시글 저장
         Board board = new Board();
-        board.setCategory(category);
+        board.setCategoryId(Integer.parseInt(category));
         board.setWriter(writer);
         board.setPassword(hashedPassword);
         board.setTitle(title);
@@ -65,7 +62,6 @@
 
         BoardDAO boardDAO = new BoardDAO();
         int boardId = boardDAO.save(board);
-
         //첨부 파일 저장
         Enumeration files = multi.getFileNames();
 

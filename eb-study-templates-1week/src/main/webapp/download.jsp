@@ -30,7 +30,7 @@
 
         while ((numRead = in.read(b, 0, b.length)) != -1) {
             out2.write(b, 0, numRead);
-            System.out.println(numRead);
+//            System.out.println(numRead);
         }
 
         out2.flush();

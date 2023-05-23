@@ -12,6 +12,8 @@
 <%@ page import="java.util.List" %>
 <%@ page import="attachment.Attachment" %>
 <%@ page import="attachment.AttachmentDAO" %>
+<%@ page import="category.Category" %>
+<%@ page import="category.CategoryDAO" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
 <%
@@ -130,7 +132,7 @@
                 </div>
             </div>
             <div class="d-flex justify-content-between pt-2">
-                <h5 class="card-title mb-4">[<%= board.getCategory() %>]: <%= board.getTitle() %>
+                <h5 class="card-title mb-4">[<%= CategoryDAO.getCategoryNameById(board.getCategoryId()) %>]: <%= board.getTitle() %>
                 </h5>
                 <p class="card-text mb-4">조회수: <%= updatedVisitCount %>
                 </p>

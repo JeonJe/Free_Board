@@ -1,4 +1,6 @@
-<%--
+<%@ page import="category.Category" %>
+<%@ page import="java.util.List" %>
+<%@ page import="category.CategoryDAO" %><%--
   Created by IntelliJ IDEA.
   User: premise
   Date: 2023/05/16
@@ -58,10 +60,20 @@
 
                     <div class="col-sm-8">
                         <select id="category_id" name="category_id" class="form-control" required>
-                            <option value="1">카테고리 선택</option>
-                            <option value="1">Java</option>
-                            <option value="2">Database</option>
-                            <option value="3">Javascript</option>
+
+                                <%
+                                    // 카테고리 목록 가져오기
+                                    List<Category> categories = CategoryDAO.getAllCategory(); // CategoryDAO에서 카테고리 목록을 가져오는 메서드를 구현해야 함
+
+                                    for (Category category : categories) {
+                                        int categoryId = category.getCategoryId(); // 카테고리의 ID
+                                        String categoryName = category.getCategoryName(); // 카테고리의 이름
+                                %>
+                                <option value="<%= categoryId %>"><%= categoryName %></option>
+                                <%
+                                    }
+                                %>
+                            </select>
                         </select>
                     </div>
                 </div>

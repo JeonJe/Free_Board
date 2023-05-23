@@ -11,7 +11,7 @@ public class Board {
     /**
      * 게시글 카테고리
      */
-    private String category;
+    private int categoryId;
     /**
      * 게시글 작성자
      */
@@ -45,17 +45,6 @@ public class Board {
 
     }
 
-    public Board(int boardId, String category, String writer, String password, String title, String content, LocalDateTime createdAt, LocalDateTime modifiedAt, int visitCount) {
-        this.boardId = boardId;
-        this.category = category;
-        this.writer = writer;
-        this.password = password;
-        this.title = title;
-        this.content = content;
-        this.createdAt = createdAt;
-        this.modifiedAt = modifiedAt;
-        this.visitCount = visitCount;
-    }
 
     public int getBoardId() {
         return boardId;
@@ -65,12 +54,12 @@ public class Board {
         this.boardId = boardId;
     }
 
-    public String getCategory() {
-        return category;
+    public int getCategoryId() {
+        return categoryId;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
+    public void setCategoryId(int categoryId) {
+        this.categoryId = categoryId;
     }
 
     public String getWriter() {

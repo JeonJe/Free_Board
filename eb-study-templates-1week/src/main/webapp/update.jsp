@@ -22,7 +22,12 @@
     Board board = boardDAO.getBoardById(id);
     //TODO : 첨부파일 업데이트
     if (board != null && board.getPassword().equals(hashedPassword)) {
-        boardDAO.update(id, hashedPassword, writer, title, content);
+        board.setBoardId(id);
+        board.setPassword(hashedPassword);
+        board.setWriter(writer);
+        board.setTitle(title);
+        board.setContent(content);
+        boardDAO.update(board);
         response.sendRedirect("list.jsp");
     }
 %>

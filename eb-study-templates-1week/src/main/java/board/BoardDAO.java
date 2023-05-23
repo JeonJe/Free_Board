@@ -35,7 +35,7 @@ public class BoardDAO {
             String sql = "INSERT INTO board (category_id, writer, password, title, content," + " created_at, modified_at,visit_count) VALUES (?, ?, ?, ?, ?, ?, ?,?)";
 
             PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            pstmt.setString(1, board.getCategory());
+            pstmt.setInt(1, board.getCategoryId());
             pstmt.setString(2, board.getWriter());
             pstmt.setString(3, board.getPassword());
             pstmt.setString(4, board.getTitle());
@@ -92,19 +92,19 @@ public class BoardDAO {
      * @param content
      * @throws Exception
      */
-    public void update(int id, String password, String writer, String title, String content) throws Exception {
+    public void update(Board board) throws Exception {
         Connection conn = null;
         try {
             conn = DBUtils.getConnection();
-            if (validatePassword(id, password)) {
+            if (validatePassword(board.getBoardId(), board.getPassword())) {
                 LocalDateTime currentTime = LocalDateTime.now();
                 String sql = "UPDATE board SET writer = ?, title = ?, content = ?, modified_at = ? " + "WHERE board_id = ?";
                 PreparedStatement pstmt = conn.prepareStatement(sql);
-                pstmt.setString(1, writer);
-                pstmt.setString(2, title);
-                pstmt.setString(3, content);
+                pstmt.setString(1, board.getWriter());
+                pstmt.setString(2, board.getTitle());
+                pstmt.setString(3, board.getContent());
                 pstmt.setTimestamp(4, Timestamp.valueOf(currentTime));
-                pstmt.setInt(5, id);
+                pstmt.setInt(5, board.getBoardId());
                 pstmt.executeUpdate();
             }
         } catch (SQLException e) {
@@ -157,7 +157,8 @@ public class BoardDAO {
      * @param category
      * @param search
      */
-    private void applySearchConditions(StringBuilder sqlBuilder, List<Object> params, LocalDate startDate, LocalDate endDate, String category, String search) {
+    private void applySearchConditions(StringBuilder sqlBuilder, List<Object> params,
+                                       LocalDate startDate, LocalDate endDate, String category, String search) {
 
         //특정 카테고리 선택 시
         if (!StringUtils.isNullOrEmpty(category)  && !category.equalsIgnoreCase("all")) {
@@ -191,7 +192,8 @@ public class BoardDAO {
      * @return
      * @throws Exception
      */
-    public List<Board> searchBoards(LocalDate startDate, LocalDate endDate, String category, String search, int currentPage, int pageSize) throws Exception {
+    public List<Board> searchBoards(LocalDate startDate, LocalDate endDate, String category,
+                                    String search, int currentPage, int pageSize) throws Exception {
         List<Board> boards = new ArrayList<>();
         Connection conn = null;
         try {
@@ -214,17 +216,17 @@ public class BoardDAO {
 
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
-                int boardId = rs.getInt("board_id");
-                String rsCategory = rs.getString("category_id");
-                String writer = rs.getString("writer");
-                String password = rs.getString("password");
-                String title = rs.getString("title");
-                String content = rs.getString("content");
-                LocalDateTime createdAt = rs.getTimestamp("created_at").toLocalDateTime();
-                LocalDateTime modifiedAt = rs.getTimestamp("modified_at").toLocalDateTime();
-                int visitCount = rs.getInt("visit_count");
+                Board board = new Board();
+                board.setCategoryId(rs.getInt("category_id"));
+                board.setBoardId(rs.getInt("board_id"));
+                board.setWriter(rs.getString("writer"));
+                board.setPassword(rs.getString("password"));
+                board.setTitle(rs.getString("title"));
+                board.setContent(rs.getString("content"));
+                board.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+                board.setModifiedAt(rs.getTimestamp("modified_at").toLocalDateTime());
+                board.setVisitCount(rs.getInt("visit_count"));
 
-                Board board = new Board(boardId, rsCategory, writer, password, title, content, createdAt, modifiedAt, visitCount);
                 boards.add(board);
             }
         } catch (SQLException e) {
@@ -245,7 +247,8 @@ public class BoardDAO {
      * @return
      * @throws Exception
      */
-    public int countBoards(LocalDate startDate, LocalDate endDate, String category, String search) throws Exception {
+    public int countBoards(LocalDate startDate, LocalDate endDate,
+                           String category, String search) throws Exception {
         int totalCount = 0;
         Connection conn = null;
         try {
@@ -296,7 +299,7 @@ public class BoardDAO {
             if (rs.next()) {
                 board = new Board();
                 board.setBoardId(rs.getInt("board_id"));
-                board.setCategory(rs.getString("category_id"));
+                board.setCategoryId(rs.getInt("category_id"));
                 board.setWriter(rs.getString("writer"));
                 board.setPassword(rs.getString("password"));
                 board.setTitle(rs.getString("title"));

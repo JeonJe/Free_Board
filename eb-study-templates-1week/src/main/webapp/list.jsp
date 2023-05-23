@@ -10,7 +10,8 @@
 <%@ page import="board.BoardDAO" %>
 <%@ page import="java.time.LocalDate" %>
 <%@ page import="utils.StringUtils" %>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page import="category.CategoryDAO" %>
+<%@ page contentType="text/html;charset=UTF-8" %>
 <html>
 <head>
     <title>자유 게시판</title>
@@ -28,12 +29,6 @@
         <input type="date" id="endDate" name="endDate" class="form-control mr-2"
                value="<%= (request.getParameter("endDate") != null) ? request.getParameter("endDate") : LocalDate.now() %>">
 
-        <select id="category" name="category" class="form-control mr-2">
-            <option value="all">전체 카테고리</option>
-            <option value="JAVA">JAVA</option>
-            <option value="Database">Database</option>
-            <option value="Javascript">Javascript</option>
-        </select>
 
         <label for="search" class="mr-2">검색어:</label>
         <input type="text" id="search" name="search" class="form-control mr-2">
@@ -95,7 +90,7 @@
 
     <% for (Board board : boards) { %>
     <tr>
-        <td><%= board.getCategory() %>
+        <td><%= CategoryDAO.getCategoryNameById(board.getCategoryId()) %>
         </td>
 
         <td>

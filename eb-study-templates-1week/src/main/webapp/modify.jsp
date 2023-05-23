@@ -4,6 +4,7 @@
 <%@ page import="attachment.AttachmentDAO" %>
 <%@ page import="attachment.Attachment" %>
 <%@ page import="java.util.List" %>
+<%@ page import="category.CategoryDAO" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
 <%
@@ -41,7 +42,7 @@
                 <div class="form-group row border-bottom p-3">
                     <label for="category" class="col-sm-2 col-form-label d-flex align-items-center">카테고리</label>
                     <div class="col-sm-8">
-                        <p id="category"><%= board.getCategory()%></p>
+                        <p id="category"><%= CategoryDAO.getCategoryNameById(board.getCategoryId())%></p>
                     </div>
                 </div>
                 <div class="form-group row border-bottom p-3">
