@@ -12,7 +12,7 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
 
     <script>
-        document.getElementById('post-form').addEventListener('submit', function(event) {
+        document.getElementById('post-form').addEventListener('submit', function (event) {
             var writer = document.getElementById('writer').value;
             var password = document.getElementById('password').value;
             var passwordConfirm = document.getElementById('password-confirm').value;
@@ -76,10 +76,12 @@
                 <div class="form-group row border-bottom p-3">
                     <label for="password" class="col-sm-2 col-form-label d-flex align-items-center">비밀번호:</label>
                     <div class="col-sm-4">
-                        <input type="password" id="password" name="password"  placeholder="비밀번호" class="form-control" required>
+                        <input type="password" id="password" name="password" placeholder="비밀번호" class="form-control"
+                               required>
                     </div>
                     <div class="col-sm-4">
-                        <input type="password" id="password-confirm" name="password-confirm" placeholder="비밀번호 확인" class="form-control" required>
+                        <input type="password" id="password-confirm" name="password-confirm" placeholder="비밀번호 확인"
+                               class="form-control" required>
                     </div>
                 </div>
 
@@ -108,12 +110,12 @@
 
                 <div class="row mt-3 justify-content-center">
                     <div class="col-md-6">
-                        <input type="button" value="취소" onclick="location.href='list.jsp'" class="btn btn-secondary btn-block">
+                        <input type="button" value="취소" onclick="location.href='list.jsp'"
+                               class="btn btn-secondary btn-block">
                     </div>
                     <div class="col-md-6">
                         <input type="submit" value="저장" class="btn btn-primary btn-block">
                     </div>
-
                 </div>
             </form>
         </div>

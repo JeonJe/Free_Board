@@ -17,28 +17,29 @@
 <%@ page import="attachment.Attachment" %>
 <%@ page import="attachment.AttachmentDAO" %>
 <%@ page import="java.io.File" %>
+<%@ page import="utils.BoardUtils" %>
 
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
-    // 업로드할 디렉토리 위치를 구해옴
+    // 업로드할 서버 디렉토리 위치
     String uploadPath = request.getRealPath("upload");
     System.out.println("path=" + uploadPath);
 
     File dir = new File(uploadPath);
-    if(!dir.exists()) {
+    if (!dir.exists()) {
         dir.mkdir();
     }
 
     // 첨부파일의 크기(단위:Byte) : 10MB
     int size = 10 * 1024 * 1024;
 
-    try {    // 첨부파일은 MultipartRequest 객체를 생성하면서 업로드 된다.
+    // 첨부파일은 MultipartRequest 객체를 생성하면서 업로드 된다.
+    try {
         MultipartRequest multi = new MultipartRequest(request,
                 uploadPath,
                 size,
                 "utf-8",
                 new DefaultFileRenamePolicy());
-
 
         String category = multi.getParameter("category");
         String writer = multi.getParameter("writer");
@@ -46,9 +47,9 @@
         String passwordConfirm = multi.getParameter("password-confirm");
         String title = multi.getParameter("title");
         String content = multi.getParameter("content");
-        String hashedPassword = PasswordUtils.hashPassword(password);
+        String hashedPassword = BoardUtils.hashPassword(password);
 
-        boolean isValid = FormValidationUtils.checkFormValidation(writer, password, passwordConfirm, title, content);
+        boolean isValid = BoardUtils.checkFormValidation(writer, password, passwordConfirm, title, content);
 
         if (!isValid) {
             return;
@@ -74,7 +75,7 @@
             String fileName = multi.getFilesystemName(file);
             System.out.println(fileName);
             if (fileName != null) {
-                Attachment attachment = new Attachment(boardId,fileName,fileName);
+                Attachment attachment = new Attachment(boardId, fileName, fileName);
                 AttachmentDAO attachmentDAO = new AttachmentDAO();
                 attachmentDAO.save(attachment);
             }
@@ -85,6 +86,5 @@
     } catch (Exception e) {
         e.printStackTrace();
     }
-
 
 %>

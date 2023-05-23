@@ -15,8 +15,6 @@
     <title>자유 게시판</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
 </head>
-
-</head>
 <body>
 
 <div class="container">
@@ -118,7 +116,7 @@
         </td>
         <%
             String modifiedAt = board.getModifiedAt();
-            if(board.getModifiedAt().equals(board.getCreatedAt())){
+            if (board.getModifiedAt().equals(board.getCreatedAt())) {
                 modifiedAt = "-";
             }
         %>
@@ -139,9 +137,11 @@
 
             <% for (int i = 1; i <= totalPages; i++) { %>
             <% if (i == currentPage) { %>
-            <strong><%= i %></strong>
+            <strong><%= i %>
+            </strong>
             <% } else { %>
-            <a href="list.jsp?page=<%= i %>&category=<%= category %>&search=<%= search %>&startDate=<%= startDate %>&endDate=<%= endDate %>"><%= i %></a>
+            <a href="list.jsp?page=<%= i %>&category=<%= category %>&search=<%= search %>&startDate=<%= startDate %>&endDate=<%= endDate %>"><%= i %>
+            </a>
             <% } %>
             <% } %>
 
@@ -153,8 +153,6 @@
         <a href="write.jsp" class="btn btn-primary">등록</a>
     </div>
 </div>
-
-
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </body>
 </html>

@@ -156,7 +156,7 @@
     <div>
         <% if (comments != null && comments.size() > 0) { %>
 
-        <div class="list-group comment-item bg-light"> <!-- 아이템 그룹에 회색 배경 적용 -->
+        <div class="list-group comment-item bg-light">
             <% for (Comment comment : comments) { %>
             <div class="list-group-item comment-item">
                 <div class="d-flex justify-content-between">
@@ -167,7 +167,7 @@
                 </p>
             </div>
             <% } %>
-        </div> <!-- 아이템 그룹 닫기 -->
+        </div>
 
         <% } else { %>
         <p>댓글이 없습니다.</p>
@@ -175,8 +175,8 @@
     </div>
 
     <!-- 댓글 작성 -->
-    <div class="d-flex justify-content-center my-3"> <!-- 댓글 입력 폼을 상하 마진 추가 -->
-        <form action="addComment.jsp" method="post" class="w-75"> <!-- 폼의 가로 크기를 늘림 -->
+    <div class="d-flex justify-content-center my-3">
+        <form action="addComment.jsp" method="post" class="w-75">
             <input type="hidden" name="id" value="<%= board.getBoardId() %>">
             <div class="row">
                 <div class="col-8">
@@ -195,11 +195,11 @@
     <!-- 버튼 그룹 -->
     <div class="d-flex justify-content-center mt-3">
         <div class="buttons">
-        <a href="list.jsp">
-            <button class="btn btn-secondary">목록으로</button>
-        </a>
-        <button class="btn btn-primary" onclick="showPasswordModal('edit')">수정</button>
-        <button class="btn btn-primary" onclick="showPasswordModal('delete')">삭제</button>
+            <a href="list.jsp">
+                <button class="btn btn-secondary">목록으로</button>
+            </a>
+            <button class="btn btn-primary" onclick="showPasswordModal('edit')">수정</button>
+            <button class="btn btn-primary" onclick="showPasswordModal('delete')">삭제</button>
         </div>
     </div>
 </div>

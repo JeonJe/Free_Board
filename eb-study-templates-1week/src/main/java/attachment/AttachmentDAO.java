@@ -9,25 +9,43 @@ public class AttachmentDAO {
     static final String USER = "ebsoft";
     static final String PASS = "ebsoft";
 
+    /**
+     *
+     * @return
+     * @throws Exception
+     */
     private Connection getConnection() throws Exception {
         return DriverManager.getConnection(DB_URL, USER, PASS);
     }
+
+    /**
+     *
+     * @param attachment
+     * @throws Exception
+     */
     public void save(Attachment attachment) throws Exception {
 
         try (Connection conn = getConnection()) {
 
-            String sql = "INSERT INTO attachment (board_id, filename, filepath) VALUES (?, ?, ?)";
+            String sql = "INSERT INTO attachment (board_id, filename, origin_filename) VALUES (?, ?, ?)";
 
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setInt(1, attachment.getBoardId());
             pstmt.setString(2, attachment.getFileName());
-            pstmt.setString(3, attachment.getFilePath());
+            pstmt.setString(3, attachment.getOriginName());
             pstmt.executeUpdate();
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
+
+    /**
+     *
+     * @param boardId
+     * @return
+     * @throws Exception
+     */
     public List<Attachment> getAttachmentsByBoardId(int boardId) throws Exception{
         List<Attachment> attachments = new ArrayList<>();
         try (Connection conn = getConnection()){
@@ -42,7 +60,7 @@ public class AttachmentDAO {
                 attachment.setAttachmentId(rs.getInt("attachment_id"));
                 attachment.setAttachmentId(rs.getInt("board_id"));
                 attachment.setFileName(rs.getString("filename"));
-                attachment.setFilePath(rs.getString("filepath"));
+                attachment.setOriginName(rs.getString("filepath"));
 
                 attachments.add(attachment);
             }

@@ -8,15 +8,16 @@
 
 <%@ page import="board.BoardDAO" %>
 <%@ page import="utils.PasswordUtils" %>
+<%@ page import="utils.BoardUtils" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
     request.setCharacterEncoding("UTF-8");
     String id = request.getParameter("id");
     String password = request.getParameter("password");
-    String hashedPassword = PasswordUtils.hashPassword(password);
+    String hashedPassword = BoardUtils.hashPassword(password);
 
     if (id != null && password != null) {
-        int parseIntId =  Integer.parseInt(id);
+        int parseIntId = Integer.parseInt(id);
         try {
             BoardDAO boardDAO = new BoardDAO();
             boolean isValid = boardDAO.validatePassword(parseIntId, hashedPassword);

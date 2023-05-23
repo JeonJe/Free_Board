@@ -4,10 +4,25 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class Comment {
+    /**
+     *댓글 ID
+     */
     private int commentId;
+    /**
+     *댓글이 포함된 게시글 ID
+     */
     private int boardId;
+    /**
+     *댓글 작성자
+     */
     private String writer;
+    /**
+     *댓글 내용
+     */
     private String content;
+    /**
+     *댓글 생성시간
+     */
     private LocalDateTime createdAt;
 
     public Comment() {

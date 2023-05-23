@@ -11,17 +11,27 @@ public class CommentDAO {
     static final String USER = "ebsoft";
     static final String PASS = "ebsoft";
 
+    /**
+     *
+     * @return
+     * @throws Exception
+     */
     private Connection getConnection() throws Exception {
         return DriverManager.getConnection(DB_URL, USER, PASS);
     }
 
+    /**
+     * 댓글 저장
+     * @param comment
+     * @throws Exception
+     */
     public void save(Comment comment) throws Exception {
 
         try (Connection conn = getConnection()) {
             LocalDateTime currentTime = LocalDateTime.now();
             comment.setCreatedAt(currentTime);
 
-            String sql = "INSERT INTO comment (writer, content, createdAt, board_id) VALUES (?, ?, ?, ?)";
+            String sql = "INSERT INTO comment (writer, content, created_at, board_id) VALUES (?, ?, ?, ?)";
             PreparedStatement pstmt = conn.prepareStatement(sql);
 
             pstmt.setString(1, comment.getWriter());
@@ -37,6 +47,12 @@ public class CommentDAO {
 
     }
 
+    /**
+     * 게시글의 댓글 가져오기
+     * @param id
+     * @return
+     * @throws Exception
+     */
     public List<Comment> getCommentsByBoardId(int id) throws Exception {
         List<Comment> comments = new ArrayList<>();
 
@@ -53,7 +69,7 @@ public class CommentDAO {
 
                 String writer = rs.getString("writer");
                 String content = rs.getString("content");
-                LocalDateTime createdAt = rs.getTimestamp("createdAt").toLocalDateTime();
+                LocalDateTime createdAt = rs.getTimestamp("created_at").toLocalDateTime();
 
                 Comment comment = new Comment(commentId, id, writer, content, createdAt);
                 comments.add(comment);

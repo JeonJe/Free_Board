@@ -1,12 +1,22 @@
 package attachment;
 
-import java.time.LocalDateTime;
-
 public class Attachment {
+    /**
+     *첨부파일 식별 ID
+     */
     private int attachmentId;
+    /**
+     *첨부파일과 연관된 게시글 ID
+     */
     private int boardId;
+    /**
+     *첨부파일 서버 저장 이름
+     */
     private String fileName;
-    private String filePath;
+    /**
+     *첨부파일 원래 이름
+     */
+    private String originName;
 
     public Attachment() {
 
@@ -15,7 +25,7 @@ public class Attachment {
     public Attachment(int boardId, String fileName, String filePath) {
         this.boardId = boardId;
         this.fileName = fileName;
-        this.filePath = filePath;
+        this.originName = filePath;
     }
 
     public int getAttachmentId() {
@@ -42,11 +52,11 @@ public class Attachment {
         this.fileName = fileName;
     }
 
-    public String getFilePath() {
-        return filePath;
+    public String getOriginName() {
+        return originName;
     }
 
-    public void setFilePath(String filePath) {
-        this.filePath = filePath;
+    public void setOriginName(String originName) {
+        this.originName = originName;
     }
 }

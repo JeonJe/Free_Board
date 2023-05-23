@@ -30,7 +30,8 @@
 </head>
 <body>
 
-<% if (board != null) {  // 게시글이 존재하는 경우에만 표시 %>
+<%-- 게시글이 존재하는 경우에만 표시--%>
+<% if (board != null) {   %>
 <div class="container my-4">
     <h1 class="my-4">게시판 - 수정</h1>
     <div class="row justify-content-center">
@@ -90,7 +91,6 @@
                 </div>
 
                 <%-- 첨부파일 목록 --%>
-                <%-- 첨부파일 목록 --%>
                 <div class="form-group row border-bottom p-3">
                     <label class="col-sm-2 col-form-label d-flex align-items-center">첨부파일</label>
                     <div class="col-sm-8">
@@ -98,6 +98,7 @@
                             for(int i=0; i<attachments.size(); i++) {
                                 Attachment attachment = attachments.get(i);
                         %>
+                        <%-- TODO : 취소버튼 클릭 시 파일 수정이 반영 되어야 함 --%>
                         <div class="file-block d-flex justify-content-between">
                             <p><%= attachment.getFileName() %></p>
                             <div>
