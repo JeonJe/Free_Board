@@ -7,8 +7,6 @@
 --%>
 <%@ page import="board.Board" %>
 <%@ page import="board.BoardDAO" %>
-<%@ page import="utils.PasswordUtils" %>
-<%@ page import="utils.FormValidationUtils" %>
 
 <%@page import="com.oreilly.servlet.multipart.DefaultFileRenamePolicy" %>
 <%@page import="com.oreilly.servlet.MultipartRequest" %>

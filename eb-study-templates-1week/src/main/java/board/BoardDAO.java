@@ -2,9 +2,9 @@ package board;
 
 import sun.security.validator.ValidatorException;
 
+import utils.DBUtils;
 import java.sql.*;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -12,19 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BoardDAO {
-
-    static final String DB_URL = "jdbc:mysql://localhost:3306/ebrainsoft_study";
-    static final String USER = "ebsoft";
-    static final String PASS = "ebsoft";
-
-    /**
-     *
-     * @return
-     * @throws Exception
-     */
-    private Connection getConnection() throws Exception {
-        return DriverManager.getConnection(DB_URL, USER, PASS);
-    }
 
     /**
      * 게시글 내용 저장
@@ -35,7 +22,9 @@ public class BoardDAO {
     public int save(Board board) throws Exception {
         int boardId = 0;
 
-        try (Connection conn = getConnection()) {
+        Connection conn = null;
+        try {
+            conn = DBUtils.getConnection();
             LocalDateTime currentTime = LocalDateTime.now();
             board.setCreatedAt(currentTime);
             board.setModifiedAt(currentTime);
@@ -63,6 +52,8 @@ public class BoardDAO {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            DBUtils.closeConnection(conn);
         }
         return boardId;
     }
@@ -73,8 +64,9 @@ public class BoardDAO {
      * @throws Exception
      */
     public void delete(int id) throws Exception {
-
-        try (Connection conn = getConnection()) {
+        Connection conn = null;
+        try  {
+            conn = DBUtils.getConnection();
             String sql = "DELETE FROM board WHERE board_id = ?";
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setInt(1, id);
@@ -82,6 +74,8 @@ public class BoardDAO {
 
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            DBUtils.closeConnection(conn);
         }
     }
 
@@ -95,8 +89,9 @@ public class BoardDAO {
      * @throws Exception
      */
     public void update(int id, String password, String writer, String title, String content) throws Exception {
-
-        try (Connection conn = getConnection()) {
+        Connection conn = null;
+        try  {
+            conn = DBUtils.getConnection();
             if (validatePassword(id, password)) {
                 LocalDateTime currentTime = LocalDateTime.now();
                 String sql = "UPDATE board SET writer = ?, title = ?, content = ?, modified_at = ? " +
@@ -111,6 +106,8 @@ public class BoardDAO {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            DBUtils.closeConnection(conn);
         }
 
     }
@@ -123,8 +120,9 @@ public class BoardDAO {
      * @throws Exception
      */
     public boolean validatePassword(int boardId, String enteredPassword) throws Exception {
-
-        try (Connection conn = getConnection()) {
+        Connection conn = null;
+        try {
+            conn = DBUtils.getConnection();
             String sql = "SELECT password FROM board WHERE board_id = ? AND password = ?";
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setInt(1, boardId);
@@ -139,6 +137,8 @@ public class BoardDAO {
 
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            DBUtils.closeConnection(conn);
         }
         return false;
     }
@@ -154,6 +154,7 @@ public class BoardDAO {
      */
     private void applySearchConditions(StringBuilder sqlBuilder, List<Object> params, LocalDate startDate,
                                        LocalDate endDate, String category, String search) {
+
         //특정 카테고리 선택 시
         if (category != null && !category.isEmpty() && !category.equalsIgnoreCase("all")) {
             sqlBuilder.append(" AND category_id = ?");
@@ -188,8 +189,9 @@ public class BoardDAO {
     public List<Board> searchBoards(LocalDate startDate, LocalDate endDate, String category,
                                     String search, int currentPage, int pageSize) throws Exception {
         List<Board> boards = new ArrayList<>();
-
-        try (Connection conn = getConnection()) {
+        Connection conn = null;
+        try {
+            conn = DBUtils.getConnection();
             StringBuilder sqlBuilder = new StringBuilder("SELECT * FROM board WHERE 1=1");
             List<Object> params = new ArrayList<>();
 
@@ -224,6 +226,8 @@ public class BoardDAO {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            DBUtils.closeConnection(conn);
         }
         return boards;
     }
@@ -240,8 +244,9 @@ public class BoardDAO {
     public int countBoards(LocalDate startDate, LocalDate endDate, String category,
                            String search) throws Exception {
         int totalCount = 0;
-
-        try (Connection conn = getConnection()) {
+        Connection conn = null;
+        try {
+            conn = DBUtils.getConnection();
             StringBuilder sqlBuilder = new StringBuilder("SELECT COUNT(*) FROM board WHERE 1=1");
             List<Object> params = new ArrayList<>();
 
@@ -260,6 +265,8 @@ public class BoardDAO {
 
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            DBUtils.closeConnection(conn);
         }
         return totalCount;
 
@@ -274,8 +281,9 @@ public class BoardDAO {
 
     public Board getBoardById(int id) throws Exception {
         Board board = null;
-
-        try (Connection conn = getConnection()) {
+        Connection conn = null;
+        try  {
+            conn = DBUtils.getConnection();
             String sql = "SELECT * FROM board WHERE board_id = ?";
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setInt(1, id);
@@ -296,6 +304,8 @@ public class BoardDAO {
 
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            DBUtils.closeConnection(conn);
         }
         return board;
     }
@@ -307,9 +317,9 @@ public class BoardDAO {
      * @throws Exception
      */
     public void updateVisitCount(int id, int visitCount) throws Exception {
-
-        try (Connection conn = getConnection()) {
-
+        Connection conn = null;
+        try {
+            conn = DBUtils.getConnection();
             String sql = "UPDATE board SET visit_count = ? WHERE board_id = ?";
             PreparedStatement pstmt = conn.prepareStatement(sql);
 
@@ -319,6 +329,8 @@ public class BoardDAO {
 
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            DBUtils.closeConnection(conn);
         }
     }
 }

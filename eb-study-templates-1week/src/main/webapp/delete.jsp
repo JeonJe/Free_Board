@@ -7,7 +7,6 @@
 --%>
 
 <%@ page import="board.BoardDAO" %>
-<%@ page import="utils.PasswordUtils" %>
 <%@ page import="utils.BoardUtils" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%

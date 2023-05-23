@@ -1,33 +1,21 @@
 package comment;
 
+import utils.DBUtils;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CommentDAO {
-
-    static final String DB_URL = "jdbc:mysql://localhost:3306/ebrainsoft_study";
-    static final String USER = "ebsoft";
-    static final String PASS = "ebsoft";
-
-    /**
-     *
-     * @return
-     * @throws Exception
-     */
-    private Connection getConnection() throws Exception {
-        return DriverManager.getConnection(DB_URL, USER, PASS);
-    }
-
     /**
      * 댓글 저장
      * @param comment
      * @throws Exception
      */
     public void save(Comment comment) throws Exception {
-
-        try (Connection conn = getConnection()) {
+        Connection conn = null;
+        try {
+            conn = DBUtils.getConnection();
             LocalDateTime currentTime = LocalDateTime.now();
             comment.setCreatedAt(currentTime);
 
@@ -43,6 +31,8 @@ public class CommentDAO {
 
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            DBUtils.closeConnection(conn);
         }
 
     }
@@ -55,9 +45,9 @@ public class CommentDAO {
      */
     public List<Comment> getCommentsByBoardId(int id) throws Exception {
         List<Comment> comments = new ArrayList<>();
-
-        try (Connection conn = getConnection()) {
-
+        Connection conn = null;
+        try {
+            conn = DBUtils.getConnection();
             String sql = "SELECT * FROM comment WHERE board_id = ?";
             PreparedStatement pstmt = conn.prepareStatement(sql);
 
@@ -77,6 +67,8 @@ public class CommentDAO {
 
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            DBUtils.closeConnection(conn);
         }
         return comments;
     }
