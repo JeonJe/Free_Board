@@ -10,6 +10,7 @@ public class AttachmentDAO {
 
     /**
      * 첨부파일 저장
+     *
      * @param attachment
      * @throws Exception
      */
@@ -34,6 +35,7 @@ public class AttachmentDAO {
 
     /**
      * 게시글 ID로 첨부파일 가져오기
+     *
      * @param boardId
      * @return
      * @throws Exception
@@ -55,7 +57,7 @@ public class AttachmentDAO {
                 attachment.setAttachmentId(rs.getInt("attachment_id"));
                 attachment.setAttachmentId(rs.getInt("board_id"));
                 attachment.setFileName(rs.getString("filename"));
-                attachment.setOriginName(rs.getString("filepath"));
+                attachment.setOriginName(rs.getString("origin_filename"));
 
                 attachments.add(attachment);
             }

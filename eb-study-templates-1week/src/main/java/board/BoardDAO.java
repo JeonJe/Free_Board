@@ -3,6 +3,8 @@ package board;
 import sun.security.validator.ValidatorException;
 
 import utils.DBUtils;
+import utils.StringUtils;
+
 import java.sql.*;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -15,6 +17,7 @@ public class BoardDAO {
 
     /**
      * 게시글 내용 저장
+     *
      * @param board
      * @return
      * @throws Exception
@@ -29,8 +32,7 @@ public class BoardDAO {
             board.setCreatedAt(currentTime);
             board.setModifiedAt(currentTime);
 
-            String sql = "INSERT INTO board (category_id, writer, password, title, content," +
-                    " created_at, modified_at,visit_count) VALUES (?, ?, ?, ?, ?, ?, ?,?)";
+            String sql = "INSERT INTO board (category_id, writer, password, title, content," + " created_at, modified_at,visit_count) VALUES (?, ?, ?, ?, ?, ?, ?,?)";
 
             PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             pstmt.setString(1, board.getCategory());
@@ -60,12 +62,13 @@ public class BoardDAO {
 
     /**
      * 게시글 삭제
+     *
      * @param id
      * @throws Exception
      */
     public void delete(int id) throws Exception {
         Connection conn = null;
-        try  {
+        try {
             conn = DBUtils.getConnection();
             String sql = "DELETE FROM board WHERE board_id = ?";
             PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -81,6 +84,7 @@ public class BoardDAO {
 
     /**
      * 게시글 내용 업데이트
+     *
      * @param id
      * @param password
      * @param writer
@@ -90,12 +94,11 @@ public class BoardDAO {
      */
     public void update(int id, String password, String writer, String title, String content) throws Exception {
         Connection conn = null;
-        try  {
+        try {
             conn = DBUtils.getConnection();
             if (validatePassword(id, password)) {
                 LocalDateTime currentTime = LocalDateTime.now();
-                String sql = "UPDATE board SET writer = ?, title = ?, content = ?, modified_at = ? " +
-                        "WHERE board_id = ?";
+                String sql = "UPDATE board SET writer = ?, title = ?, content = ?, modified_at = ? " + "WHERE board_id = ?";
                 PreparedStatement pstmt = conn.prepareStatement(sql);
                 pstmt.setString(1, writer);
                 pstmt.setString(2, title);
@@ -114,6 +117,7 @@ public class BoardDAO {
 
     /**
      * 패스워드 확인
+     *
      * @param boardId
      * @param enteredPassword
      * @return
@@ -145,6 +149,7 @@ public class BoardDAO {
 
     /**
      * 입력된 검색조건으로 SQL 생성
+     *
      * @param sqlBuilder
      * @param params
      * @param startDate
@@ -152,16 +157,15 @@ public class BoardDAO {
      * @param category
      * @param search
      */
-    private void applySearchConditions(StringBuilder sqlBuilder, List<Object> params, LocalDate startDate,
-                                       LocalDate endDate, String category, String search) {
+    private void applySearchConditions(StringBuilder sqlBuilder, List<Object> params, LocalDate startDate, LocalDate endDate, String category, String search) {
 
         //특정 카테고리 선택 시
-        if (category != null && !category.isEmpty() && !category.equalsIgnoreCase("all")) {
+        if (!StringUtils.isNullOrEmpty(category)  && !category.equalsIgnoreCase("all")) {
             sqlBuilder.append(" AND category_id = ?");
             params.add(category);
         }
         //특정 검색어 입력 시
-        if (search != null && !search.isEmpty()) {
+        if (!StringUtils.isNullOrEmpty(search)) {
             sqlBuilder.append(" AND (title LIKE ? OR content LIKE ? OR writer LIKE ?)");
             params.add("%" + search + "%");
             params.add("%" + search + "%");
@@ -177,6 +181,7 @@ public class BoardDAO {
 
     /**
      * 검색 조건을 만족하는 게시글 검색
+     *
      * @param startDate
      * @param endDate
      * @param category
@@ -186,8 +191,7 @@ public class BoardDAO {
      * @return
      * @throws Exception
      */
-    public List<Board> searchBoards(LocalDate startDate, LocalDate endDate, String category,
-                                    String search, int currentPage, int pageSize) throws Exception {
+    public List<Board> searchBoards(LocalDate startDate, LocalDate endDate, String category, String search, int currentPage, int pageSize) throws Exception {
         List<Board> boards = new ArrayList<>();
         Connection conn = null;
         try {
@@ -220,8 +224,7 @@ public class BoardDAO {
                 LocalDateTime modifiedAt = rs.getTimestamp("modified_at").toLocalDateTime();
                 int visitCount = rs.getInt("visit_count");
 
-                Board board = new Board(boardId, rsCategory, writer, password, title, content, createdAt,
-                        modifiedAt, visitCount);
+                Board board = new Board(boardId, rsCategory, writer, password, title, content, createdAt, modifiedAt, visitCount);
                 boards.add(board);
             }
         } catch (SQLException e) {
@@ -234,6 +237,7 @@ public class BoardDAO {
 
     /**
      * 검색 조건을 만족하는 게시글 개수
+     *
      * @param startDate
      * @param endDate
      * @param category
@@ -241,8 +245,7 @@ public class BoardDAO {
      * @return
      * @throws Exception
      */
-    public int countBoards(LocalDate startDate, LocalDate endDate, String category,
-                           String search) throws Exception {
+    public int countBoards(LocalDate startDate, LocalDate endDate, String category, String search) throws Exception {
         int totalCount = 0;
         Connection conn = null;
         try {
@@ -274,6 +277,7 @@ public class BoardDAO {
 
     /**
      * 게시글 ID로 내용 가져오기
+     *
      * @param id
      * @return
      * @throws Exception
@@ -282,7 +286,7 @@ public class BoardDAO {
     public Board getBoardById(int id) throws Exception {
         Board board = null;
         Connection conn = null;
-        try  {
+        try {
             conn = DBUtils.getConnection();
             String sql = "SELECT * FROM board WHERE board_id = ?";
             PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -312,6 +316,7 @@ public class BoardDAO {
 
     /**
      * 게시글 조회수 증가
+     *
      * @param id
      * @param visitCount
      * @throws Exception
@@ -323,7 +328,7 @@ public class BoardDAO {
             String sql = "UPDATE board SET visit_count = ? WHERE board_id = ?";
             PreparedStatement pstmt = conn.prepareStatement(sql);
 
-            pstmt.setInt(1, visitCount+1);
+            pstmt.setInt(1, visitCount + 1);
             pstmt.setInt(2, id);
             pstmt.executeUpdate();
 

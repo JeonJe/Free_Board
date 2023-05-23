@@ -7,6 +7,7 @@ public class BoardUtils {
 
     /**
      * 게시글 등록 시 길이 등 유효성 검증
+     *
      * @param writer
      * @param password
      * @param passwordConfirm
@@ -17,20 +18,20 @@ public class BoardUtils {
     public static boolean checkFormValidation(String writer, String password, String passwordConfirm, String title, String content) {
         try {
 
-            if (writer.length() < 3 || writer.length() >= 5){
+            if (writer.length() < 3 || writer.length() >= 5) {
                 return false;
             }
-            if (password.length() < 4 || password.length() >= 16 || !password.equals(passwordConfirm)){
+            if (password.length() < 4 || password.length() >= 16 || !password.equals(passwordConfirm)) {
                 return false;
             }
             String passwordRegex = "(?i)^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[@#$%^&+=])(?=\\S+$).{4,}$";
             if (!password.matches(passwordRegex)) {
                 return false;
             }
-            if (title.length() < 4 || title.length() >= 100){
+            if (title.length() < 4 || title.length() >= 100) {
                 return false;
             }
-            if (content.length() < 4 || content.length() >= 2000){
+            if (content.length() < 4 || content.length() >= 2000) {
                 return false;
             }
 
@@ -42,6 +43,7 @@ public class BoardUtils {
 
     /**
      * 평문 패스워드 SHA256으로 해싱
+     *
      * @param password
      * @return
      */

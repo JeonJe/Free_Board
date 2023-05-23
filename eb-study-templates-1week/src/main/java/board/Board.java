@@ -9,35 +9,35 @@ public class Board {
      */
     private int boardId;
     /**
-     *게시글 카테고리
+     * 게시글 카테고리
      */
     private String category;
     /**
-     *게시글 작성자
+     * 게시글 작성자
      */
     private String writer;
     /**
-     *게시글 비밀번호
+     * 게시글 비밀번호
      */
     private String password;
     /**
-     *게시글 제목
+     * 게시글 제목
      */
     private String title;
     /**
-     *게시글 내용
+     * 게시글 내용
      */
     private String content;
     /**
-     *게시글 생성시간
+     * 게시글 생성시간
      */
     private LocalDateTime createdAt;
     /**
-     *게시글 수정시간
+     * 게시글 수정시간
      */
     private LocalDateTime modifiedAt;
     /**
-     *게시글 조회수
+     * 게시글 조회수
      */
     private int visitCount;
 

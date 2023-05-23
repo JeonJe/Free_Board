@@ -20,7 +20,8 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
     // 업로드할 서버 디렉토리 위치
-    String uploadPath = request.getRealPath("upload");
+//    String uploadPath = request.getRealPath("upload");
+    String uploadPath = "/Users/premise/Desktop/github/Java/ebrain/upload";
     System.out.println("path=" + uploadPath);
 
     File dir = new File(uploadPath);
@@ -39,7 +40,7 @@
                 "utf-8",
                 new DefaultFileRenamePolicy());
 
-        String category = multi.getParameter("category");
+        String category = multi.getParameter("category_id");
         String writer = multi.getParameter("writer");
         String password = multi.getParameter("password");
         String passwordConfirm = multi.getParameter("password-confirm");

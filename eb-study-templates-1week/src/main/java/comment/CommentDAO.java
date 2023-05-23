@@ -1,6 +1,7 @@
 package comment;
 
 import utils.DBUtils;
+
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ import java.util.List;
 public class CommentDAO {
     /**
      * 댓글 저장
+     *
      * @param comment
      * @throws Exception
      */
@@ -39,6 +41,7 @@ public class CommentDAO {
 
     /**
      * 게시글의 댓글 가져오기
+     *
      * @param id
      * @return
      * @throws Exception

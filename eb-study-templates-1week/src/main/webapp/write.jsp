@@ -54,14 +54,14 @@
 
             <form id="post-form" action="save.jsp" method="post" enctype="multipart/form-data">
                 <div class="form-group row border-bottom p-3">
-                    <label for="category" class="col-sm-2 col-form-label d-flex align-items-center">카테고리:</label>
+                    <label for="category_id" class="col-sm-2 col-form-label d-flex align-items-center">카테고리:</label>
 
                     <div class="col-sm-8">
-                        <select id="category" name="category" class="form-control" required>
-                            <option value="">카테고리 선택</option>
-                            <option value="Java">Java</option>
-                            <option value="Database">Database</option>
-                            <option value="Javascript">Javascript</option>
+                        <select id="category_id" name="category_id" class="form-control" required>
+                            <option value="1">카테고리 선택</option>
+                            <option value="1">Java</option>
+                            <option value="2">Database</option>
+                            <option value="3">Javascript</option>
                         </select>
                     </div>
                 </div>
@@ -117,7 +117,7 @@
                         <input type="submit" value="저장" class="btn btn-primary btn-block">
                     </div>
                 </div>
-            </form>
+            </form>`
         </div>
     </div>
 </div>

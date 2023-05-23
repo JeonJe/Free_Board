@@ -11,7 +11,8 @@
 
 <%
     String fileName = request.getParameter("fileName");
-    String sDownloadPath = "/Users/premise/Desktop/github/Java/ebrain/eb-study-templates-1week/build/libs/exploded/eb-study-template-1week-1.0-SNAPSHOT.war/upload/"; // 실제 파일이 위치한 경로
+//    String sDownloadPath = "/Users/premise/Desktop/github/Java/ebrain/eb-study-templates-1week/build/libs/exploded/eb-study-template-1week-1.0-SNAPSHOT.war/upload/"; // 실제 파일이 위치한 경로
+    String sDownloadPath = "/Users/premise/Desktop/github/Java/ebrain/upload"; // 실제 파일이 위치한 경로
     String sFilePath = sDownloadPath + fileName;
 
     try {

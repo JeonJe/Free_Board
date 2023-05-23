@@ -9,6 +9,7 @@
 <%@ page import="board.Board" %>
 <%@ page import="board.BoardDAO" %>
 <%@ page import="java.time.LocalDate" %>
+<%@ page import="utils.StringUtils" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
@@ -56,11 +57,11 @@
         String endDateString = request.getParameter("endDate");
         String startDateString = request.getParameter("startDate");
 
-        if (startDateString != null && !startDateString.isEmpty()) {
+        if (!StringUtils.isNullOrEmpty(startDateString)) {
             startDate = LocalDate.parse(startDateString);
         }
 
-        if (endDateString != null && !endDateString.isEmpty()) {
+        if (!StringUtils.isNullOrEmpty(endDateString)) {
             endDate = LocalDate.parse(endDateString);
         }
 
