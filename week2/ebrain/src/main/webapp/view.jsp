@@ -12,12 +12,13 @@
 <%@ page import="java.util.List" %>
 <%@ page import="attachment.Attachment" %>
 <%@ page import="attachment.AttachmentDAO" %>
-<%@ page import="category.Category" %>
+
 <%@ page import="category.CategoryDAO" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
 <%
     int id = Integer.parseInt(request.getParameter("id"));  // 파라미터로 전달된 id 값 가져오기
+
     BoardDAO boardDAO = new BoardDAO();
     Board board = boardDAO.getBoardById(id);  // id에 해당하는 게시글 객체 가져오기
     boardDAO.updateVisitCount(board.getBoardId(), board.getVisitCount());
@@ -197,9 +198,8 @@
     <!-- 버튼 그룹 -->
     <div class="d-flex justify-content-center mt-3">
         <div class="buttons">
-            <a href="list.jsp">
-                <button class="btn btn-secondary">목록으로</button>
-            </a>
+            <a href="list.jsp?page=<%= request.getParameter("page") %>&category=<%= request.getParameter("category") %>&search=<%= (request.getParameter("search") != null) ? request.getParameter("search") : "" %>&startDate=<%= request.getParameter("startDate") %>&endDate=<%= request.getParameter("endDate")%>" class="btn btn-secondary">목록으로 돌아가기</a>
+
             <button class="btn btn-primary" onclick="showPasswordModal('edit')">수정</button>
             <button class="btn btn-primary" onclick="showPasswordModal('delete')">삭제</button>
         </div>

@@ -83,12 +83,7 @@ public class BoardDAO {
 
     /**
      * 게시글 내용 업데이트
-     *
-     * @param id
-     * @param password
-     * @param writer
-     * @param title
-     * @param content
+     * @param board
      * @throws Exception
      */
     public void update(Board board) throws Exception {
@@ -157,15 +152,15 @@ public class BoardDAO {
      * @param search
      */
     private void applySearchConditions(StringBuilder sqlBuilder, List<Object> params,
-                                       LocalDate startDate, LocalDate endDate, String category, String search) {
+                                       LocalDate startDate, LocalDate endDate, int category, String search) {
 
         //특정 카테고리 선택 시
-        if (!StringUtils.isNullOrEmpty(category)  && !category.equalsIgnoreCase("all")) {
+        if (category != 0) {
             sqlBuilder.append(" AND category_id = ?");
             params.add(category);
         }
         //특정 검색어 입력 시
-        if (!StringUtils.isNullOrEmpty(search)) {
+        if (!StringUtils.isNullOrEmpty(search)&& !search.equals("null")) {
             sqlBuilder.append(" AND (title LIKE ? OR content LIKE ? OR writer LIKE ?)");
             params.add("%" + search + "%");
             params.add("%" + search + "%");
@@ -191,7 +186,7 @@ public class BoardDAO {
      * @return
      * @throws Exception
      */
-    public List<Board> searchBoards(LocalDate startDate, LocalDate endDate, String category,
+    public List<Board> searchBoards(LocalDate startDate, LocalDate endDate, int category,
                                     String search, int currentPage, int pageSize) throws Exception {
         List<Board> boards = new ArrayList<>();
         Connection conn = null;
@@ -203,8 +198,7 @@ public class BoardDAO {
             applySearchConditions(sqlBuilder, params, startDate, endDate, category, search);
 
             int offset = (currentPage - 1) * pageSize;
-            sqlBuilder.append(" ORDER BY created_at DESC LIMIT ?, ?");
-            params.add(offset);
+            sqlBuilder.append(" ORDER BY created_at DESC LIMIT ?");
             params.add(pageSize);
 
             String sql = sqlBuilder.toString();
@@ -247,7 +241,7 @@ public class BoardDAO {
      * @throws Exception
      */
     public int countBoards(LocalDate startDate, LocalDate endDate,
-                           String category, String search) throws Exception {
+                           int category, String search) throws Exception {
         int totalCount = 0;
         Connection conn = null;
         try {
