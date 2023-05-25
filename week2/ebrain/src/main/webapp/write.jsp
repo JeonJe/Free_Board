@@ -1,54 +1,55 @@
-<%@ page import="category.Category" %>
-<%@ page import="java.util.List" %>
-<%@ page import="category.CategoryDAO" %><%--
+<%--
   Created by IntelliJ IDEA.
   User: premise
   Date: 2023/05/16
   Time: 11:01 PM
   To change this template use File | Settings | File Templates.
 --%>
+<%@ page import="category.Category" %>
+<%@ page import="java.util.List" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
     <title>게시글 작성</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
-
-    <script>
-        document.getElementById('post-form').addEventListener('submit', function (event) {
-            var writer = document.getElementById('writer').value;
-            var password = document.getElementById('password').value;
-            var passwordConfirm = document.getElementById('password-confirm').value;
-            var title = document.getElementById('title').value;
-            var content = document.getElementById('content').value;
-
-            if (writer.length < 3 || writer.length >= 5) {
-                alert('작성자는 3글자 이상 5글자 미만이어야 합니다.');
-                event.preventDefault();
-                return;
-            }
-
-            if (password.length < 4 || password.length >= 16 || !/[A-Za-z0-9_$@#%&*]/.test(password) || password !== passwordConfirm) {
-                alert('비밀번호는 4글자 이상 16글자 미만이어야 하며, 영문, 숫자, 특수문자를 포함해야 하며, 비밀번호 확인과 일치해야 합니다.');
-                event.preventDefault();
-                return;
-            }
-
-            if (title.length < 4 || title.length >= 100) {
-                alert('제목은 4글자 이상 100글자 미만이어야 합니다.');
-                event.preventDefault();
-                return;
-            }
-
-            if (content.length < 4 || content.length >= 2000) {
-                alert('내용은 4글자 이상 2000글자 미만이어야 합니다.');
-                event.preventDefault();
-                return;
-            }
-        });
-    </script>
+    <%
+        List<Category> categories = (List<Category>) request.getAttribute("categories");
+    %>
 </head>
 <body>
+<script>
+    document.getElementById('post-form').addEventListener('submit', function (event) {
+        const writer = document.getElementById('writer').value;
+        const password = document.getElementById('password').value;
+        const passwordConfirm = document.getElementById('password-confirm').value;
+        const title = document.getElementById('title').value;
+        const content = document.getElementById('content').value;
 
+        if (writer.length < 3 || writer.length >= 5) {
+            alert('작성자는 3글자 이상 5글자 미만이어야 합니다.');
+            event.preventDefault();
+            return;
+        }
+
+        if (password.length < 4 || password.length >= 16 || !/[A-Za-z0-9_$@#%&*]/.test(password) || password !== passwordConfirm) {
+            alert('비밀번호는 4글자 이상 16글자 미만이어야 하며, 영문, 숫자, 특수문자를 포함해야 하며, 비밀번호 확인과 일치해야 합니다.');
+            event.preventDefault();
+            return;
+        }
+
+        if (title.length < 4 || title.length >= 100) {
+            alert('제목은 4글자 이상 100글자 미만이어야 합니다.');
+            event.preventDefault();
+            return;
+        }
+
+        if (content.length < 4 || content.length >= 2000) {
+            alert('내용은 4글자 이상 2000글자 미만이어야 합니다.');
+            event.preventDefault();
+            return;
+        }
+    });
+</script>
 <div class="container my-4">
     <h1 class="my-4 ">게시판 - 등록</h1>
     <div class="row justify-content-center ">
@@ -60,21 +61,12 @@
 
                     <div class="col-sm-8">
                         <select id="category_id" name="category_id" class="form-control" required>
-
-                            <%
-                                // 카테고리 목록 가져오기
-                                List<Category> categories = CategoryDAO.getAllCategory(); // CategoryDAO에서 카테고리 목록을 가져오는 메서드를 구현해야 함
-
-                                for (Category category : categories) {
-                                    int categoryId = category.getCategoryId(); // 카테고리의 ID
-                                    String categoryName = category.getCategoryName(); // 카테고리의 이름
-                            %>
+                            <% for (Category category : categories) {
+                                    int categoryId = category.getCategoryId();
+                                    String categoryName = category.getCategoryName(); %>
                             <option value="<%= categoryId %>"><%= categoryName %>
                             </option>
-                            <%
-                                }
-                            %>
-                        </select>
+                            <% } %>
                         </select>
                     </div>
                 </div>

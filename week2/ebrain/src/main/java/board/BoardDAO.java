@@ -1,12 +1,10 @@
 package board;
 
-
+import Exception.InvalidPasswordException;
 import utils.DBUtils;
 import utils.StringUtils;
 
 import java.sql.*;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -31,7 +29,8 @@ public class BoardDAO {
             board.setCreatedAt(currentTime);
             board.setModifiedAt(currentTime);
 
-            String sql = "INSERT INTO board (category_id, writer, password, title, content," + " created_at, modified_at,visit_count) VALUES (?, ?, ?, ?, ?, ?, ?,?)";
+            String sql = "INSERT INTO board (category_id, writer, password, title, content," +
+                    " created_at, modified_at,visit_count) VALUES (?, ?, ?, ?, ?, ?, ?,?)";
 
             PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             pstmt.setInt(1, board.getCategoryId());
@@ -83,6 +82,7 @@ public class BoardDAO {
 
     /**
      * 게시글 내용 업데이트
+     *
      * @param board
      * @throws Exception
      */
@@ -90,7 +90,7 @@ public class BoardDAO {
         Connection conn = null;
         try {
             conn = DBUtils.getConnection();
-            if (validatePassword(board.getBoardId(), board.getPassword())) {
+//            if (validatePassword(board.getBoardId(), board.getPassword())) {
                 LocalDateTime currentTime = LocalDateTime.now();
                 String sql = "UPDATE board SET writer = ?, title = ?, content = ?, modified_at = ? " + "WHERE board_id = ?";
                 PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -100,7 +100,7 @@ public class BoardDAO {
                 pstmt.setTimestamp(4, Timestamp.valueOf(currentTime));
                 pstmt.setInt(5, board.getBoardId());
                 pstmt.executeUpdate();
-            }
+//            }
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
@@ -117,7 +117,7 @@ public class BoardDAO {
      * @return
      * @throws Exception
      */
-    public boolean validatePassword(int boardId, String enteredPassword) throws Exception {
+    public boolean validatePassword(int boardId, String enteredPassword) throws InvalidPasswordException {
         Connection conn = null;
         try {
             conn = DBUtils.getConnection();
@@ -130,15 +130,14 @@ public class BoardDAO {
             if (rs.next()) {
                 return true;
             } else {
-//                throw new ValidatorException("비밀번호가 틀립니다.");
+                throw new InvalidPasswordException("비밀번호가 틀립니다.");
             }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
         } finally {
             DBUtils.closeConnection(conn);
         }
-        return false;
+
     }
 
     /**
@@ -160,7 +159,7 @@ public class BoardDAO {
             params.add(category);
         }
         //특정 검색어 입력 시
-        if (!StringUtils.isNullOrEmpty(search)&& !search.equals("null")) {
+        if (!StringUtils.isNullOrEmpty(search) && !search.equals("null")) {
             sqlBuilder.append(" AND (title LIKE ? OR content LIKE ? OR writer LIKE ?)");
             params.add("%" + search + "%");
             params.add("%" + search + "%");
@@ -197,7 +196,7 @@ public class BoardDAO {
 
             applySearchConditions(sqlBuilder, params, startDate, endDate, category, search);
 
-            int offset = (currentPage - 1) * pageSize;
+//            int offset = (currentPage - 1) * pageSize;
             sqlBuilder.append(" ORDER BY created_at DESC LIMIT ?");
             params.add(pageSize);
 

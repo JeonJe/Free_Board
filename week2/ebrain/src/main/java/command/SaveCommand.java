@@ -81,7 +81,6 @@ public class SaveCommand implements Command {
 
                             // 파일 이름 가져오기
                             String fileName = item.getName();
-
                             System.out.println("아이템 이름 " + item.getName());
 
                             // 중복 파일명 처리
@@ -97,16 +96,12 @@ public class SaveCommand implements Command {
                                 uploadedFile = new File(uploadPath, numberedFileName);
                                 count++;
                             }
-
-
                             Attachment attachment = new Attachment();
                             attachment.setFileName(numberedFileName);
                             attachment.setOriginName(fileName);
                             attachments.add(attachment);
                             // 파일 업로드
                             item.write(uploadedFile);
-
-
                         }
                     }
                 }
@@ -131,11 +126,7 @@ public class SaveCommand implements Command {
                             attachmentDAO.save(attachment);
                         }
                     }
-
                 }
-
-
-
                 response.sendRedirect("list");
 
             } catch (Exception e) {
@@ -145,62 +136,5 @@ public class SaveCommand implements Command {
         } else {
             response.getWriter().println("Invalid request!");
         }
-
-
     }
 }
-
-//        // 첨부파일의 크기(단위:Byte) : 10MB
-//        int size = 10 * 1024 * 1024;
-//
-//        // 첨부파일은 MultipartRequest 객체를 생성하면서 업로드 된다.
-//        try {
-//            MultipartRequest multi = new MultipartRequest(request,
-//                    uploadPath,
-//                    size,
-//                    "utf-8",
-//                    new DefaultFileRenamePolicy());
-//
-//            String category = multi.getParameter("category_id");
-//            String writer = multi.getParameter("writer");
-//            String password = multi.getParameter("password");
-//            String passwordConfirm = multi.getParameter("password-confirm");
-//            String title = multi.getParameter("title");
-//            String content = multi.getParameter("content");
-//            String hashedPassword = BoardUtils.hashPassword(password);
-//
-//            boolean isValid = BoardUtils.checkFormValidation(writer, password, passwordConfirm, title, content);
-//            if (!isValid) {
-//                return;
-//            }
-//
-//            //게시글 저장
-//            Board board = new Board();
-//            board.setCategoryId(Integer.parseInt(category));
-//            board.setWriter(writer);
-//            board.setPassword(hashedPassword);
-//            board.setTitle(title);
-//            board.setContent(content);
-//            board.setVisitCount(0);
-//
-//            BoardDAO boardDAO = new BoardDAO();
-//            int boardId = boardDAO.save(board);
-//            //첨부 파일 저장
-//            Enumeration files = multi.getFileNames();
-//
-//            while (files.hasMoreElements()) {
-//                String file = (String) files.nextElement();
-//                String fileName = multi.getFilesystemName(file);
-//                System.out.println(fileName);
-//                if (fileName != null) {
-//                    Attachment attachment = new Attachment(boardId, fileName, fileName);
-//                    AttachmentDAO attachmentDAO = new AttachmentDAO();
-//                    attachmentDAO.save(attachment);
-//                }
-//            }
-//
-//            response.sendRedirect("list");
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }

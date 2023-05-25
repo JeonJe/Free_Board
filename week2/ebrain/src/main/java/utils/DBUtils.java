@@ -16,7 +16,7 @@ public class DBUtils {
      * @return
      * @throws Exception
      */
-    public static Connection getConnection() throws Exception {
+    public static Connection getConnection() throws ClassNotFoundException, SQLException {
         Class.forName("com.mysql.cj.jdbc.Driver");
         return DriverManager.getConnection(DB_URL, USER, PASS);
     }

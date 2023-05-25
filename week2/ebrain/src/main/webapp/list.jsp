@@ -19,12 +19,14 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-<% List<Board> boards = (List<Board>) request.getAttribute("boards"); %>
-<% int currentPage = (int) request.getAttribute("currentPage"); %>
-<% int category = (int) request.getAttribute("category"); %>
-<% String search = (String) request.getAttribute("search"); %>
-<% String startDate = (String) request.getAttribute("startDate"); %>
-<% String endDate = (String) request.getAttribute("endDate"); %>
+<%
+    List<Board> boards = (List<Board>) request.getAttribute("boards");
+    int currentPage = (int) request.getAttribute("currentPage");
+    int category = (int) request.getAttribute("category");
+    String search = (String) request.getAttribute("search");
+    String startDate = (String) request.getAttribute("startDate");
+    String endDate = (String) request.getAttribute("endDate");
+%>
 
 <div class="container">
     <h1 class="my-4">자유 게시판 목록</h1>
@@ -83,7 +85,7 @@
                         title = title.substring(0, 80) + "...";
                     }
                 %>
-                <a href="view.jsp?id=<%= board.getBoardId() %>&page=<%= currentPage %>&category=<%= category %>&search=<%= search %>&startDate=<%= startDate %>&endDate=<%= endDate %>"><%= title %>
+                <a href="view?id=<%= board.getBoardId() %>&page=<%= currentPage %>&category=<%= category %>&search=<%= search %>&startDate=<%= startDate %>&endDate=<%= endDate %>"><%= title %>
                 </a>
             </td>
             <td><%= board.getWriter() %>
@@ -130,7 +132,7 @@
             <% } %>
             <a href="list?page=<%= totalPages %>&category=<%= category %>&search=<%= search %>&startDate=<%= startDate %>&endDate=<%= endDate %>">&nbsp;>></a>
         </div>
-        <a href="write.jsp" class="btn btn-primary">등록</a>
+        <a href="write" class="btn btn-primary">등록</a>
     </div>
 </div>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>

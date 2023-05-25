@@ -13,7 +13,8 @@
 
 .modal-content {
     background-color: #fefefe;
-    margin: 10% auto;
+    margin: 0 auto; /* 수정: 상하좌우 중앙 정렬을 위해 top과 left 제거 */
+    margin-top: 10%; /* 수정: 상단 여백 추가 */
     padding: 20px;
     border: 1px solid #888;
     width: 60%;

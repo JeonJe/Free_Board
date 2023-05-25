@@ -6,36 +6,24 @@
   To change this template use File | Settings | File Templates.
 --%>
 <%@ page import="board.Board" %>
-<%@ page import="board.BoardDAO" %>
-<%@ page import="comment.CommentDAO" %>
 <%@ page import="comment.Comment" %>
 <%@ page import="java.util.List" %>
 <%@ page import="attachment.Attachment" %>
-<%@ page import="attachment.AttachmentDAO" %>
-
 <%@ page import="category.CategoryDAO" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
 <%
-    int id = Integer.parseInt(request.getParameter("id"));  // 파라미터로 전달된 id 값 가져오기
-
-    BoardDAO boardDAO = new BoardDAO();
-    Board board = boardDAO.getBoardById(id);  // id에 해당하는 게시글 객체 가져오기
-    boardDAO.updateVisitCount(board.getBoardId(), board.getVisitCount());
-    int updatedVisitCount = boardDAO.getBoardById(id).getVisitCount();  // id에 해당하는 게시글 객체 가져오기
-
-    CommentDAO commentDAO = new CommentDAO();
-    List<Comment> comments = commentDAO.getCommentsByBoardId(board.getBoardId());
-
-    AttachmentDAO attachmentDAO = new AttachmentDAO();
-    List<Attachment> attachments = attachmentDAO.getAttachmentsByBoardId(board.getBoardId());
+    Board board = (Board) request.getAttribute("board");
+    int updatedVisitCount = (int) request.getAttribute("updatedVisitCount");
+    List<Comment> comments = (List<Comment>) request.getAttribute("comments");
+    List<Attachment> attachments = (List<Attachment>) request.getAttribute("attachments");
 
 %>
 
 <html>
 <head>
     <title>게시판 - 보기</title>
-    <link rel="stylesheet" type="text/css" href="styles.css">
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.min.js"></script>
     <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
@@ -43,21 +31,21 @@
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-
 </head>
+
 <body>
 <div class="container my-5">
     <h1 class="my-4">게시판 - 보기</h1>
     <script>
-        var isEdit = false;
+        let isEdit = false;
 
         function hidePasswordModal() {
-            var modal = document.getElementById('passwordModal');
+            const modal = document.getElementById('passwordModal');
             modal.style.display = 'none';
         }
 
         function showPasswordModal(action) {
-            var modal = document.getElementById('passwordModal');
+            const modal = document.getElementById('passwordModal');
             modal.style.display = 'block';
             if (action === 'edit') {
                 isEdit = true;
@@ -67,17 +55,30 @@
         }
 
         async function validatePassword(form) {
-            var password = '<%= board.getPassword() %>';
-            var enteredPassword = form.password.value;
-            var hashedPassword = CryptoJS.SHA256(enteredPassword).toString();
+            const password = '<%= board.getPassword() %>';
+            const enteredPassword = form.password.value;
+            const hashedPassword = CryptoJS.SHA256(enteredPassword).toString();
 
             if (hashedPassword === password) {
                 hidePasswordModal();
                 if (isEdit) {
-                    window.location.replace("modify.jsp?id=<%= board.getBoardId() %>")
+                    const editPage = '<%= request.getParameter("page") %>';
+                    const editCategory = '<%= request.getParameter("category") %>';
+                    const editSearch = '<%= request.getParameter("search") %>';
+                    const editStartDate = '<%= request.getParameter("startDate") %>';
+                    const editEndDate = '<%= request.getParameter("endDate") %>';
+
+                    const redirectURL = "modify?id=<%= board.getBoardId() %>" +
+                        "&page=" + editPage +
+                        "&category=" + editCategory +
+                        "&search=" + editSearch +
+                        "&startDate=" + editStartDate +
+                        "&endDate=" + editEndDate;
+
+                    window.location.replace(redirectURL);
                 } else {
                     try {
-                        const response = await fetch('delete.jsp', {
+                        const response = await fetch('delete', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -94,7 +95,7 @@
                     }
                 }
             } else {
-                var errorDiv = document.getElementById('passwordError');
+                const errorDiv = document.getElementById('passwordError');
                 errorDiv.textContent = '비밀번호가 일치하지 않습니다.';
             }
         }
@@ -102,50 +103,50 @@
 
     <!-- 비밀번호 확인 모달 -->
     <div id="passwordModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="hidePasswordModal()">&times;</span>
-            <h2>비밀번호 확인</h2>
-            <form id="passwordForm" onsubmit="validatePassword(this); return false;">
-                <input type="password" id="passwordInput" name="password" required>
-                <br>
-                <div id="passwordError" class="error-message"></div>
-                <br>
-                <input type="submit" value="확인">
-            </form>
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">비밀번호 확인</h5>
+                    <button type="button" class="close" data-dismiss="modal" onclick="hidePasswordModal()">&times;
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="passwordForm" onsubmit="validatePassword(this); return false;">
+                        <input type="password" id="passwordInput" name="password" required>
+                        <br>
+                        <div id="passwordError" class="error-message"></div>
+                        <br>
+                        <input type="submit" value="확인" class="btn btn-primary">
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 
     <div class="card mb-3">
         <div class="card-header bg-transparent pb-0">
             <div class="d-flex justify-content-between">
-                <p class="mb-0">작성자: <%= board.getWriter() %>
-                </p>
+                <p class="mb-0">작성자: ${board.getWriter()}</p>
                 <div class="d-flex">
-                    <p class="mb-0 me-4 mr-2">등록일시: <%= board.getCreatedAt()%>
-                    </p>
-                    <p class="mb-0">수정일시: <%= board.getModifiedAt() %>
-                    </p>
+                    <p class="mb-0 me-4 mr-2">등록일시: ${board.getCreatedAt()}</p>
+                    <p class="mb-0">수정일시: ${board.getModifiedAt()}</p>
                 </div>
             </div>
             <div class="d-flex justify-content-between pt-2">
-                <h5 class="card-title mb-4">[<%= CategoryDAO.getCategoryNameById(board.getCategoryId()) %>
-                    ]: <%= board.getTitle() %>
-                </h5>
-                <p class="card-text mb-4">조회수: <%= updatedVisitCount %>
-                </p>
+                <h5 class="card-title mb-4">[${CategoryDAO.getCategoryNameById(board.getCategoryId())}
+                    ]: ${board.getTitle()}</h5>
+                <p class="card-text mb-4">조회수: ${updatedVisitCount}</p>
             </div>
         </div>
     </div>
     <div class="card-body border">
-        <div class="card-text">dd
-            <%= board.getContent() %>
-        </div>
+        <div class="card-text">${board.getContent()}</div>
     </div>
 
     <br>
     <div>
         <% for (Attachment attachment : attachments) { %>
-        <a href="download.jsp?fileName=<%=attachment.getFileName()%>" class="mb-2 text-decoration-underline d-block">
+        <a href="download?fileName=<%=attachment.getFileName()%>" class="mb-2 text-decoration-underline d-block">
             <%=attachment.getOriginName()%>
         </a>
         <% } %>
@@ -154,7 +155,6 @@
 
     <div>
         <% if (comments != null && comments.size() > 0) { %>
-
         <div class="list-group comment-item bg-light">
             <% for (Comment comment : comments) { %>
             <div class="list-group-item comment-item">
@@ -175,8 +175,13 @@
 
     <!-- 댓글 작성 -->
     <div class="d-flex justify-content-center my-3">
-        <form action="addComment.jsp" method="post" class="w-75">
-            <input type="hidden" name="id" value="<%= board.getBoardId() %>">
+        <form action="/addComment" method="post" class="w-75">
+            <input type="hidden" name="id" value="${board.getBoardId()}">
+            <input type="hidden" name="page" value="${param.page}">
+            <input type="hidden" name="category" value="${param.category}">
+            <input type="hidden" name="search" value="${param.search}">
+            <input type="hidden" name="startDate" value="${param.startDate}">
+            <input type="hidden" name="endDate" value="${param.endDate}">
             <div class="row">
                 <div class="col-8">
                     <div class="form-group">
@@ -194,15 +199,8 @@
     <!-- 버튼 그룹 -->
     <div class="d-flex justify-content-center mt-3">
         <div class="buttons">
-            <%
-                String category = request.getParameter("category");
-                String search = request.getParameter("search");
-                String startDate = request.getParameter("startDate");
-                String endDate = request.getParameter("endDate");
-            %>
-            <a href="list?page=<%= request.getParameter("page") %>&category=<%= category %>&search=<%= search %>&startDate=<%= startDate %>&endDate=<%= endDate %>"
+            <a href="list?page=${param.page}&category=${param.category}&search=${param.search}&startDate=${param.startDate}&endDate=${param.endDate}"
                class="btn btn-secondary">목록으로 돌아가기</a>
-
             <button class="btn btn-primary" onclick="showPasswordModal('edit')">수정</button>
             <button class="btn btn-primary" onclick="showPasswordModal('delete')">삭제</button>
         </div>

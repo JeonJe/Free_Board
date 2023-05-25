@@ -1,10 +1,11 @@
 package utils;
 
+import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 
 public class BoardUtils {
-
+    public static final String ERROR_MESSAGE_ATTRIBUTE = "errorMessage";
     /**
      * 게시글 등록 시 길이 등 유효성 검증
      *
@@ -61,6 +62,10 @@ public class BoardUtils {
         }
         return null;
     }
+    public static void setErrorAlert(HttpServletRequest request, String errorMessage) {
+        request.setAttribute(ERROR_MESSAGE_ATTRIBUTE, errorMessage);
+    }
+
 
 
 }
