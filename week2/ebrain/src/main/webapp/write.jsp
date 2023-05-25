@@ -54,26 +54,27 @@
     <div class="row justify-content-center ">
         <div class="col-md-12 bg-light">
 
-            <form id="post-form" action="save.jsp" method="post" enctype="multipart/form-data">
+            <form id="post-form" action="save" method="post" enctype="multipart/form-data">
                 <div class="form-group row border-bottom p-3">
                     <label for="category_id" class="col-sm-2 col-form-label d-flex align-items-center">카테고리:</label>
 
                     <div class="col-sm-8">
                         <select id="category_id" name="category_id" class="form-control" required>
 
-                                <%
-                                    // 카테고리 목록 가져오기
-                                    List<Category> categories = CategoryDAO.getAllCategory(); // CategoryDAO에서 카테고리 목록을 가져오는 메서드를 구현해야 함
+                            <%
+                                // 카테고리 목록 가져오기
+                                List<Category> categories = CategoryDAO.getAllCategory(); // CategoryDAO에서 카테고리 목록을 가져오는 메서드를 구현해야 함
 
-                                    for (Category category : categories) {
-                                        int categoryId = category.getCategoryId(); // 카테고리의 ID
-                                        String categoryName = category.getCategoryName(); // 카테고리의 이름
-                                %>
-                                <option value="<%= categoryId %>"><%= categoryName %></option>
-                                <%
-                                    }
-                                %>
-                            </select>
+                                for (Category category : categories) {
+                                    int categoryId = category.getCategoryId(); // 카테고리의 ID
+                                    String categoryName = category.getCategoryName(); // 카테고리의 이름
+                            %>
+                            <option value="<%= categoryId %>"><%= categoryName %>
+                            </option>
+                            <%
+                                }
+                            %>
+                        </select>
                         </select>
                     </div>
                 </div>
@@ -122,14 +123,14 @@
 
                 <div class="row mt-3 justify-content-center">
                     <div class="col-md-6">
-                        <input type="button" value="취소" onclick="location.href='list.jsp'"
+                        <input type="button" value="취소" onclick="location.href='list'"
                                class="btn btn-secondary btn-block">
                     </div>
                     <div class="col-md-6">
                         <input type="submit" value="저장" class="btn btn-primary btn-block">
                     </div>
                 </div>
-            </form>`
+            </form>
         </div>
     </div>
 </div>

@@ -2,6 +2,7 @@ package controller;
 
 import command.Command;
 import command.ListCommand;
+import command.SaveCommand;
 
 import javax.servlet.*;
 import javax.servlet.annotation.WebServlet;
@@ -16,18 +17,20 @@ public class BoardControllerServlet extends HttpServlet {
     private Map<String, Command> commandMap = new HashMap<>();
 
     public void init(){
-        commandMap.put("ww", new ListCommand());
+
+        commandMap.put("list", new ListCommand());
+        commandMap.put("save", new SaveCommand());
     }
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String uri = request.getRequestURI();
         String contextPath = request.getContextPath();
 
-        if (uri.equals(contextPath + "/ww")) {
+        if (uri.startsWith(contextPath + "/list")) {
             // GET 요청의 list 서비스 담당자 호출
             System.out.println("List 요청이 들어왔습니다.");  // 로그 출력
             try {
-                commandMap.get("ww").execute(request, response);
+                commandMap.get("list").execute(request, response);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -36,6 +39,18 @@ public class BoardControllerServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String uri = request.getRequestURI();
+        String contextPath = request.getContextPath();
+
+        if (uri.equals(contextPath + "/save")) {
+            // GET 요청의 list 서비스 담당자 호출
+            System.out.println("save 요청이 들어왔습니다.");  // 로그 출력
+            try {
+                commandMap.get("save").execute(request, response);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
 
     }
 }

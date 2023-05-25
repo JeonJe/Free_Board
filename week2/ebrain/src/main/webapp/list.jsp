@@ -5,11 +5,11 @@
   Time: 1:18 PM
   To change this template use File | Settings | File Templates.
 --%>
-<%@ page import="java.util.List" %>
-<%@ page import="board.Board" %>
-<%@ page import="board.BoardDAO" %>
+
 <%@ page import="java.time.LocalDate" %>
-<%@ page import="utils.StringUtils" %>
+<%@ page import="board.Board" %>
+<%@ page import="java.util.List" %>
+<%@ page import="java.time.LocalDate" %>
 <%@ page import="category.CategoryDAO" %>
 <%@ page import="category.Category" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
@@ -19,10 +19,16 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
+<% List<Board> boards = (List<Board>) request.getAttribute("boards"); %>
+<% int currentPage = (int) request.getAttribute("currentPage"); %>
+<% int category = (int) request.getAttribute("category"); %>
+<% String search = (String) request.getAttribute("search"); %>
+<% String startDate = (String) request.getAttribute("startDate"); %>
+<% String endDate = (String) request.getAttribute("endDate"); %>
 
 <div class="container">
     <h1 class="my-4">자유 게시판 목록</h1>
-    <form action="list.jsp" method="get" class="form-inline mb-4">
+    <form action="list" method="get" class="form-inline mb-4">
         <label for="startDate" class="mr-2">등록일:</label>
         <input type="date" id="startDate" name="startDate" class="form-control mr-2"
                value="<%= (request.getParameter("startDate") != null) ? request.getParameter("startDate") : LocalDate.now().minusYears(1) %>">
@@ -36,9 +42,9 @@
                 전체 카테고리
             </option>
             <% List<Category> categories = CategoryDAO.getAllCategory(); %>
-            <% for (Category category : categories) { %>
-            <option value="<%= category.getCategoryId() %>" <%= (request.getParameter("category") != null &&
-                    request.getParameter("category").equals(String.valueOf(category.getCategoryId()))) ? "selected" : "" %>><%= category.getCategoryName() %>
+            <% for (Category categoryItem : categories) { %>
+            <option value="<%= categoryItem.getCategoryId() %>" <%= (request.getParameter("category") != null &&
+                    request.getParameter("category").equals(String.valueOf(categoryItem.getCategoryId()))) ? "selected" : "" %>><%= categoryItem.getCategoryName() %>
             </option>
             <% } %>
 
@@ -52,103 +58,61 @@
     </form>
 
 
-    <table class="table table-striped text-center" style="table-layout: auto; width: 100%;"
-    <%
+    <table class="table table-striped text-center">
+        <thead class="text-center">
+        <tr>
+            <th>카테고리</th>
+            <th>제목</th>
+            <th>작성자</th>
+            <th>조회수</th>
+            <th>등록일시</th>
+            <th>수정일시</th>
+        </tr>
+        </thead>
+        <tbody>
 
-        int category = 0; // 초기값으로 0을 설정
-
-        String categoryParam = request.getParameter("category");
-        if (categoryParam != null && !categoryParam.isEmpty()) {
-            category = Integer.parseInt(categoryParam);
-        }
-        String search = request.getParameter("search");
-        if (!StringUtils.isNullOrEmpty(search)) {
-
-        }
-
-        LocalDate endDate = LocalDate.now();
-        LocalDate startDate = endDate.minusYears(1);
-
-        String endDateString = request.getParameter("endDate");
-        String startDateString = request.getParameter("startDate");
-
-        if (!StringUtils.isNullOrEmpty(startDateString)) {
-            startDate = LocalDate.parse(startDateString);
-        }
-
-        if (!StringUtils.isNullOrEmpty(endDateString)) {
-            endDate = LocalDate.parse(endDateString);
-        }
-
-        BoardDAO boardDAO = new BoardDAO();
-
-        int currentPage = 1;
-        int pageSize = 10;
-        if (request.getParameter("page") != null) {
-            currentPage = Integer.parseInt(request.getParameter("page"));
-        }
-
-        List<Board> boards = boardDAO.searchBoards(startDate, endDate, category, search, currentPage, pageSize);
-
-        int totalCount = boardDAO.countBoards(startDate, endDate, category, search);
-        int totalPages = (int) Math.ceil((double) totalCount / pageSize);
-    %>
-    <thead class="text-center">
-    <tr>
-        <th>카테고리</th>
-        <th>제목</th>
-        <th>작성자</th>
-        <th>조회수</th>
-        <th>등록일시</th>
-        <th>수정일시</th>
-    </tr>
-    </thead>
-
-    <div>
-        <p> 총 <%= totalCount %>건 </p>
-    </div>
-
-    <% for (Board board : boards) { %>
-    <tr>
-        <td><%= CategoryDAO.getCategoryNameById(board.getCategoryId()) %>
-        </td>
-
-        <td>
-            <%
-                String title = board.getTitle();
-                if (title.length() > 80) {
-                    title = title.substring(0, 80) + "...";
+        <% if (boards != null) { %>
+        <% for (Board board : boards) { %>
+        <tr>
+            <td><%= CategoryDAO.getCategoryNameById(board.getCategoryId()) %>
+            </td>
+            <td>
+                <%
+                    String title = board.getTitle();
+                    if (title.length() > 80) {
+                        title = title.substring(0, 80) + "...";
+                    }
+                %>
+                <a href="view.jsp?id=<%= board.getBoardId() %>&page=<%= currentPage %>&category=<%= category %>&search=<%= search %>&startDate=<%= startDate %>&endDate=<%= endDate %>"><%= title %>
+                </a>
+            </td>
+            <td><%= board.getWriter() %>
+            </td>
+            <td><%= board.getVisitCount() %>
+            </td>
+            <td><%= board.getCreatedAt() %>
+            </td>
+            <% String modifiedAt = board.getModifiedAt();
+                if (board.getModifiedAt().equals(board.getCreatedAt())) {
+                    modifiedAt = "-";
                 }
             %>
-            <a href="view.jsp?id=<%= board.getBoardId() %>&page=<%= currentPage - 1 %>&category=<%= category %>&search=<%= search %>&startDate=<%= startDate %>&endDate=<%= endDate %>"><%=title%>
-            </a>
-
-        </td>
-        <td><%= board.getWriter() %>
-        </td>
-        <td><%= board.getVisitCount() %>
-        </td>
-        <td><%= board.getCreatedAt() %>
-        </td>
-        <%
-            String modifiedAt = board.getModifiedAt();
-            if (board.getModifiedAt().equals(board.getCreatedAt())) {
-                modifiedAt = "-";
-            }
-        %>
-        <td><%= modifiedAt %>
-        </td>
-    </tr>
-    <% } %>
+            <td><%= modifiedAt %>
+            </td>
+        </tr>
+        <% } %>
+        <% } %>
+        </tbody>
     </table>
+
 
     <%-- 페이징 버튼 --%>
     <div class="d-flex justify-content-between">
         <div class="text-center mx-auto">
-
+            <% int totalPages = (int) request.getAttribute("totalPages"); %>
             <% if (currentPage > 1) { %>
-            <a href="list.jsp?page=<%= currentPage - 1 %>&category=<%= category %>&search=<%= search %>&startDate=<%= startDate %>&endDate=<%= endDate %>">&lt;&nbsp;</a>
-            <a href="list.jsp?page=1&category=<%= category %>&search=<%= search %>&startDate=<%= startDate %>&endDate=<%= endDate %>"><<&nbsp;</a>
+            <a href="list?page=<%= currentPage - 1 %>&category=<%= category %>&search=<%= search %>&startDate=<%= startDate %>&endDate=<%= endDate %>">&lt;&nbsp;</a>
+            <a href="list?page=1&category=<%= category %>&search=<%= search %>&startDate=<%= startDate %>&endDate=<%= endDate %>"><<&nbsp;</a>
             <% } %>
 
             <% for (int i = 1; i <= totalPages; i++) { %>
@@ -156,15 +120,15 @@
             <strong><%= i %>
             </strong>
             <% } else { %>
-            <a href="list.jsp?page=<%= i %>&category=<%= category %>&search=<%= search %>&startDate=<%= startDate %>&endDate=<%= endDate %>"><%= i %>
+            <a href="list?page=<%= i %>&category=<%= category %>&search=<%= search %>&startDate=<%= startDate %>&endDate=<%= endDate %>"><%= i %>
             </a>
             <% } %>
             <% } %>
 
             <% if (currentPage < totalPages) { %>
-            <a href="list.jsp?page=<%= currentPage + 1 %>&category=<%= category %>&search=<%= search %>&startDate=<%= startDate %>&endDate=<%= endDate %>">&nbsp;&gt;</a>
+            <a href="list?page=<%= currentPage + 1 %>&category=<%= category %>&search=<%= search %>&startDate=<%= startDate %>&endDate=<%= endDate %>">&nbsp;&gt;</a>
             <% } %>
-            <a href="list.jsp?page=<%= totalPages %>&category=<%= category %>&search=<%= search %>&startDate=<%= startDate %>&endDate=<%= endDate %>">&nbsp;>></a>
+            <a href="list?page=<%= totalPages %>&category=<%= category %>&search=<%= search %>&startDate=<%= startDate %>&endDate=<%= endDate %>">&nbsp;>></a>
         </div>
         <a href="write.jsp" class="btn btn-primary">등록</a>
     </div>

@@ -87,7 +87,7 @@
                         if (!response.ok) {
                             alert("삭제에 실패하였습니다");
                         }
-                        window.location.replace("list.jsp")
+                        window.location.replace("list")
 
                     } catch (error) {
                         alert(error);
@@ -98,11 +98,6 @@
                 errorDiv.textContent = '비밀번호가 일치하지 않습니다.';
             }
         }
-
-        async function downloadFile(attachmentId, fileName) {
-            console.log(attachmentId, fileName);
-        }
-
     </script>
 
     <!-- 비밀번호 확인 모달 -->
@@ -133,7 +128,8 @@
                 </div>
             </div>
             <div class="d-flex justify-content-between pt-2">
-                <h5 class="card-title mb-4">[<%= CategoryDAO.getCategoryNameById(board.getCategoryId()) %>]: <%= board.getTitle() %>
+                <h5 class="card-title mb-4">[<%= CategoryDAO.getCategoryNameById(board.getCategoryId()) %>
+                    ]: <%= board.getTitle() %>
                 </h5>
                 <p class="card-text mb-4">조회수: <%= updatedVisitCount %>
                 </p>
@@ -150,7 +146,7 @@
     <div>
         <% for (Attachment attachment : attachments) { %>
         <a href="download.jsp?fileName=<%=attachment.getFileName()%>" class="mb-2 text-decoration-underline d-block">
-            <%=attachment.getFileName()%>
+            <%=attachment.getOriginName()%>
         </a>
         <% } %>
     </div>
@@ -198,7 +194,14 @@
     <!-- 버튼 그룹 -->
     <div class="d-flex justify-content-center mt-3">
         <div class="buttons">
-            <a href="list.jsp?page=<%= request.getParameter("page") %>&category=<%= request.getParameter("category") %>&search=<%= (request.getParameter("search") != null) ? request.getParameter("search") : "" %>&startDate=<%= request.getParameter("startDate") %>&endDate=<%= request.getParameter("endDate")%>" class="btn btn-secondary">목록으로 돌아가기</a>
+            <%
+                String category = request.getParameter("category");
+                String search = request.getParameter("search");
+                String startDate = request.getParameter("startDate");
+                String endDate = request.getParameter("endDate");
+            %>
+            <a href="list?page=<%= request.getParameter("page") %>&category=<%= category %>&search=<%= search %>&startDate=<%= startDate %>&endDate=<%= endDate %>"
+               class="btn btn-secondary">목록으로 돌아가기</a>
 
             <button class="btn btn-primary" onclick="showPasswordModal('edit')">수정</button>
             <button class="btn btn-primary" onclick="showPasswordModal('delete')">삭제</button>

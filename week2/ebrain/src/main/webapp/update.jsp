@@ -28,7 +28,7 @@
         board.setTitle(title);
         board.setContent(content);
         boardDAO.update(board);
-        response.sendRedirect("list.jsp");
+        response.sendRedirect("list");
     }
 %>
 
