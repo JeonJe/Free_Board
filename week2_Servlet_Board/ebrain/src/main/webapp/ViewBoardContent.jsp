@@ -63,7 +63,7 @@
                 if (isEdit) {
                     const editPage = '<%= request.getParameter("page") %>';
                     const editCategory = '<%= request.getParameter("category") %>';
-                    const editSearch = '<%= request.getParameter("search") %>';
+                    const editSearch = '<%= request.getParameter("searchText") %>';
                     const editStartDate = '<%= request.getParameter("startDate") %>';
                     const editEndDate = '<%= request.getParameter("endDate") %>';
 
@@ -121,6 +121,7 @@
             </div>
         </div>
     </div>
+
     <%-- Show the post information    --%>
     <div class="card mb-3">
         <div class="card-header bg-transparent pb-0">
@@ -179,7 +180,7 @@
             <input type="hidden" name="id" value="${board.getBoardId()}">
             <input type="hidden" name="page" value="${param.page}">
             <input type="hidden" name="category" value="${param.category}">
-            <input type="hidden" name="search" value="${param.search}">
+            <input type="hidden" name="searchText" value="${param.searchText}">
             <input type="hidden" name="startDate" value="${param.startDate}">
             <input type="hidden" name="endDate" value="${param.endDate}">
             <div class="row">
@@ -199,7 +200,7 @@
     <!-- button group -->
     <div class="d-flex justify-content-center mt-3">
         <div class="buttons">
-            <a href="list?page=${param.page}&category=${param.category}&search=${param.search}&startDate=${param.startDate}&endDate=${param.endDate}"
+            <a href="list?page=${param.page}&category=${param.category}&searchText=${param.searchText}&startDate=${param.startDate}&endDate=${param.endDate}"
                class="btn btn-secondary">목록으로 돌아가기</a>
             <button class="btn btn-primary" onclick="showPasswordModal('edit')">수정</button>
             <button class="btn btn-primary" onclick="showPasswordModal('delete')">삭제</button>

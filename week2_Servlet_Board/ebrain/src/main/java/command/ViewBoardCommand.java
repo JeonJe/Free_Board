@@ -16,9 +16,9 @@ public class ViewBoardCommand implements Command {
         try {
             int id = Integer.parseInt(request.getParameter("id"));
             BoardDAO boardDAO = new BoardDAO();
-            Board board = boardDAO.getBoardById(id);
+            Board board = boardDAO.getBoardInfoById(id);
             boardDAO.updateVisitCount(board.getBoardId(), board.getVisitCount());
-            int updatedVisitCount = boardDAO.getBoardById(id).getVisitCount();
+            int updatedVisitCount = boardDAO.getBoardInfoById(id).getVisitCount();
 
             CommentDAO commentDAO = new CommentDAO();
             List<Comment> comments = commentDAO.getCommentsByBoardId(board.getBoardId());

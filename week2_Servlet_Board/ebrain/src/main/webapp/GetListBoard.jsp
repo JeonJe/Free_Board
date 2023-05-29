@@ -24,7 +24,7 @@
     List<Board> boards = (List<Board>) request.getAttribute("boards");
     int currentPage = (int) request.getAttribute("currentPage");
     int category = (int) request.getAttribute("category");
-    String search = (String) request.getAttribute("search");
+    String searchText = (String) request.getAttribute("searchText");
     String startDate = (String) request.getAttribute("startDate");
     String endDate = (String) request.getAttribute("endDate");
 %>
@@ -51,14 +51,15 @@
             </option>
             <% } %>
 
-            <label for="search" class="mr-2">검색어:</label>
+            <label for="searchText" class="mr-2">검색어:</label>
 <%--TODO : util로 value를 간단하게 처            --%>
-            <input type="text" id="search" name="search" class="form-control mr-2" placeholder="카테고리 + 제목 + 내용"
-                   value="<%= (request.getParameter("search") != null && !request.getParameter("search").equals("null")) ? request.getParameter("search") : "" %>">
+            <input type="text" id="searchText" name="searchText" class="form-control mr-2" placeholder="카테고리 + 제목 + 내용"
+                   value="<%= (request.getParameter("searchText") != null && !request.getParameter("searchText").equals("null")) ? request.getParameter("searchText") : "" %>">
         </select>
 
         <input type="submit" value="검색" class="btn btn-primary">
     </form>
+
 
     <%-- List of the posts   --%>
     <table class="table table-striped text-center">
@@ -72,6 +73,10 @@
             <th>수정일시</th>
         </tr>
         </thead>
+        <div>
+            <p> 총 <%= boards.size() %>건 </p>
+        </div>
+
         <tbody>
 
         <% if (boards != null) { %>
@@ -86,7 +91,7 @@
                         title = title.substring(0, 80) + "...";
                     }
                 %>
-                <a href="view?id=<%= board.getBoardId() %>&page=<%= currentPage %>&category=<%= category %>&search=<%= search %>&startDate=<%= startDate %>&endDate=<%= endDate %>"><%= title %>
+                <a href="view?id=<%= board.getBoardId() %>&page=<%= currentPage %>&category=<%= category %>&searchText=<%= searchText %>&startDate=<%= startDate %>&endDate=<%= endDate %>"><%= title %>
                 </a>
             </td>
             <td><%= board.getWriter() %>
@@ -114,8 +119,8 @@
         <div class="text-center mx-auto">
             <% int totalPages = (int) request.getAttribute("totalPages"); %>
             <% if (currentPage > 1) { %>
-            <a href="list?page=<%= currentPage - 1 %>&category=<%= category %>&search=<%= search %>&startDate=<%= startDate %>&endDate=<%= endDate %>">&lt;&nbsp;</a>
-            <a href="list?page=1&category=<%= category %>&search=<%= search %>&startDate=<%= startDate %>&endDate=<%= endDate %>"><<&nbsp;</a>
+            <a href="list?page=<%= currentPage - 1 %>&category=<%= category %>&searchText=<%= searchText %>&startDate=<%= startDate %>&endDate=<%= endDate %>">&lt;&nbsp;</a>
+            <a href="list?page=1&category=<%= category %>&searchText=<%= searchText %>&startDate=<%= startDate %>&endDate=<%= endDate %>"><<&nbsp;</a>
             <% } %>
 
             <% for (int i = 1; i <= totalPages; i++) { %>
@@ -123,15 +128,15 @@
             <strong><%= i %>
             </strong>
             <% } else { %>
-            <a href="list?page=<%= i %>&category=<%= category %>&search=<%= search %>&startDate=<%= startDate %>&endDate=<%= endDate %>"><%= i %>
+            <a href="list?page=<%= i %>&category=<%= category %>&searchText=<%= searchText %>&startDate=<%= startDate %>&endDate=<%= endDate %>"><%= i %>
             </a>
             <% } %>
             <% } %>
 
             <% if (currentPage < totalPages) { %>
-            <a href="list?page=<%= currentPage + 1 %>&category=<%= category %>&search=<%= search %>&startDate=<%= startDate %>&endDate=<%= endDate %>">&nbsp;&gt;</a>
+            <a href="list?page=<%= currentPage + 1 %>&category=<%= category %>&searchText=<%= searchText %>&startDate=<%= startDate %>&endDate=<%= endDate %>">&nbsp;&gt;</a>
             <% } %>
-            <a href="list?page=<%= totalPages %>&category=리%= category %>&search=<%= search %>&startDate=<%= startDate %>&endDate=<%= endDate %>">&nbsp;>></a>
+            <a href="list?page=<%= totalPages %>&category=<%= category %>&searchText=<%= searchText %>&startDate=<%= startDate %>&endDate=<%= endDate %>">&nbsp;>></a>
         </div>
         <a href="write" class="btn btn-primary">등록</a>
     </div>

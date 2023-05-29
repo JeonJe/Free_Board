@@ -19,5 +19,6 @@
     <mappers>
         <mapper resource="CommentMapper.xml"/>
         <mapper resource="AttachmentMapper.xml"/>
+        <mapper resource="BoardMapper.xml"/>
     </mappers>
 </configuration>

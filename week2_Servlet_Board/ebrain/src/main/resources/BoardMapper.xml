@@ -4,70 +4,96 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="BoardMapper">
-
+    <!-- result mapping DB column name <-> VO member name -->
+    <resultMap id="boardResultMap" type="board.Board">
+        <id property="boardId" column="board_id"/>
+        <result property="categoryId" column="category_id"/>
+        <result property="writer" column="writer"/>
+        <result property="password" column="password"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="modifiedAt" column="modified_at"/>
+        <result property="visitCount" column="visit_count"/>
+    </resultMap>
+    <!-- Save the Board Information -->
+    <insert id="saveBoard" parameterType="board.Board" useGeneratedKeys="true" keyProperty="boardId">
+        INSERT INTO board (category_id, writer, password, title,
+        content, created_at, modified_at, visit_count)
+        VALUES (#{categoryId}, #{writer}, #{password}, #{title},
+        #{content}, #{createdAt}, #{modifiedAt}, #{visitCount})
+    </insert>
 
     <!-- Delete the Board by Board ID -->
-    <delete id="delete" parameterType="int">
-        DELETE FROM board WHERE board_id = #{id}
+    <delete id="deleteBoard" parameterType="int">
+        DELETE FROM board WHERE board_id = #{boardId}
     </delete>
 
     <!-- Update the Board Information -->
-    <update id="update" parameterType="board.Board">
-        UPDATE board SET writer = #{writer}, title = #{title}, content = #{content}, modified_at = #{modifiedAt}
+    <update id="updateBoard" parameterType="board.Board">
+        UPDATE board
+        SET writer = #{writer}, title = #{title}, content = #{content}, modified_at = #{modifiedAt}
         WHERE board_id = #{boardId}
     </update>
 
-    <!-- Validate the password -->
+    <!-- Check the password -->
     <select id="validatePassword" resultType="boolean" parameterType="map">
-        SELECT 1 FROM board WHERE board_id = #{boardId} AND password = #{password}
+        SELECT EXISTS (
+        SELECT 1
+        FROM board
+        WHERE board_id = #{boardId}
+        AND password = #{enteredPassword}
+        ) AS result
     </select>
 
     <!-- Search for Boards that meet the search condition -->
-    <select id="searchBoards" resultType="board.Board">
-        SELECT * FROM board
+    <select id="searchBoards" parameterType="java.util.Map" resultType="board.Board" resultMap="boardResultMap">
+        SELECT *
+        FROM board
         WHERE 1=1
-        <if test="startDate != null">
-            AND created_at &gt;= #{startDate}
-        </if>
-        <if test="endDate != null">
-            AND created_at &lt;= #{endDate}
-        </if>
         <if test="category != 0">
             AND category_id = #{category}
         </if>
-        <if test="search != null and !search.equals('null')">
-            AND (title LIKE concat('%', #{search}, '%') OR content LIKE concat('%', #{search}, '%') OR writer LIKE concat('%', #{search}, '%'))
+        <if test="searchText != null">
+            AND (title LIKE concat('%', #{searchText}, '%')
+            OR content LIKE concat('%', #{searchText}, '%')
+            OR writer LIKE concat('%', #{searchText}, '%'))
         </if>
-        ORDER BY created_at DESC LIMIT #{pageSize}
+        <if test="startDate != null and endDate != null">
+            AND created_at BETWEEN #{startDate} AND #{endDate}
+        </if>
     </select>
 
     <!-- Count the number of Boards that meet the search condition -->
-    <select id="countBoards" resultType="int">
-        SELECT COUNT(*) FROM board
-        WHERE 1=1
-        <if test="startDate != null">
-            AND created_at &gt;= #{startDate}
-        </if>
-        <if test="endDate != null">
-            AND created_at &lt;= #{endDate}
-        </if>
+    <select id="countSearchBoards" parameterType="java.util.Map" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM board WHERE 1=1
         <if test="category != 0">
             AND category_id = #{category}
         </if>
-        <if test="search != null and !search.equals('null')">
-            AND (title LIKE concat('%', #{search}, '%') OR content LIKE concat('%', #{search}, '%') OR writer LIKE concat('%', #{search}, '%'))
+        <if test="searchText != null">
+            AND (title LIKE concat('%', #{searchText}, '%')
+            OR content LIKE concat('%', #{searchText}, '%')
+            OR writer LIKE concat('%', #{searchText}, '%'))
+        </if>
+        <if test="startDate != null and endDate != null">
+            AND created_at
+            BETWEEN #{startDate}
+            AND #{endDate}
         </if>
     </select>
 
-    <!-- Get Board Information by Board ID -->
-    <select id="getBoardById" resultType="board.Board" parameterType="int">
-        SELECT * FROM board WHERE board_id = #{id}
+    <!-- Get Board Information By Board ID -->
+    <select id="getBoardInfoById" resultType="board.Board" parameterType="int" resultMap="boardResultMap">
+        SELECT *
+        FROM board
+        WHERE board_id = #{boardId}
     </select>
 
     <!-- Update Board view count -->
     <update id="updateVisitCount" parameterType="map">
-        UPDATE board SET visit_count = #{visitCount} + 1 WHERE board_id = #{id}
+        UPDATE board
+        SET visit_count = #{currentVisitCount} + 1
+        WHERE board_id = #{boardId}
     </update>
-
 </mapper>
 

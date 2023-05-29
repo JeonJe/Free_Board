@@ -4,7 +4,8 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="AttachmentMapper">
-    <!-- result mapping DB column name <-> VO member value name -->
+    <!-- result mapping DB column name <-> VO member name -->
+
     <resultMap id="attachmentResultMap" type="attachment.Attachment">
         <id property="attachmentId" column="attachment_id"/>
         <result property="boardId" column="board_id"/>
@@ -20,12 +21,15 @@
 
     <!-- Get Attachment Information By Board ID -->
     <select id="getAttachmentsByBoardId" parameterType="int" resultType="attachment.Attachment" resultMap="attachmentResultMap">
-        SELECT * FROM attachment WHERE board_id = #{boardId}
+        SELECT *
+        FROM attachment
+        WHERE board_id = #{boardId}
     </select>
 
     <!-- Delete Attachment by Attachment ID -->
     <delete id="deleteAttachmentByAttachmentId" parameterType="int">
-        DELETE FROM attachment WHERE attachment_id = #{attachmentId}
+        DELETE FROM attachment
+        WHERE attachment_id = #{attachmentId}
     </delete>
 
 </mapper>

@@ -14,7 +14,7 @@ public class ModifyBoardCommand implements Command {
         try {
             int id = Integer.parseInt(request.getParameter("id"));
             BoardDAO boardDAO = new BoardDAO();
-            Board board = boardDAO.getBoardById(id);
+            Board board = boardDAO.getBoardInfoById(id);
 
             AttachmentDAO attachmentDAO = new AttachmentDAO();
             List<Attachment> attachments = attachmentDAO.getAttachmentsByBoardId(board.getBoardId());

@@ -119,13 +119,13 @@ public class SaveBoardCommand implements Command {
                 board.setVisitCount(0);
 
                 BoardDAO boardDAO = new BoardDAO();
-                boardId = boardDAO.save(board);
+                boardId = boardDAO.saveBoard(board);
 
                 // Save Attachments
                 for (Attachment attachment : attachments) {
                     if (attachment.getFileName() != null && attachment.getOriginName() != null) {
                         attachment.setBoardId(boardId);
-                        attachmentDAO.saveAttachment(attachment);
+//                        attachmentDAO.saveAttachment(attachment);
                     }
                 }
 

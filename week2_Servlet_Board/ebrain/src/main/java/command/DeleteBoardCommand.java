@@ -20,7 +20,7 @@ public class DeleteBoardCommand implements Command {
                 boolean isValid = boardDAO.validatePassword(parseIntId, hashedPassword);
 
                 if (isValid) {
-                    boardDAO.delete(parseIntId);
+                    boardDAO.deleteBoard(parseIntId);
                     response.getWriter().write("삭제가 완료 되었습니다");
                 } else {
                     response.getWriter().write("비밀번호가 틀립니다");

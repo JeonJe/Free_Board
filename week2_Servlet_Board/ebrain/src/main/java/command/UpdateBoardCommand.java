@@ -79,7 +79,7 @@ public class UpdateBoardCommand implements Command {
 
                 //기존 Board 내용 Get
                 BoardDAO boardDAO = new BoardDAO();
-                Board board = boardDAO.getBoardById(boardId);
+                Board board = boardDAO.getBoardInfoById(boardId);
 
                 if (!BoardUtils.checkFormValidation(writer, password, password, title, content)) {
                     throw new InvalidValidationException("폼 유효성 검증에 실패하였습니다.");
@@ -95,7 +95,7 @@ public class UpdateBoardCommand implements Command {
                     board.setWriter(writer);
                     board.setTitle(title);
                     board.setContent(content);
-                    boardDAO.update(board);
+                    boardDAO.updateBoard(board);
 
                     //기존 attachment 삭제
 //                    attachmentDAO.deleteAllAttachmentByBoardId(boardId);

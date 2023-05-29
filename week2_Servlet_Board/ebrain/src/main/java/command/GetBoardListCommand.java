@@ -8,13 +8,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 public class GetBoardListCommand implements Command {
     public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+
         try {
             String currentPageParam = request.getParameter("page");
             String categoryParam = request.getParameter("category");
-            String search = request.getParameter("search");
+            String searchText = request.getParameter("searchText");
             String endDateString = request.getParameter("endDate");
             String startDateString = request.getParameter("startDate");
             LocalDate endDate = LocalDate.now();
@@ -31,20 +34,27 @@ public class GetBoardListCommand implements Command {
             if (!StringUtils.isNullOrEmpty(currentPageParam)) {
                 currentPage = Integer.parseInt(currentPageParam);
             }
+
+            if (!StringUtils.isNullOrEmpty(searchText)) {
+                searchText = searchText;
+            } else {
+                searchText = "";
+            }
+
             if (!StringUtils.isNullOrEmpty(startDateString)) {
                 startDate = LocalDate.parse(startDateString);
             }
             if (!StringUtils.isNullOrEmpty(endDateString)) {
                 endDate = LocalDate.parse(endDateString);
             }
-            if (!StringUtils.isNullOrEmpty(currentPageParam)) {
-                currentPage = Integer.parseInt(currentPageParam);
-            }
 
             BoardDAO boardDAO = new BoardDAO();
-            List<Board> boards = boardDAO.searchBoards(startDate, endDate, category, search, currentPage, pageSize);
+            Map<String, Object> resultMap = boardDAO.searchBoards(startDate, endDate, category, searchText, currentPage, pageSize);
 
-            int totalCount = boardDAO.countBoards(startDate, endDate, category, search);
+
+            List<Board> boards = (List<Board>) resultMap.get("boards");
+            int totalCount = (int) resultMap.get("totalCount");
+
             int totalPages = (int) Math.ceil((double) totalCount / pageSize);
 
             // 필요한 데이터를 request 속성에 저장
@@ -53,12 +63,11 @@ public class GetBoardListCommand implements Command {
             request.setAttribute("boards", boards);
             request.setAttribute("currentPage", currentPage);
             request.setAttribute("category", category);
-            request.setAttribute("search", search);
+            request.setAttribute("searchText", searchText);
             request.setAttribute("startDate", startDate.toString());
             request.setAttribute("endDate", endDate.toString());
             request.setAttribute("totalCount", totalCount);
             request.setAttribute("totalPages", totalPages);
-
 
 
             request.getRequestDispatcher("GetListBoard.jsp").forward(request, response);

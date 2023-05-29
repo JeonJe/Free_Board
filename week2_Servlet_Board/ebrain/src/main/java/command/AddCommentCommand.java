@@ -17,7 +17,7 @@ public class AddCommentCommand implements Command {
 
             String currentPageParam = request.getParameter("page");
             String categoryParam = request.getParameter("category");
-            String search = request.getParameter("search");
+            String searchText = request.getParameter("searchText");
             String endDateString = request.getParameter("endDate");
             String startDateString = request.getParameter("startDate");
 
@@ -31,7 +31,7 @@ public class AddCommentCommand implements Command {
             commentDAO.saveComment(comment);
 
             String url = "/view?id=" + id + "&page=" + currentPageParam+
-                    "&category=" + categoryParam + "&search=" + search +
+                    "&category=" + categoryParam + "&searchText=" + searchText +
                     "&startDate=" + startDateString + "&endDate=" + endDateString;
             response.sendRedirect(url);
 
