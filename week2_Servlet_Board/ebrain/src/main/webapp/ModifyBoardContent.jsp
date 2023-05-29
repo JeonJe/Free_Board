@@ -24,13 +24,14 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </head>
 <body>
+
 <script>
     //show error message
     <% String errorMessage = (String) request.getAttribute(BoardUtils.ERROR_MESSAGE_ATTRIBUTE);
              if (errorMessage != null && !errorMessage.isEmpty()) { %>
     alert("<%= errorMessage %>");
     <% } %>
-
+    //TODO : 폼으로 전달해보기
     function onClickCancel() {
         const page = '<%= request.getParameter("page") %>';
         const category = '<%= request.getParameter("category") %>';
@@ -44,6 +45,20 @@
         location.href = viewURL;
     }
 
+    // 첨부파일 삭제 함수
+    function deleteAttachment(index) {
+        // 첨부파일 요소를 삭제합니다.
+        const attachmentElement = document.getElementById("attachment" + index);
+        attachmentElement.remove();
+
+        const fileBlock = document.createElement("div");
+        fileBlock.className = "file-block";
+        fileBlock.innerHTML = `<input type="file" id="attachment${index}" name="attachment${index}>`;
+
+        const attachmentsContainer = document.getElementById("attachmentsList");
+        attachmentsContainer.appendChild(fileBlock);
+    }
+
 </script>
 
 <% if (board != null) { %>
@@ -53,7 +68,7 @@
     <h1 class="my-4">게시판 - 수정</h1>
     <div class="row justify-content-center">
         <div class="col-md-12 bg-light">
-            <form action="update" method="post" class="p-3">
+            <form action="update" method="post" class="p-3" enctype="multipart/form-data">
                 <input type="hidden" name="id" value="<%= board.getBoardId() %>">
                 <div class="form-group row border-bottom p-3">
                     <label for="category" class="col-sm-2 col-form-label d-flex align-items-center">카테고리</label>
@@ -115,32 +130,31 @@
                 </div>
 
                 <%-- List of attachments --%>
-                <div class="form-group row border-bottom p-3">
+                <div class="form-group row border-bottom p-3" id="attachmentsContainer">
                     <label class="col-sm-2 col-form-label d-flex align-items-center">첨부파일</label>
-                    <div class="col-sm-8">
-                        <%
-                            for (int i = 0; i < attachments.size(); i++) {
-                                Attachment attachment = attachments.get(i);
+                    <div class="col-sm-8" id="attachmentsList">
+                        <% for (int i = 0; i < attachments.size(); i++) {
+                            Attachment attachment = attachments.get(i);
                         %>
-                        <%-- TODO : 취소버튼 클릭 시 파일 수정이 반영 되어야 함 --%>
-                        <div class="file-block d-flex justify-content-between">
-                            <p><%= attachment.getFileName() %>
-                            </p>
+                        <div class="file-block d-flex justify-content-between" id="attachment<%= (i+1) %>" %>"
+                            <hidden><input type="file" id="attachment<%= (i+1) %>" name="attachment<%= (i+1) %>" ></hidden>
+                            <p><%= attachment.getOriginName() %></p>
                             <div>
-                                <a href="download?fileName=<%= attachment.getFileName() %>" class="btn btn-sm btn-primary">Download</a>
-                                <a href="delete-file?fileName=<%= attachment.getFileName() %>"
-                                   class="btn btn-sm btn-danger">X</a>
+                                <a href="download?fileName=<%= attachment.getFileName() %>"
+                                   class="btn btn-sm btn-primary">Download</a>
+                                <a href="#" class="btn btn-sm btn-danger" onclick="deleteAttachment(<%= i %>)">X</a>
                             </div>
                         </div>
                         <% } %>
 
                         <% for (int i = attachments.size(); i < 3; i++) { %>
                         <div class="file-block">
-                            <input type="file" id="file<%= (i+1) %>" name="file<%= (i+1) %>">
+                            <input type="file" id="attachment<%= (i+1) %>" name="attachment<%= (i+1) %>" >
                         </div>
                         <% } %>
                     </div>
                 </div>
+
                 <div class="row mt-3 justify-content-center">
                     <div class="col-md-6">
                         <input type="button" value="취소" onclick="onClickCancel()" class="btn btn-secondary btn-block">

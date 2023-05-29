@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="AttachmentMapper">
+    <!-- result mapping DB column name <-> VO member value name -->
+    <resultMap id="attachmentResultMap" type="attachment.Attachment">
+        <id property="attachmentId" column="attachment_id"/>
+        <result property="boardId" column="board_id"/>
+        <result property="fileName" column="filename"/>
+        <result property="originName" column="origin_filename"/>
+    </resultMap>
+
+    <!-- Save Attachment Information -->
+    <insert id="saveAttachment" parameterType="attachment.Attachment">
+        INSERT INTO attachment (board_id, filename, origin_filename)
+        VALUES (#{boardId}, #{fileName}, #{originName})
+    </insert>
+
+    <!-- Get Attachment Information By Board ID -->
+    <select id="getAttachmentsByBoardId" parameterType="int" resultType="attachment.Attachment" resultMap="attachmentResultMap">
+        SELECT * FROM attachment WHERE board_id = #{boardId}
+    </select>
+
+    <!-- Delete Attachment by Attachment ID -->
+    <delete id="deleteAttachmentByAttachmentId" parameterType="int">
+        DELETE FROM attachment WHERE attachment_id = #{attachmentId}
+    </delete>
+
+</mapper>
+

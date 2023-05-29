@@ -14,6 +14,7 @@ public class GetCategoryToWriteCommand implements Command{
         try {
             List<Category> categories = CategoryDAO.getAllCategory();
             request.setAttribute("categories", categories);
+            request.getRequestDispatcher("WriteBoardContent.jsp").forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -52,6 +52,7 @@
             <% } %>
 
             <label for="search" class="mr-2">검색어:</label>
+<%--TODO : util로 value를 간단하게 처            --%>
             <input type="text" id="search" name="search" class="form-control mr-2" placeholder="카테고리 + 제목 + 내용"
                    value="<%= (request.getParameter("search") != null && !request.getParameter("search").equals("null")) ? request.getParameter("search") : "" %>">
         </select>
@@ -130,7 +131,7 @@
             <% if (currentPage < totalPages) { %>
             <a href="list?page=<%= currentPage + 1 %>&category=<%= category %>&search=<%= search %>&startDate=<%= startDate %>&endDate=<%= endDate %>">&nbsp;&gt;</a>
             <% } %>
-            <a href="list?page=<%= totalPages %>&category=<%= category %>&search=<%= search %>&startDate=<%= startDate %>&endDate=<%= endDate %>">&nbsp;>></a>
+            <a href="list?page=<%= totalPages %>&category=리%= category %>&search=<%= search %>&startDate=<%= startDate %>&endDate=<%= endDate %>">&nbsp;>></a>
         </div>
         <a href="write" class="btn btn-primary">등록</a>
     </div>

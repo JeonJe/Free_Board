@@ -57,6 +57,7 @@ public class BoardControllerServlet extends HttpServlet {
         String contextPath = request.getContextPath();
 
         try {
+
             if (uri.startsWith(contextPath + "/list")) {
                 commandMap.get("list").execute(request, response);
             } else if (uri.startsWith(contextPath + "/write")) {

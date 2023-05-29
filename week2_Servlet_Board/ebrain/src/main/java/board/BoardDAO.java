@@ -151,19 +151,19 @@ public class BoardDAO {
     private void applySearchConditions(StringBuilder sqlBuilder, List<Object> params,
                                        LocalDate startDate, LocalDate endDate, int category, String search) {
 
-        //특정 카테고리 선택 시
+        //enter category
         if (category != 0) {
             sqlBuilder.append(" AND category_id = ?");
             params.add(category);
         }
-        //특정 검색어 입력 시
+        //enter search keyword
         if (!StringUtils.isNullOrEmpty(search) && !search.equals("null")) {
             sqlBuilder.append(" AND (title LIKE ? OR content LIKE ? OR writer LIKE ?)");
             params.add("%" + search + "%");
             params.add("%" + search + "%");
             params.add("%" + search + "%");
         }
-        //등록일 입력 시
+        //enter start & end date
         if (startDate != null && endDate != null) {
             sqlBuilder.append(" AND created_at BETWEEN ? AND ?");
             params.add(Timestamp.valueOf(startDate.atStartOfDay()));
@@ -224,6 +224,7 @@ public class BoardDAO {
             DBUtils.closeConnection(conn);
         }
         return boards;
+
     }
 
     /**

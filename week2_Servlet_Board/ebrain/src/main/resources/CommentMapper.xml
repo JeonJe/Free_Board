@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="CommentMapper">
+    <!-- result mapping DB column name <-> VO member value name -->
+    <resultMap id="commentResultMap" type="comment.Comment">
+        <id property="commentId" column="comment_id"/>
+        <result property="boardId" column="board_id"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+    <!-- Insert comment -->
+    <insert id="save" parameterType="comment.Comment">
+        INSERT INTO comment (writer, content, created_at, board_id)
+        VALUES (#{writer}, #{content}, #{createdAt}, #{boardId})
+    </insert>
+
+    <!-- Get comments by boardId -->
+    <select id="getCommentsByBoardId" parameterType="int" resultType="comment.Comment" resultMap="commentResultMap">
+        SELECT * FROM comment WHERE board_id = #{id}
+    </select>
+</mapper>
+

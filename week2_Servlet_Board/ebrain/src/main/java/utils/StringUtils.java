@@ -16,7 +16,4 @@ public class StringUtils {
      * @param str
      * @return
      */
-    public static boolean isNull(String str) {
-        return str == null || str.equals("null");
-    }
 }

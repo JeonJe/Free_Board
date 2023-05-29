@@ -46,3 +46,5 @@ bin/
 out
 gen
 
+/src/main/resources/db.properties
+/src/main/webapp/WEB-INF/lib/

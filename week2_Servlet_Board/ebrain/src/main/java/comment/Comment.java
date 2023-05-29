@@ -3,6 +3,9 @@ package comment;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Comment of Board
+ */
 public class Comment {
     /**
      * Command ID
@@ -27,14 +30,6 @@ public class Comment {
 
 
     public Comment() {
-    }
-
-    public Comment(int commentId, int boardId, String writer, String content, LocalDateTime createdAt) {
-        this.commentId = commentId;
-        this.boardId = boardId;
-        this.writer = writer;
-        this.content = content;
-        this.createdAt = createdAt;
     }
 
     public int getCommentId() {

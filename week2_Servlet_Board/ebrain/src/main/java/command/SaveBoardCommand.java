@@ -20,22 +20,22 @@ import java.util.List;
 
 public class SaveBoardCommand implements Command {
     public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        // 업로드할 서버 디렉토리 위치
+
         String uploadPath = "/Users/premise/Desktop/github/Java/ebrain/upload";
         boolean isMultipart = ServletFileUpload.isMultipartContent(request);
 
         if (isMultipart) {
-            // 파일 아이템을 저장할 Factory 생성
+            // Create Factory for storing file items.
             DiskFileItemFactory factory = new DiskFileItemFactory();
 
-            // 업로드 파일이 임시로 저장될 디렉토리 설정
+            //Set directory for temporarily storing uploaded files.
             File tempDir = new File(System.getProperty("java.io.tmpdir"));
             factory.setRepository(tempDir);
 
-            // 파일 업로드를 처리할 ServletFileUpload 객체 생성
+            //Create ServletFileUpload object to handle file uploads
             ServletFileUpload upload = new ServletFileUpload(factory);
             try {
-                // 요청 파라미터들을 파싱하여 파일 아이템 리스트를 얻어옴
+
                 List<FileItem> items = upload.parseRequest(request);
                 String category = null;
                 String writer = null;
@@ -45,11 +45,11 @@ public class SaveBoardCommand implements Command {
                 String content = null;
 
                 AttachmentDAO attachmentDAO = new AttachmentDAO();
-                // 업로드한 파일 정보를 저장할 리스트
+
                 List<Attachment> attachments = new ArrayList<>();
                 int boardId = -1;
 
-                // 파일 아이템들을 처리
+
                 for (FileItem item : items) {
 
                     if (item.isFormField()) {
@@ -80,11 +80,10 @@ public class SaveBoardCommand implements Command {
 
                         if (!StringUtils.isNullOrEmpty(item.getName())) {
 
-                            // 파일 이름 가져오기
+                            // Get File Name
                             String fileName = item.getName();
-                            System.out.println("아이템 이름 " + item.getName());
 
-                            // 중복 파일명 처리
+                            // Duplicate File Name Handling
                             File uploadedFile = new File(uploadPath);
                             String baseName = FilenameUtils.getBaseName(fileName);
                             String extension = FilenameUtils.getExtension(fileName);
@@ -92,7 +91,6 @@ public class SaveBoardCommand implements Command {
                             int count = 1;
                             String numberedFileName = null;
                             while (uploadedFile.exists()) {
-                                // 중복 파일명에 번호를 붙임
                                 numberedFileName = baseName + "_" + count + "." + extension;
                                 uploadedFile = new File(uploadPath, numberedFileName);
                                 count++;
@@ -101,7 +99,7 @@ public class SaveBoardCommand implements Command {
                             attachment.setFileName(numberedFileName);
                             attachment.setOriginName(fileName);
                             attachments.add(attachment);
-                            // 파일 업로드
+                            //File Upload to Server's upload folder
                             item.write(uploadedFile);
                         }
                     }
@@ -111,8 +109,7 @@ public class SaveBoardCommand implements Command {
                     throw new InvalidValidationException("폼 유효성 검증에 실패하였습니다.");
                 }
 
-                // 게시글 저장
-
+                // Save Board content
                 Board board = new Board();
                 board.setCategoryId(Integer.parseInt(category));
                 board.setWriter(writer);
@@ -124,11 +121,11 @@ public class SaveBoardCommand implements Command {
                 BoardDAO boardDAO = new BoardDAO();
                 boardId = boardDAO.save(board);
 
-                // 첨부 파일 저장
+                // Save Attachments
                 for (Attachment attachment : attachments) {
                     if (attachment.getFileName() != null && attachment.getOriginName() != null) {
                         attachment.setBoardId(boardId);
-                        attachmentDAO.save(attachment);
+                        attachmentDAO.saveAttachment(attachment);
                     }
                 }
 

@@ -28,7 +28,7 @@ public class AddCommentCommand implements Command {
             comment.setWriter("-");
 
             CommentDAO commentDAO = new CommentDAO();
-            commentDAO.save(comment);
+            commentDAO.saveComment(comment);
 
             String url = "/view?id=" + id + "&page=" + currentPageParam+
                     "&category=" + categoryParam + "&search=" + search +

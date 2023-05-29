@@ -13,7 +13,6 @@ public class CategoryDAO {
 
     /**
      * Get All Categories Information
-     *
      * @return
      * @throws Exception
      */

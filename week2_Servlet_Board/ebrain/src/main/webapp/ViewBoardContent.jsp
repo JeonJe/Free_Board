@@ -154,7 +154,7 @@
     <br>
     <%-- list of comments --%>
     <div>
-        <% if (comments != null && comments.size() > 0) { %>
+        <% if (comments != null && !comments.isEmpty()) { %>
         <div class="list-group comment-item bg-light">
             <% for (Comment comment : comments) { %>
             <div class="list-group-item comment-item">
@@ -162,7 +162,7 @@
                     <small class="mb-1"><%= comment.getCreatedAt() %>
                     </small>
                 </div>
-                <p class="mb-1"><%= comment.getContent() %>
+                <p class="mb-1"><%=  comment.getContent() %></p>
                 </p>
             </div>
             <% } %>

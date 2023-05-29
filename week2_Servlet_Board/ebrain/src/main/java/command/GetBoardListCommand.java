@@ -48,6 +48,8 @@ public class GetBoardListCommand implements Command {
             int totalPages = (int) Math.ceil((double) totalCount / pageSize);
 
             // 필요한 데이터를 request 속성에 저장
+            //TODO : VO로 하나로 넘기기  + 클래스명 변경 동사 X
+            //jsp 소문자, 명사 시작
             request.setAttribute("boards", boards);
             request.setAttribute("currentPage", currentPage);
             request.setAttribute("category", category);
@@ -56,6 +58,8 @@ public class GetBoardListCommand implements Command {
             request.setAttribute("endDate", endDate.toString());
             request.setAttribute("totalCount", totalCount);
             request.setAttribute("totalPages", totalPages);
+
+
 
             request.getRequestDispatcher("GetListBoard.jsp").forward(request, response);
 

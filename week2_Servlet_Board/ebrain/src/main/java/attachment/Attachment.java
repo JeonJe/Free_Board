@@ -1,5 +1,4 @@
 package attachment;
-
 public class Attachment {
     /**
      * Attachment ID

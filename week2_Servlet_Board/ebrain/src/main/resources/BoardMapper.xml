@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="BoardMapper">
+
+
+    <!-- Delete the Board by Board ID -->
+    <delete id="delete" parameterType="int">
+        DELETE FROM board WHERE board_id = #{id}
+    </delete>
+
+    <!-- Update the Board Information -->
+    <update id="update" parameterType="board.Board">
+        UPDATE board SET writer = #{writer}, title = #{title}, content = #{content}, modified_at = #{modifiedAt}
+        WHERE board_id = #{boardId}
+    </update>
+
+    <!-- Validate the password -->
+    <select id="validatePassword" resultType="boolean" parameterType="map">
+        SELECT 1 FROM board WHERE board_id = #{boardId} AND password = #{password}
+    </select>
+
+    <!-- Search for Boards that meet the search condition -->
+    <select id="searchBoards" resultType="board.Board">
+        SELECT * FROM board
+        WHERE 1=1
+        <if test="startDate != null">
+            AND created_at &gt;= #{startDate}
+        </if>
+        <if test="endDate != null">
+            AND created_at &lt;= #{endDate}
+        </if>
+        <if test="category != 0">
+            AND category_id = #{category}
+        </if>
+        <if test="search != null and !search.equals('null')">
+            AND (title LIKE concat('%', #{search}, '%') OR content LIKE concat('%', #{search}, '%') OR writer LIKE concat('%', #{search}, '%'))
+        </if>
+        ORDER BY created_at DESC LIMIT #{pageSize}
+    </select>
+
+    <!-- Count the number of Boards that meet the search condition -->
+    <select id="countBoards" resultType="int">
+        SELECT COUNT(*) FROM board
+        WHERE 1=1
+        <if test="startDate != null">
+            AND created_at &gt;= #{startDate}
+        </if>
+        <if test="endDate != null">
+            AND created_at &lt;= #{endDate}
+        </if>
+        <if test="category != 0">
+            AND category_id = #{category}
+        </if>
+        <if test="search != null and !search.equals('null')">
+            AND (title LIKE concat('%', #{search}, '%') OR content LIKE concat('%', #{search}, '%') OR writer LIKE concat('%', #{search}, '%'))
+        </if>
+    </select>
+
+    <!-- Get Board Information by Board ID -->
+    <select id="getBoardById" resultType="board.Board" parameterType="int">
+        SELECT * FROM board WHERE board_id = #{id}
+    </select>
+
+    <!-- Update Board view count -->
+    <update id="updateVisitCount" parameterType="map">
+        UPDATE board SET visit_count = #{visitCount} + 1 WHERE board_id = #{id}
+    </update>
+
+</mapper>
+
