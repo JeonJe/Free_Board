@@ -34,7 +34,7 @@
 %>
 
 <div class="container">
-    <h1 class="my-4">자유 게시판 목록</h1>€
+    <h1 class="my-4">자유 게시판 목록</h1>
     <%-- Form of the Searching Condition --%>
     <form action="list" method="get" class="form-inline mb-4">
         <input type="hidden" name="action" value="list">
@@ -140,7 +140,7 @@
             <% } %>
             <a href="list?action=list&page=<%= totalPages %>&category=<%= category %>&searchText=<%= searchText %>&startDate=<%= startDate %>&endDate=<%= endDate %>">&nbsp;>></a>
         </div>
-        <a href="write" class="btn btn-primary">등록</a>
+        <a href="write?action=write" class="btn btn-primary">등록</a>
     </div>
 </div>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>

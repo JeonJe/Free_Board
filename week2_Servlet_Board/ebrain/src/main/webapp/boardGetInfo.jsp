@@ -148,7 +148,7 @@
     <%-- list of attachments --%>
     <div>
         <% for (Attachment attachment : attachments) { %>
-        <a href="download?fileName=<%=attachment.getFileName()%>" class="mb-2 text-decoration-underline d-block">
+        <a href="download?action=download&fileName=<%=attachment.getFileName()%>" class="mb-2 text-decoration-underline d-block">
             <%=attachment.getOriginName()%>
         </a>
         <% } %>

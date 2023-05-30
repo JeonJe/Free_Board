@@ -22,7 +22,7 @@ public class BoardModifyCommand implements Command {
             request.setAttribute("board", board);
             request.setAttribute("attachments", attachments);
 
-            request.getRequestDispatcher("boardModifyConent.jsp").forward(request, response);
+            request.getRequestDispatcher("boardModifyContent.jsp").forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("errorMessage", "Failed to retrieve board data for modification.");

@@ -8,23 +8,20 @@ import exceptions.FormValidationInvalidException;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.commons.io.FilenameUtils;
 import utils.BoardUtils;
 import utils.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class BoardSaveCommand implements Command {
     public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        String uploadPath = ResourceBundle.getBundle("db").getString("UPLOAD_PATH");
 
-        String uploadPath = "/Users/premise/Desktop/github/Java/ebrain/upload";
-        boolean isMultipart = ServletFileUpload.isMultipartContent(request);
+        try {
 
-        if (isMultipart) {
             // Create Factory for storing file items.
             DiskFileItemFactory factory = new DiskFileItemFactory();
 
@@ -34,109 +31,81 @@ public class BoardSaveCommand implements Command {
 
             //Create ServletFileUpload object to handle file uploads
             ServletFileUpload upload = new ServletFileUpload(factory);
-            try {
 
-                List<FileItem> items = upload.parseRequest(request);
-                String category = null;
-                String writer = null;
-                String password = null;
-                String passwordConfirm = null;
-                String title = null;
-                String content = null;
-
-                AttachmentDAO attachmentDAO = new AttachmentDAO();
-
-                List<Attachment> attachments = new ArrayList<>();
-                int boardId = -1;
+            List<FileItem> items = upload.parseRequest(request);
+            int boardId = -1;
+            int categoryId = 0;
+            String writer = null;
+            String password = null;
+            String confirmPassword = null;
+            String title = null;
+            String content = null;
+            String hashedPassword = null;
 
 
-                for (FileItem item : items) {
+            List<FileItem> attachmentItems = new ArrayList<>();
+            Map<String, String> fieldMap = new HashMap<>();
 
-                    if (item.isFormField()) {
-                        String fieldName = item.getFieldName();
-                        String fieldValue = item.getString("utf-8");
+            for (FileItem item : items) {
 
-                        switch (fieldName) {
-                            case "category_id":
-                                category = fieldValue;
-                                break;
-                            case "writer":
-                                writer = fieldValue;
-                                break;
-                            case "password":
-                                password = fieldValue;
-                                break;
-                            case "password-confirm":
-                                passwordConfirm = fieldValue;
-                                break;
-                            case "title":
-                                title = fieldValue;
-                                break;
-                            case "content":
-                                content = fieldValue;
-                                break;
-                        }
-                    } else {
+                if (item.isFormField()) {
+                    String fieldName = item.getFieldName();
+                    String fieldValue = item.getString("utf-8");
+                    fieldMap.put(fieldName, fieldValue);
 
-                        if (!StringUtils.isNullOrEmpty(item.getName())) {
-
-                            // Get File Name
-                            String fileName = item.getName();
-
-                            // Duplicate File Name Handling
-                            File uploadedFile = new File(uploadPath);
-                            String baseName = FilenameUtils.getBaseName(fileName);
-                            String extension = FilenameUtils.getExtension(fileName);
-
-                            int count = 1;
-                            String numberedFileName = null;
-                            while (uploadedFile.exists()) {
-                                numberedFileName = baseName + "_" + count + "." + extension;
-                                uploadedFile = new File(uploadPath, numberedFileName);
-                                count++;
-                            }
-                            Attachment attachment = new Attachment();
-                            attachment.setFileName(numberedFileName);
-                            attachment.setOriginName(fileName);
-                            attachments.add(attachment);
-                            //File Upload to Server's upload folder
-                            item.write(uploadedFile);
-                        }
-                    }
+                } else {
+                    //Attachment Items
+                    attachmentItems.add(item);
                 }
-
-                if (!BoardUtils.checkFormValidation(writer,password,passwordConfirm,title,content)){
-                    throw new FormValidationInvalidException("폼 유효성 검증에 실패하였습니다.");
-                }
-
-                // Save Board content
-                Board board = new Board();
-                board.setCategoryId(Integer.parseInt(category));
-                board.setWriter(writer);
-                board.setPassword(BoardUtils.hashPassword(password));
-                board.setTitle(title);
-                board.setContent(content);
-                board.setVisitCount(0);
-
-                BoardDAO boardDAO = new BoardDAO();
-                boardId = boardDAO.saveBoard(board);
-
-                // Save Attachments
-                for (Attachment attachment : attachments) {
-                    if (attachment.getFileName() != null && attachment.getOriginName() != null) {
-                        attachment.setBoardId(boardId);
-//                        attachmentDAO.saveAttachment(attachment);
-                    }
-                }
-
-                response.sendRedirect("list");
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                response.getWriter().println("File upload failed!");
             }
-        } else {
-            response.getWriter().println("Invalid request!");
+            String categoryValue = fieldMap.get("category_id");
+            if (categoryValue != null) {
+                categoryId = Integer.parseInt(categoryValue);
+            }
+
+            writer = fieldMap.get("writer");
+            password = fieldMap.get("password");
+            confirmPassword = fieldMap.get("confirmPassword");
+            hashedPassword = BoardUtils.hashPassword(password);
+            title = fieldMap.get("title");
+            content = fieldMap.get("content");
+
+
+            if (!BoardUtils.checkFormValidation(writer, password, confirmPassword, title, content)) {
+                throw new FormValidationInvalidException("폼 유효성 검증에 실패하였습니다.");
+            }
+
+            // Save Board content
+            Board board = new Board();
+            board.setCategoryId(categoryId);
+            board.setWriter(writer);
+            board.setPassword(hashedPassword);
+            board.setTitle(title);
+            board.setContent(content);
+            board.setVisitCount(0);
+
+            BoardDAO boardDAO = new BoardDAO();
+            boardId = boardDAO.saveBoard(board);
+
+            AttachmentDAO attachmentDAO = new AttachmentDAO();
+            // Save Attachments
+            for (FileItem attachmentItem : attachmentItems) {
+                if (!StringUtils.isNullOrEmpty(attachmentItem.getName())) {
+                    String numberedFileName = BoardUtils.uploadFile(attachmentItem, uploadPath);
+                    Attachment attachment = new Attachment();
+                    attachment.setBoardId(boardId);
+                    attachment.setFileName(numberedFileName);
+                    attachment.setOriginName(attachmentItem.getName());
+                    attachmentDAO.saveAttachment(attachment);
+                }
+            }
+
+            response.sendRedirect("list?action=list");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.getWriter().println("File upload failed!");
         }
+
     }
 }

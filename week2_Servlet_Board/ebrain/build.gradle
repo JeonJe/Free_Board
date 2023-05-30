@@ -35,6 +35,8 @@ dependencies {
     implementation 'commons-fileupload:commons-fileupload:1.4'
     // MyBatis dependency
     implementation 'org.mybatis:mybatis:3.5.13'
+    // To read deleted attachment list
+    implementation 'com.google.code.gson:gson:2.9.0'
 }
 
 test {

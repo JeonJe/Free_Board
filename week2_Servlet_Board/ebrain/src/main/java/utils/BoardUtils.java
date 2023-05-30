@@ -1,6 +1,10 @@
 package utils;
 
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.io.FilenameUtils;
+
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 
@@ -66,6 +70,29 @@ public class BoardUtils {
         }
         return null;
     }
+    public static String uploadFile(FileItem attachmentItem, String uploadPath) throws Exception {
+            String fileName = attachmentItem.getName();
+
+            // Duplicate File Name Handling
+            File uploadedFile = new File(uploadPath);
+            String baseName = FilenameUtils.getBaseName(fileName);
+            String extension = FilenameUtils.getExtension(fileName);
+
+            int count = 1;
+            String numberedFileName = null;
+            while (uploadedFile.exists()) {
+                // Add number to duplicate file name
+                numberedFileName = baseName + "_" + count + "." + extension;
+                uploadedFile = new File(uploadPath, numberedFileName);
+                count++;
+            }
+
+            // File Upload to Server's upload folder
+            attachmentItem.write(uploadedFile);
+
+            return numberedFileName;
+    }
+
 
     /**
      * Set Error Message into request

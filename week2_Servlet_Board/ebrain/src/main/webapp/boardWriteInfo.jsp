@@ -23,7 +23,6 @@
     document.getElementById('post-form').addEventListener('submit', function (event) {
         const writer = document.getElementById('writer').value;
         const password = document.getElementById('password').value;
-        //TODO :: 변수명 고치기
         const confirmPassword = document.getElementById('confirmPassword').value;
         const title = document.getElementById('title').value;
         const content = document.getElementById('content').value;
