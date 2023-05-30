@@ -67,7 +67,8 @@
                     const editStartDate = '<%= request.getParameter("startDate") %>';
                     const editEndDate = '<%= request.getParameter("endDate") %>';
 
-                    const redirectURL = "modify?id=<%= board.getBoardId() %>" +
+                    const redirectURL = "modify?action=modify" +
+                        "&id=<%= board.getBoardId() %>" +
                         "&page=" + editPage +
                         "&category=" + editCategory +
                         "&search=" + editSearch +
@@ -82,7 +83,7 @@
                             headers: {
                                 'Content-Type': 'application/x-www-form-urlencoded',
                             },
-                            body: 'id=' + <%= board.getBoardId() %> +'&password=' + enteredPassword
+                            body: 'action=delete' + 'id=' + <%= board.getBoardId() %> +'&password=' + enteredPassword
                         });
                         if (!response.ok) {
                             alert("삭제에 실패하였습니다");
@@ -176,7 +177,8 @@
 
     <!-- write comment and post -->
     <div class="d-flex justify-content-center my-3">
-        <form action="/addComment" method="post" class="w-75">
+        <form action="addComment" method="post" class="w-75">
+            <input type="hidden" name="action" value="addComment">
             <input type="hidden" name="id" value="${board.getBoardId()}">
             <input type="hidden" name="page" value="${param.page}">
             <input type="hidden" name="category" value="${param.category}">
@@ -200,7 +202,7 @@
     <!-- button group -->
     <div class="d-flex justify-content-center mt-3">
         <div class="buttons">
-            <a href="list?page=${param.page}&category=${param.category}&searchText=${param.searchText}&startDate=${param.startDate}&endDate=${param.endDate}"
+            <a href="list?action=list&page=${param.page}&category=${param.category}&searchText=${param.searchText}&startDate=${param.startDate}&endDate=${param.endDate}"
                class="btn btn-secondary">목록으로 돌아가기</a>
             <button class="btn btn-primary" onclick="showPasswordModal('edit')">수정</button>
             <button class="btn btn-primary" onclick="showPasswordModal('delete')">삭제</button>

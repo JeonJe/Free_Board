@@ -19,7 +19,7 @@
     <!-- Get comments by boardId -->
     <select id="getCommentsByBoardId" parameterType="int" resultType="comment.Comment" resultMap="commentResultMap">
         SELECT *
-        FROM comment 
+        FROM comment
         WHERE board_id = #{id}
     </select>
 </mapper>

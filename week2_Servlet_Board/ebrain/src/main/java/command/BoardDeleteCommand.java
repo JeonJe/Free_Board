@@ -6,7 +6,7 @@ import utils.BoardUtils;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class DeleteBoardCommand implements Command {
+public class BoardDeleteCommand implements Command {
     public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
         try {
             request.setCharacterEncoding("UTF-8");

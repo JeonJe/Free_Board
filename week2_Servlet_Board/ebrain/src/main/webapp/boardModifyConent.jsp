@@ -39,7 +39,7 @@
         const startDate = '<%= request.getParameter("startDate") %>';
         const endDate = '<%= request.getParameter("endDate") %>';
 
-        const viewURL = 'view?id=<%= board.getBoardId() %>' + '&page=' + page +
+        const viewURL = 'view?action=view&id=<%= board.getBoardId() %>' + '&page=' + page +
             '&category=' + category + '&search=' + search +
             '&startDate=' + startDate + '&endDate=' + endDate;
         location.href = viewURL;
@@ -69,6 +69,7 @@
     <div class="row justify-content-center">
         <div class="col-md-12 bg-light">
             <form action="update" method="post" class="p-3" enctype="multipart/form-data">
+                <input type="hidden" name="action" value="update">
                 <input type="hidden" name="id" value="<%= board.getBoardId() %>">
                 <div class="form-group row border-bottom p-3">
                     <label for="category" class="col-sm-2 col-form-label d-flex align-items-center">카테고리</label>

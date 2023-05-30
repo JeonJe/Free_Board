@@ -1,11 +1,11 @@
 package exceptions;
 
-public class InvalidValidationException extends Exception{
+public class FormValidationInvalidException extends Exception{
     /**
      * Exception to form Invalidation
      * @param message
      */
-    public InvalidValidationException(String message) {
+    public FormValidationInvalidException(String message) {
         super(message);
     }
 }

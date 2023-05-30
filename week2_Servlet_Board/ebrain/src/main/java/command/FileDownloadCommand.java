@@ -6,7 +6,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.OutputStream;
 
-public class DownloadFileCommand implements Command {
+public class FileDownloadCommand implements Command {
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
         try {

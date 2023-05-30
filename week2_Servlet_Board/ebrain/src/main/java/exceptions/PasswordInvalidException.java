@@ -1,11 +1,11 @@
 package exceptions;
 
-public class InvalidPasswordException extends Exception {
+public class PasswordInvalidException extends Exception {
     /**
      * Exception to password Invalidation
      * @param message
      */
-    public InvalidPasswordException(String message) {
+    public PasswordInvalidException(String message) {
         super(message);
     }
 

@@ -12,6 +12,7 @@
 <%@ page import="java.time.LocalDate" %>
 <%@ page import="category.CategoryDAO" %>
 <%@ page import="category.Category" %>
+<%@ page import="java.util.Map" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <html>
 <head>
@@ -21,18 +22,22 @@
 <body>
 <%
     //Get Searching Condition
-    List<Board> boards = (List<Board>) request.getAttribute("boards");
-    int currentPage = (int) request.getAttribute("currentPage");
-    int category = (int) request.getAttribute("category");
-    String searchText = (String) request.getAttribute("searchText");
-    String startDate = (String) request.getAttribute("startDate");
-    String endDate = (String) request.getAttribute("endDate");
+    Map<String, Object> attributes = (Map<String, Object>) request.getAttribute("attributes");
+    List<Board> boards = (List<Board>) attributes.get("boards");
+    int currentPage = (int) attributes.get("currentPage");
+    int category = (int) attributes.get("category");
+    String searchText = (String) attributes.get("searchText");
+    String startDate = (String) attributes.get("startDate");
+    String endDate = (String) attributes.get("endDate");
+    int totalPages = (int) attributes.get("totalPages");
+    List<Category> categories = (List<Category>) attributes.get("categories");
 %>
 
 <div class="container">
-    <h1 class="my-4">자유 게시판 목록</h1>
+    <h1 class="my-4">자유 게시판 목록</h1>€
     <%-- Form of the Searching Condition --%>
     <form action="list" method="get" class="form-inline mb-4">
+        <input type="hidden" name="action" value="list">
         <label for="startDate" class="mr-2">등록일:</label>
         <input type="date" id="startDate" name="startDate" class="form-control mr-2"
                value="<%= (request.getParameter("startDate") != null) ? request.getParameter("startDate") : LocalDate.now().minusYears(1) %>">
@@ -44,22 +49,21 @@
             <option value="0" <%= (request.getParameter("category") != null && request.getParameter("category").equals("0")) ? "selected" : "" %>>
                 전체 카테고리
             </option>
-            <% List<Category> categories = CategoryDAO.getAllCategory(); %>
+
             <% for (Category categoryItem : categories) { %>
-            <option value="<%= categoryItem.getCategoryId() %>" <%= (request.getParameter("category") != null &&
-                    request.getParameter("category").equals(String.valueOf(categoryItem.getCategoryId()))) ? "selected" : "" %>><%= categoryItem.getCategoryName() %>
+            <option value="<%= categoryItem.getCategoryId() %>" <%=
+            String.valueOf(categoryItem.getCategoryId()).equals(request.getParameter("category")) ? "selected" : "" %>><%= categoryItem.getCategoryName() %>
             </option>
             <% } %>
 
             <label for="searchText" class="mr-2">검색어:</label>
-<%--TODO : util로 value를 간단하게 처            --%>
+
             <input type="text" id="searchText" name="searchText" class="form-control mr-2" placeholder="카테고리 + 제목 + 내용"
-                   value="<%= (request.getParameter("searchText") != null && !request.getParameter("searchText").equals("null")) ? request.getParameter("searchText") : "" %>">
+                   value="<%= (searchText != null ) ? searchText : "" %>">
         </select>
 
         <input type="submit" value="검색" class="btn btn-primary">
     </form>
-
 
     <%-- List of the posts   --%>
     <table class="table table-striped text-center">
@@ -91,7 +95,7 @@
                         title = title.substring(0, 80) + "...";
                     }
                 %>
-                <a href="view?id=<%= board.getBoardId() %>&page=<%= currentPage %>&category=<%= category %>&searchText=<%= searchText %>&startDate=<%= startDate %>&endDate=<%= endDate %>"><%= title %>
+                <a href="view?action=view&id=<%= board.getBoardId() %>&page=<%= currentPage %>&category=<%= category %>&searchText=<%= searchText %>&startDate=<%= startDate %>&endDate=<%= endDate %>"><%= title %>
                 </a>
             </td>
             <td><%= board.getWriter() %>
@@ -113,14 +117,12 @@
         </tbody>
     </table>
 
-
     <%-- pagination --%>
     <div class="d-flex justify-content-between">
         <div class="text-center mx-auto">
-            <% int totalPages = (int) request.getAttribute("totalPages"); %>
             <% if (currentPage > 1) { %>
-            <a href="list?page=<%= currentPage - 1 %>&category=<%= category %>&searchText=<%= searchText %>&startDate=<%= startDate %>&endDate=<%= endDate %>">&lt;&nbsp;</a>
-            <a href="list?page=1&category=<%= category %>&searchText=<%= searchText %>&startDate=<%= startDate %>&endDate=<%= endDate %>"><<&nbsp;</a>
+            <a href="list?action=list&page=<%= currentPage - 1 %>&category=<%= category %>&searchText=<%= searchText %>&startDate=<%= startDate %>&endDate=<%= endDate %>">&lt;&nbsp;</a>
+            <a href="list?action=list&page=1&category=<%= category %>&searchText=<%= searchText %>&startDate=<%= startDate %>&endDate=<%= endDate %>"><<&nbsp;</a>
             <% } %>
 
             <% for (int i = 1; i <= totalPages; i++) { %>
@@ -128,15 +130,15 @@
             <strong><%= i %>
             </strong>
             <% } else { %>
-            <a href="list?page=<%= i %>&category=<%= category %>&searchText=<%= searchText %>&startDate=<%= startDate %>&endDate=<%= endDate %>"><%= i %>
+            <a href="list?action=list&page=<%= i %>&category=<%= category %>&searchText=<%= searchText %>&startDate=<%= startDate %>&endDate=<%= endDate %>"><%= i %>
             </a>
             <% } %>
             <% } %>
 
             <% if (currentPage < totalPages) { %>
-            <a href="list?page=<%= currentPage + 1 %>&category=<%= category %>&searchText=<%= searchText %>&startDate=<%= startDate %>&endDate=<%= endDate %>">&nbsp;&gt;</a>
+            <a href="list?action=list&page=<%= currentPage + 1 %>&category=<%= category %>&searchText=<%= searchText %>&startDate=<%= startDate %>&endDate=<%= endDate %>">&nbsp;&gt;</a>
             <% } %>
-            <a href="list?page=<%= totalPages %>&category=<%= category %>&searchText=<%= searchText %>&startDate=<%= startDate %>&endDate=<%= endDate %>">&nbsp;>></a>
+            <a href="list?action=list&page=<%= totalPages %>&category=<%= category %>&searchText=<%= searchText %>&startDate=<%= startDate %>&endDate=<%= endDate %>">&nbsp;>></a>
         </div>
         <a href="write" class="btn btn-primary">등록</a>
     </div>

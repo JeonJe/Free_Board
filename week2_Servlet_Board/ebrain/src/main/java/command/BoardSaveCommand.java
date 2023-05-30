@@ -4,7 +4,7 @@ import attachment.Attachment;
 import attachment.AttachmentDAO;
 import board.Board;
 import board.BoardDAO;
-import exceptions.InvalidValidationException;
+import exceptions.FormValidationInvalidException;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
@@ -18,7 +18,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SaveBoardCommand implements Command {
+public class BoardSaveCommand implements Command {
     public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         String uploadPath = "/Users/premise/Desktop/github/Java/ebrain/upload";
@@ -106,7 +106,7 @@ public class SaveBoardCommand implements Command {
                 }
 
                 if (!BoardUtils.checkFormValidation(writer,password,passwordConfirm,title,content)){
-                    throw new InvalidValidationException("폼 유효성 검증에 실패하였습니다.");
+                    throw new FormValidationInvalidException("폼 유효성 검증에 실패하였습니다.");
                 }
 
                 // Save Board content

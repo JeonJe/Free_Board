@@ -5,39 +5,39 @@ import java.time.format.DateTimeFormatter;
 
 public class Board {
     /**
-     * 게시글 ID
+     * Board ID
      */
     private int boardId;
     /**
-     * 게시글 카테고리
+     * Category ID of the board
      */
     private int categoryId;
     /**
-     * 게시글 작성자
+     * Writer of the board
      */
     private String writer;
     /**
-     * 게시글 비밀번호
+     * Password of the board
      */
     private String password;
     /**
-     * 게시글 제목
+     * Title of the board
      */
     private String title;
     /**
-     * 게시글 내용
+     * Content of the board
      */
     private String content;
     /**
-     * 게시글 생성시간
+     * Created Time of the board
      */
     private LocalDateTime createdAt;
     /**
-     * 게시글 수정시간
+     * Modified Time of the board
      */
     private LocalDateTime modifiedAt;
     /**
-     * 게시글 조회수
+     * Visit count of the board
      */
     private int visitCount;
 

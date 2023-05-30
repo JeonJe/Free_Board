@@ -1,11 +1,10 @@
 package board;
 
-import exceptions.InvalidPasswordException;
+import exceptions.PasswordInvalidException;
 import org.apache.ibatis.session.SqlSession;
 import utils.DBUtils;
-import utils.StringUtils;
 
-import java.sql.*;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -94,26 +93,8 @@ public class BoardDAO {
      * @return
      * @throws Exception
      */
-    public boolean validatePassword(int boardId, String enteredPassword) throws InvalidPasswordException {
-//        Connection conn = null;
-//        try {
-//            conn = DBUtils.getConnection();
-//            String sql = "SELECT password FROM board WHERE board_id = ? AND password = ?";
-//            PreparedStatement pstmt = conn.prepareStatement(sql);
-//            pstmt.setInt(1, boardId);
-//            pstmt.setString(2, enteredPassword);
-//            ResultSet rs = pstmt.executeQuery();
-//
-//            if (rs.next()) {
-//                return true;
-//            } else {
-//                throw new InvalidPasswordException("비밀번호가 틀립니다.");
-//            }
-//        } catch (SQLException | ClassNotFoundException e) {
-//            throw new RuntimeException(e);
-//        } finally {
-//            DBUtils.closeConnection(conn);
-//        }
+    public boolean validatePassword(int boardId, String enteredPassword) throws PasswordInvalidException {
+
         SqlSession session = null;
 
         try {
@@ -126,7 +107,7 @@ public class BoardDAO {
             if (result) {
                 return true;
             } else {
-                throw new InvalidPasswordException("비밀번호가 틀립니다.");
+                throw new PasswordInvalidException("비밀번호가 틀립니다.");
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -135,37 +116,6 @@ public class BoardDAO {
         }
     }
 
-    /**
-     * Generate SQL statement with search condition
-     *
-     * @param sqlBuilder
-     * @param params
-     * @param startDate
-     * @param endDate
-     * @param category
-     * @param searchText
-     */
-    private void applySearchConditions(StringBuilder sqlBuilder, List<Object> params, LocalDate startDate, LocalDate endDate, int category, String searchText) {
-
-        //enter category
-        if (category != 0) {
-            sqlBuilder.append(" AND category_id = ?");
-            params.add(category);
-        }
-        //enter search keyword
-        if (!StringUtils.isNullOrEmpty(searchText) && !searchText.equals("null")) {
-            sqlBuilder.append(" AND (title LIKE ? OR content LIKE ? OR writer LIKE ?)");
-            params.add("%" + searchText + "%");
-            params.add("%" + searchText + "%");
-            params.add("%" + searchText + "%");
-        }
-        //enter start & end date
-        if (startDate != null && endDate != null) {
-            sqlBuilder.append(" AND created_at BETWEEN ? AND ?");
-            params.add(Timestamp.valueOf(startDate.atStartOfDay()));
-            params.add(Timestamp.valueOf(endDate.atStartOfDay().plusDays(1)));
-        }
-    }
 
     /**
      * Search for Boards that meet the search condition

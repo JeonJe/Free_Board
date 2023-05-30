@@ -1,6 +1,7 @@
 package controller;
 
 import command.*;
+import utils.StringUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -27,20 +28,21 @@ public class BoardControllerServlet extends HttpServlet {
      */
     public void init() {
 
-        commandMap.put("list", new GetBoardListCommand());
-        commandMap.put("write", new GetCategoryToWriteCommand());
-        commandMap.put("save", new SaveBoardCommand());
-        commandMap.put("view", new ViewBoardCommand());
-        commandMap.put("delete", new DeleteBoardCommand());
-        commandMap.put("delete-file", new DeleteBoardCommand());
-        commandMap.put("update", new UpdateBoardCommand());
-        commandMap.put("modify", new ModifyBoardCommand());
-        commandMap.put("addComment", new AddCommentCommand());
-        commandMap.put("download", new DownloadFileCommand());
+        commandMap.put("list", new BoardListGetCommand());
+        commandMap.put("write", new CategoryGetListCommand());
+        commandMap.put("save", new BoardSaveCommand());
+        commandMap.put("view", new BoardGetInfoCommand());
+        commandMap.put("delete", new BoardDeleteCommand());
+        commandMap.put("deleteFile", new BoardDeleteCommand());
+        commandMap.put("update", new BoardUpdateCommand());
+        commandMap.put("modify", new BoardModifyCommand());
+        commandMap.put("addComment", new CommentAddCommand());
+        commandMap.put("download", new FileDownloadCommand());
     }
 
     /**
-     * When receiving a GET request, check the URL and execute the mapped command.
+     * Handles the GET requests sent to the servlet. Forwards the request and response
+     * to the appropriate command based on the requested action.
      *
      * @param request  an {@link HttpServletRequest} object that
      *                 contains the request the client has made
@@ -52,32 +54,17 @@ public class BoardControllerServlet extends HttpServlet {
      * @throws IOException
      */
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String uri = request.getRequestURI();
-        String contextPath = request.getContextPath();
-
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) {
         try {
-
-            if (uri.startsWith(contextPath + "/list")) {
-                commandMap.get("list").execute(request, response);
-            } else if (uri.startsWith(contextPath + "/write")) {
-                commandMap.get("write").execute(request, response);
-            } else if (uri.startsWith(contextPath + "/view")) {
-                commandMap.get("view").execute(request, response);
-            } else if (uri.startsWith(contextPath + "/modify")) {
-                commandMap.get("modify").execute(request, response);
-            } else if (uri.startsWith(contextPath + "/download")) {
-                commandMap.get("download").execute(request, response);
-            } else if (uri.startsWith(contextPath + "/delete-file")) {
-                commandMap.get("delete-file").execute(request, response);
-            }
+            forwardToCommand(request, response);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
     /**
-     * When receiving a POST request, check the URL and execute the mapped command.
+     * Handles the Post requests sent to the servlet. Forwards the request and response
+     * to the appropriate command based on the requested action.
      *
      * @param request  an {@link HttpServletRequest} object that
      *                 contains the request the client has made
@@ -85,27 +72,35 @@ public class BoardControllerServlet extends HttpServlet {
      * @param response an {@link HttpServletResponse} object that
      *                 contains the response the servlet sends
      *                 to the client
-     * @throws ServletException
-     * @throws IOException
      */
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String uri = request.getRequestURI();
-        String contextPath = request.getContextPath();
-
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) {
         try {
-            if (uri.equals(contextPath + "/save")) {
-                commandMap.get("save").execute(request, response);
-            } else if (uri.equals(contextPath + "/delete")) {
-                commandMap.get("delete").execute(request, response);
-            } else if (uri.startsWith(contextPath + "/update")) {
-                commandMap.get("update").execute(request, response);
-            } else if (uri.startsWith(contextPath + "/addComment")) {
-                commandMap.get("addComment").execute(request, response);
-            }
+            forwardToCommand(request, response);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
 
+    /**
+     * Forwards the request and response to the appropriate command based on the specified action.
+     * @param request  the HttpServletRequest object that contains the request from the client
+     * @param response the HttpServletResponse object that contains the response to be sent to the client
+     * @throws Exception if an error occurs during the execution of the command
+     */
+    private void forwardToCommand(HttpServletRequest request, HttpServletResponse response) throws Exception{
+
+        String action = request.getParameter("action");
+
+        try {
+            if(!StringUtils.isNullOrEmpty(action)){
+                commandMap.get(action).execute(request, response);
+            } else{
+                throw new RuntimeException("No action");
+            }
+
+        } catch (Exception e) {
+            throw new Exception(e);
+        }
     }
 }

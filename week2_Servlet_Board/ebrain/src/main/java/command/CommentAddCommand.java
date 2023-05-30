@@ -7,7 +7,7 @@ import comment.CommentDAO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class AddCommentCommand implements Command {
+public class CommentAddCommand implements Command {
     public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
         try {
             request.setCharacterEncoding("UTF-8");
@@ -21,7 +21,6 @@ public class AddCommentCommand implements Command {
             String endDateString = request.getParameter("endDate");
             String startDateString = request.getParameter("startDate");
 
-
             Comment comment = new Comment();
             comment.setContent(content);
             comment.setBoardId(id);
@@ -30,7 +29,7 @@ public class AddCommentCommand implements Command {
             CommentDAO commentDAO = new CommentDAO();
             commentDAO.saveComment(comment);
 
-            String url = "/view?id=" + id + "&page=" + currentPageParam+
+            String url = "/view?action=view&id=" + id + "&page=" + currentPageParam+
                     "&category=" + categoryParam + "&searchText=" + searchText +
                     "&startDate=" + startDateString + "&endDate=" + endDateString;
             response.sendRedirect(url);

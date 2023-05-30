@@ -5,7 +5,7 @@ import attachment.Attachment;
 import attachment.AttachmentDAO;
 import board.Board;
 import board.BoardDAO;
-import exceptions.InvalidValidationException;
+import exceptions.FormValidationInvalidException;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
@@ -17,7 +17,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UpdateBoardCommand implements Command {
+public class BoardUpdateCommand implements Command {
     public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String uploadPath = "/Users/premise/Desktop/github/Java/ebrain/upload";
         boolean isMultipart = ServletFileUpload.isMultipartContent(request);
@@ -82,7 +82,7 @@ public class UpdateBoardCommand implements Command {
                 Board board = boardDAO.getBoardInfoById(boardId);
 
                 if (!BoardUtils.checkFormValidation(writer, password, password, title, content)) {
-                    throw new InvalidValidationException("폼 유효성 검증에 실패하였습니다.");
+                    throw new FormValidationInvalidException("폼 유효성 검증에 실패하였습니다.");
                 }
 
                 List<Attachment> existingAttachments = attachmentDAO.getAttachmentsByBoardId(boardId);
@@ -149,14 +149,14 @@ public class UpdateBoardCommand implements Command {
                     request.setAttribute("board", board);
                     request.setAttribute("attachments", existingAttachments);
 
-                    request.getRequestDispatcher("ModifyBoardContent.jsp").forward(request, response);
+                    request.getRequestDispatcher("boardModifyConent.jsp").forward(request, response);
                 }
 
             } catch (Exception e) {
                 e.printStackTrace();
                 String errorMessage = "에러가 발생하였습니다.";
                 request.setAttribute("errorMessage", errorMessage);
-                request.getRequestDispatcher("ShowError.jsp").forward(request, response);
+                request.getRequestDispatcher("errorPage.jsp").forward(request, response);
             }
         } else {
             response.getWriter().println("Invalid request!");

@@ -24,7 +24,7 @@
         const writer = document.getElementById('writer').value;
         const password = document.getElementById('password').value;
         //TODO :: 변수명 고치기
-        const passwordConfirm = document.getElementById('password-confirm').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
         const title = document.getElementById('title').value;
         const content = document.getElementById('content').value;
 
@@ -34,7 +34,7 @@
             return;
         }
 
-        if (password.length < 4 || password.length >= 16 || !/[A-Za-z0-9_$@#%&*]/.test(password) || password !== passwordConfirm) {
+        if (password.length < 4 || password.length >= 16 || !/[A-Za-z0-9_$@#%&*]/.test(password) || password !== confirmPassword) {
             alert('비밀번호는 4글자 이상 16글자 미만이어야 하며, 영문, 숫자, 특수문자를 포함해야 하며, 비밀번호 확인과 일치해야 합니다.');
             event.preventDefault();
             return;
@@ -59,6 +59,7 @@
         <div class="col-md-12 bg-light">
 
             <form id="post-form" action="save" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="action" value="save">
                 <div class="form-group row border-bottom p-3">
                     <label for="category_id" class="col-sm-2 col-form-label d-flex align-items-center">카테고리:</label>
 
@@ -88,7 +89,7 @@
                                required>
                     </div>
                     <div class="col-sm-4">
-                        <input type="password" id="password-confirm" name="password-confirm" placeholder="비밀번호 확인"
+                        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="비밀번호 확인"
                                class="form-control" required>
                     </div>
                 </div>
@@ -118,7 +119,7 @@
 
                 <div class="row mt-3 justify-content-center">
                     <div class="col-md-6">
-                        <input type="button" value="취소" onclick="location.href='list'"
+                        <input type="button" value="취소" onclick="location.href='list?action=list'"
                                class="btn btn-secondary btn-block">
                     </div>
                     <div class="col-md-6">

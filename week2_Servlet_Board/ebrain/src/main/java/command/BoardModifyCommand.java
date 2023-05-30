@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
-public class ModifyBoardCommand implements Command {
+public class BoardModifyCommand implements Command {
     public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
         try {
             int id = Integer.parseInt(request.getParameter("id"));
@@ -22,11 +22,11 @@ public class ModifyBoardCommand implements Command {
             request.setAttribute("board", board);
             request.setAttribute("attachments", attachments);
 
-            request.getRequestDispatcher("ModifyBoardContent.jsp").forward(request, response);
+            request.getRequestDispatcher("boardModifyConent.jsp").forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("errorMessage", "Failed to retrieve board data for modification.");
-            request.getRequestDispatcher("ShowError.jsp").forward(request, response);
+            request.getRequestDispatcher("errorPage.jsp").forward(request, response);
         }
     }
 }
