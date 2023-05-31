@@ -16,7 +16,6 @@ public class BoardUtils {
     public static final String ERROR_MESSAGE_ATTRIBUTE = "errorMessage";
     /**
      * Check the condition of the form
-     *
      * @param writer
      * @param password
      * @param passwordConfirm
@@ -52,7 +51,6 @@ public class BoardUtils {
 
     /**
      * Hashing plaintext passwords with the SHA256 hash function
-     *
      * @param password
      * @return
      */
@@ -70,6 +68,14 @@ public class BoardUtils {
         }
         return null;
     }
+
+    /**
+     * Upload Attachment Items to Server
+     * @param attachmentItem
+     * @param uploadPath
+     * @return
+     * @throws Exception
+     */
     public static String uploadFile(FileItem attachmentItem, String uploadPath) throws Exception {
             String fileName = attachmentItem.getName();
 

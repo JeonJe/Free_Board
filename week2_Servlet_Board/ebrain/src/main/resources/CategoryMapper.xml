@@ -8,13 +8,12 @@
     <resultMap id="categoryResultMap" type="category.Category">
         <id property="categoryId" column="category_id"/>
         <result property="categoryName" column="category_name"/>
-
     </resultMap>
+    <!-- Get CategoryName By category id -->
     <select id="getCategoryNameById" parameterType="int" resultType="String">
         SELECT category_name FROM category WHERE category_id = #{id}
     </select>
-
-    <!-- Get comments by boardId -->
+    <!-- Get All category inforamtion    -->
     <select id="getAllCategory" resultMap="categoryResultMap">
         SELECT *
         FROM category

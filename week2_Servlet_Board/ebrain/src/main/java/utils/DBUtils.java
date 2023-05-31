@@ -7,9 +7,6 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.ResourceBundle;
 
 public class DBUtils {
@@ -32,33 +29,15 @@ public class DBUtils {
     private static final String PASS = resourceBundle.getString("DB_PASSWORD");
 
     /**
-     * Create DB instance and Return connection Instance
-     * @return
-     * @throws Exception
+     * My batis SQL session
      */
-
-
     private static SqlSessionFactory sqlSessionFactory = null;
-    public static final String MYBATIS_CONFIG = "mybatis-config.xml";
-
-    public static Connection getConnection() throws ClassNotFoundException, SQLException {
-        Class.forName("com.mysql.cj.jdbc.Driver");
-        return DriverManager.getConnection(DB_URL, USER, PASS);
-    }
 
     /**
-     * Close DB Connection
-     * @param conn
+     * Read Mybatis-config
      */
-    public static void closeConnection(Connection conn) {
-        if (conn != null) {
-            try {
-                conn.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-    }
+    public static final String MYBATIS_CONFIG = "mybatis-config.xml";
+
 
     /**
      * open session using by mybatis

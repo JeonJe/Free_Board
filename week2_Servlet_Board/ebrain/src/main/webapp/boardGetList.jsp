@@ -35,29 +35,29 @@
 
 <div class="container">
     <h1 class="my-4">자유 게시판 목록</h1>
+
     <%-- Form of the Searching Condition --%>
     <form action="list" method="get" class="form-inline mb-4">
         <input type="hidden" name="action" value="list">
         <label for="startDate" class="mr-2">등록일:</label>
         <input type="date" id="startDate" name="startDate" class="form-control mr-2"
-               value="<%= (request.getParameter("startDate") != null) ? request.getParameter("startDate") : LocalDate.now().minusYears(1) %>">
+               value="<%= (startDate!= null) ? startDate : LocalDate.now().minusYears(1) %>">
         <label for="endDate" class="mr-2"> ~ </label>
         <input type="date" id="endDate" name="endDate" class="form-control mr-2"
-               value="<%= (request.getParameter("endDate") != null) ? request.getParameter("endDate") : LocalDate.now() %>">
+               value="<%= (endDate != null) ? endDate : LocalDate.now() %>">
 
         <select id="category" name="category" class="form-control mr-2">
-            <option value="0" <%= (request.getParameter("category") != null && request.getParameter("category").equals("0")) ? "selected" : "" %>>
+            <option value="0" <%= category != 0 ? "selected" : "" %>>
                 전체 카테고리
             </option>
 
             <% for (Category categoryItem : categories) { %>
-            <option value="<%= categoryItem.getCategoryId() %>" <%=
-            String.valueOf(categoryItem.getCategoryId()).equals(request.getParameter("category")) ? "selected" : "" %>><%= categoryItem.getCategoryName() %>
+            <option value="<%= categoryItem.getCategoryId() %>" <%= categoryItem.getCategoryId() == category ? "selected" : "" %>>
+                <%= categoryItem.getCategoryName() %>
             </option>
             <% } %>
 
             <label for="searchText" class="mr-2">검색어:</label>
-
             <input type="text" id="searchText" name="searchText" class="form-control mr-2" placeholder="카테고리 + 제목 + 내용"
                    value="<%= (searchText != null ) ? searchText : "" %>">
         </select>
@@ -80,40 +80,27 @@
         <div>
             <p> 총 <%= boards.size() %>건 </p>
         </div>
-
         <tbody>
 
-        <% if (boards != null) { %>
-        <% for (Board board : boards) { %>
+        <% if (boards != null) {
+            for (Board board : boards) {
+                String categoryName = CategoryDAO.getCategoryNameById(board.getCategoryId());
+                String title = board.getTitle().length() > 80 ? board.getTitle().substring(0, 80) + "..." : board.getTitle();
+                String modifiedAt = board.getModifiedAt().equals(board.getCreatedAt()) ? "-" : board.getModifiedAt();
+        %>
         <tr>
-            <td><%= CategoryDAO.getCategoryNameById(board.getCategoryId()) %>
-            </td>
-            <td>
-                <%
-                    String title = board.getTitle();
-                    if (title.length() > 80) {
-                        title = title.substring(0, 80) + "...";
-                    }
-                %>
-                <a href="view?action=view&id=<%= board.getBoardId() %>&page=<%= currentPage %>&category=<%= category %>&searchText=<%= searchText %>&startDate=<%= startDate %>&endDate=<%= endDate %>"><%= title %>
-                </a>
-            </td>
-            <td><%= board.getWriter() %>
-            </td>
-            <td><%= board.getVisitCount() %>
-            </td>
-            <td><%= board.getCreatedAt() %>
-            </td>
-            <% String modifiedAt = board.getModifiedAt();
-                if (board.getModifiedAt().equals(board.getCreatedAt())) {
-                    modifiedAt = "-";
-                }
-            %>
-            <td><%= modifiedAt %>
-            </td>
+            <td><%= categoryName %></td>
+            <td>  <a href="view?action=view&id=<%= board.getBoardId() %>&page=<%= currentPage %>&
+                    category=<%= category %>&searchText=<%= searchText %>&
+                    startDate=<%= startDate %>&endDate=<%= endDate %>">
+                <%= title %>
+            </a></td>
+            <td><%= board.getWriter() %></td>
+            <td><%= board.getVisitCount() %></td>
+            <td><%= board.getCreatedAt() %></td>
+            <td><%= modifiedAt %></td>
         </tr>
-        <% } %>
-        <% } %>
+        <% } } %>
         </tbody>
     </table>
 
@@ -121,24 +108,28 @@
     <div class="d-flex justify-content-between">
         <div class="text-center mx-auto">
             <% if (currentPage > 1) { %>
-            <a href="list?action=list&page=<%= currentPage - 1 %>&category=<%= category %>&searchText=<%= searchText %>&startDate=<%= startDate %>&endDate=<%= endDate %>">&lt;&nbsp;</a>
-            <a href="list?action=list&page=1&category=<%= category %>&searchText=<%= searchText %>&startDate=<%= startDate %>&endDate=<%= endDate %>"><<&nbsp;</a>
+            <a href="list?action=list&page=<%= currentPage - 1 %>&category=<%= category %>&
+            searchText=<%= searchText %>&startDate=<%= startDate %>&endDate=<%= endDate %>">&lt;&nbsp;</a>
+            <a href="list?action=list&page=1&category=<%= category %>&
+            searchText=<%= searchText %>&startDate=<%= startDate %>&endDate=<%= endDate %>"><<&nbsp;</a>
             <% } %>
 
             <% for (int i = 1; i <= totalPages; i++) { %>
             <% if (i == currentPage) { %>
-            <strong><%= i %>
-            </strong>
+            <strong><%= i %></strong>
             <% } else { %>
-            <a href="list?action=list&page=<%= i %>&category=<%= category %>&searchText=<%= searchText %>&startDate=<%= startDate %>&endDate=<%= endDate %>"><%= i %>
+            <a href="list?action=list&page=<%= i %>&category=<%= category %>&
+            searchText=<%= searchText %>&startDate=<%= startDate %>&endDate=<%= endDate %>"><%= i %>
             </a>
             <% } %>
             <% } %>
 
             <% if (currentPage < totalPages) { %>
-            <a href="list?action=list&page=<%= currentPage + 1 %>&category=<%= category %>&searchText=<%= searchText %>&startDate=<%= startDate %>&endDate=<%= endDate %>">&nbsp;&gt;</a>
+            <a href="list?action=list&page=<%= currentPage + 1 %>&category=<%= category %>&
+            searchText=<%= searchText %>&startDate=<%= startDate %>&endDate=<%= endDate %>">&nbsp;&gt;</a>
             <% } %>
-            <a href="list?action=list&page=<%= totalPages %>&category=<%= category %>&searchText=<%= searchText %>&startDate=<%= startDate %>&endDate=<%= endDate %>">&nbsp;>></a>
+            <a href="list?action=list&page=<%= totalPages %>&category=<%= category %>&
+            searchText=<%= searchText %>&startDate=<%= startDate %>&endDate=<%= endDate %>">&nbsp;>></a>
         </div>
         <a href="write?action=write" class="btn btn-primary">등록</a>
     </div>

@@ -22,7 +22,7 @@
 <html>
 <head>
     <title>게시판 - 보기</title>
-
+    <%-- Use for hashing password     --%>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.min.js"></script>
     <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
@@ -33,72 +33,79 @@
 </head>
 
 <body>
+<script>
+    // True when clicking the Modify button, False when clicking the Delete button
+    let isEdit = false;
+
+    function hidePasswordModal() {
+        const modal = document.getElementById('passwordModal');
+        modal.style.display = 'none';
+    }
+
+    function showPasswordModal(action) {
+        const modal = document.getElementById('passwordModal');
+        modal.style.display = 'block';
+        if (action === 'edit') {
+            isEdit = true;
+        } else {
+            isEdit = false;
+        }
+    }
+
+    //After checking the password, call the modification and deletion function.
+    async function validatePassword(form) {
+        const password = '<%= board.getPassword() %>';
+        const enteredPassword = document.getElementById('passwordInput').value;
+        console.log(enteredPassword)
+        const hashedPassword = CryptoJS.SHA256(enteredPassword).toString();
+
+        if (hashedPassword === password) {
+            hidePasswordModal();
+            if (isEdit) {
+                const editPage = '<%= request.getParameter("page") %>';
+                const editCategory = '<%= request.getParameter("category") %>';
+                const editSearch = '<%= request.getParameter("searchText") %>';
+                const editStartDate = '<%= request.getParameter("startDate") %>';
+                const editEndDate = '<%= request.getParameter("endDate") %>';
+
+                const redirectURL = `modify?action=modify&id=<%= board.getBoardId() %>&page=${editPage}&
+                category=${editCategory}&search=${editSearch}&startDate=${editStartDate}&endDate=${editEndDate}`;
+
+                window.location.replace(redirectURL);
+            } else {
+
+                try {
+                    const params = new URLSearchParams();
+                    params.append('action', 'delete');
+                    params.append('id', '<%= board.getBoardId() %>');
+                    params.append('password', enteredPassword);
+
+                    const response = await fetch('/delete', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: params,
+                    });
+                    if (!response.ok) {
+                        alert("게시글 삭제에 실패하였습니다");
+                    } else {
+                        window.location.replace("/list?action=list");
+                    }
+                } catch (error) {
+                    alert(error);
+                }
+            }
+        } else {
+            const errorDiv = document.getElementById('passwordError');
+            errorDiv.textContent = '비밀번호가 일치하지 않습니다.';
+        }
+    }
+</script>
+
 <div class="container my-5">
     <h1 class="my-4">게시판 - 보기</h1>
-    <script>
-        let isEdit = false;
 
-        function hidePasswordModal() {
-            const modal = document.getElementById('passwordModal');
-            modal.style.display = 'none';
-        }
-
-        function showPasswordModal(action) {
-            const modal = document.getElementById('passwordModal');
-            modal.style.display = 'block';
-            if (action === 'edit') {
-                isEdit = true;
-            } else {
-                isEdit = false;
-            }
-        }
-
-        async function validatePassword(form) {
-            const password = '<%= board.getPassword() %>';
-            const enteredPassword = form.password.value;
-            const hashedPassword = CryptoJS.SHA256(enteredPassword).toString();
-
-            if (hashedPassword === password) {
-                hidePasswordModal();
-                if (isEdit) {
-                    const editPage = '<%= request.getParameter("page") %>';
-                    const editCategory = '<%= request.getParameter("category") %>';
-                    const editSearch = '<%= request.getParameter("searchText") %>';
-                    const editStartDate = '<%= request.getParameter("startDate") %>';
-                    const editEndDate = '<%= request.getParameter("endDate") %>';
-
-                    const redirectURL = "modify?action=modify" +
-                        "&id=<%= board.getBoardId() %>" +
-                        "&page=" + editPage +
-                        "&category=" + editCategory +
-                        "&search=" + editSearch +
-                        "&startDate=" + editStartDate +
-                        "&endDate=" + editEndDate;
-
-                    window.location.replace(redirectURL);
-                } else {
-                    try {
-                        const response = await fetch('delete', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded',
-                            },
-                            body: 'action=delete' + 'id=' + <%= board.getBoardId() %> +'&password=' + enteredPassword
-                        });
-                        if (!response.ok) {
-                            alert("게시글 삭제에 실패하였습니다");
-                        }
-
-                    } catch (error) {
-                        alert(error);
-                    }
-                }
-            } else {
-                const errorDiv = document.getElementById('passwordError');
-                errorDiv.textContent = '비밀번호가 일치하지 않습니다.';
-            }
-        }
-    </script>
 
     <%-- Password checking modal   --%>
     <div id="passwordModal" class="modal">
@@ -147,7 +154,8 @@
     <%-- list of attachments --%>
     <div>
         <% for (Attachment attachment : attachments) { %>
-        <a href="download?action=download&fileName=<%=attachment.getFileName()%>" class="mb-2 text-decoration-underline d-block">
+        <a href="download?action=download&fileName=<%=attachment.getFileName()%>"
+           class="mb-2 text-decoration-underline d-block">
             <%=attachment.getOriginName()%>
         </a>
         <% } %>
@@ -163,7 +171,8 @@
                     <small class="mb-1"><%= comment.getCreatedAt() %>
                     </small>
                 </div>
-                <p class="mb-1"><%=  comment.getContent() %></p>
+                <p class="mb-1"><%=  comment.getContent() %>
+                </p>
                 </p>
             </div>
             <% } %>

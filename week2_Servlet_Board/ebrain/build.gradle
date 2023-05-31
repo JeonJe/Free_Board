@@ -33,9 +33,9 @@ dependencies {
     implementation group: 'mysql', name: 'mysql-connector-java', version: '8.0.28'
     //Used for file upload to server
     implementation 'commons-fileupload:commons-fileupload:1.4'
-    // MyBatis dependency
+    //Used for MyBatis
     implementation 'org.mybatis:mybatis:3.5.13'
-    // To read deleted attachment list
+    //Used for json (deleted attachment ID list)
     implementation 'com.google.code.gson:gson:2.9.0'
 }
 

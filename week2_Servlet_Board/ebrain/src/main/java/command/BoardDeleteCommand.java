@@ -13,6 +13,7 @@ public class BoardDeleteCommand implements Command {
             String id = request.getParameter("id");
             String password = request.getParameter("password");
             String hashedPassword = BoardUtils.hashPassword(password);
+
             if (id != null && password != null) {
                 int parseIntId = Integer.parseInt(id);
 

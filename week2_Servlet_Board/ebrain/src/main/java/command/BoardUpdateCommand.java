@@ -25,9 +25,7 @@ public class BoardUpdateCommand implements Command {
 
         String uploadPath = ResourceBundle.getBundle("db").getString("UPLOAD_PATH");
 
-
         try {
-
             // Create Factory for storing file items.
             DiskFileItemFactory factory = new DiskFileItemFactory();
 
@@ -100,7 +98,7 @@ public class BoardUpdateCommand implements Command {
                             getAttachmentInfoByAttachmentId(deletedId).getFileName();
                     // Delete the file from the server
                     if (deletedFileName != null) {
-                        File file = new File(uploadPath + '/'+ deletedFileName);
+                        File file = new File(uploadPath + '/' + deletedFileName);
                         if (file.exists()) {
                             file.delete();
                         }

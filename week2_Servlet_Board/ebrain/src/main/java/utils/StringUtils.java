@@ -11,9 +11,4 @@ public class StringUtils {
         return str == null || str.isEmpty();
     }
 
-    /**
-     * Check if parameter is null
-     * @param str
-     * @return
-     */
 }

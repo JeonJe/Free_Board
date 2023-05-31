@@ -41,26 +41,18 @@
     alert("<%= errorMessage %>");
     <% } %>
 
-    //TODO : 폼으로 전달해보기
-    //Form 이 두개가 중첩되어있는 화면 구성이여서 자바스크립트로 전달
-    function onClickCancel() {
-        const page = '<%= request.getParameter("page") %>';
-        const category = '<%= request.getParameter("category") %>';
-        const search = '<%= request.getParameter("search") %>';
-        const startDate = '<%= request.getParameter("startDate") %>';
-        const endDate = '<%= request.getParameter("endDate") %>';
 
-        const viewURL = 'view?action=view&id=<%= board.getBoardId() %>' + '&page=' + page +
-            '&category=' + category + '&search=' + search +
-            '&startDate=' + startDate + '&endDate=' + endDate;
-        location.href = viewURL;
-    }
-
-    let deletedAttachmentIds = [];
     const maxAttachments = 3;
+
+    //Use attachment id to make it unique
     let attachmentCounter = 1;
 
-    // Delete Attachment Item and Draw Attachment Upload Div
+    //Use to save the attachment deletion list.
+    let deletedAttachmentIds = [];
+    const deletedAttachmentIdsInput = document.getElementById("deletedAttachmentIdsInput");
+    deletedAttachmentIdsInput.value = JSON.stringify(deletedAttachmentIds);
+
+    // Delete Attachment Item and Draw new attachment upload Div
     function deleteAttachment(index, attachmentId) {
 
         const attachmentElement = document.getElementById("attachment" + index);
@@ -69,15 +61,16 @@
 
         const attachmentsContainer = document.getElementById("attachmentsList");
         const numAttachments = attachmentsContainer.getElementsByClassName('file-block').length;
-        // 첨부파일 개수가 maxAttachments보다 작을 경우에만 새로운 첨부파일 input 추가
+
+        // Add a new attachment input only if the number of attachments is less than maxAttachments
         if (numAttachments < maxAttachments) {
-            console.log("123")
-            addAttachment();
+            drawNewAttachmentDiv();
         }
     }
 
+    // Function to draw div to add new attachments
+    function drawNewAttachmentDiv() {
 
-    function addAttachment() {
         const attachmentsContainer = document.getElementById("attachmentsList");
 
         while (document.getElementById("attachment" + attachmentCounter) !== null) {
@@ -96,35 +89,41 @@
         fileBlock.appendChild(fileInput)
 
         attachmentsContainer.appendChild(fileBlock);
-
-        // Log the current status
-        console.log("Attachment input created with id: attachment" + index);
-        console.log("Current number of attachments: " + attachmentCounter);
     }
 
+    //  If you click the Save button, submit a list of attachments and deleted files with update information
     function submitForm() {
 
         const passwordField = document.getElementById('password');
         if (passwordField.value === '') {
-            alert('Password is required.');
+            alert('비밀번호를 입력해주세요.');
             return false;
         }
         const deletedAttachmentIdsInput = document.getElementById("deletedAttachmentIdsInput");
         deletedAttachmentIdsInput.value = JSON.stringify(deletedAttachmentIds);
 
-        // 폼 전송
         document.forms[0].submit();
         return true;
     }
 
-    const deletedAttachmentIdsInput = document.getElementById("deletedAttachmentIdsInput");
-    deletedAttachmentIdsInput.value = JSON.stringify(deletedAttachmentIds);
+    // Click the Cancel button to cancel the update.
+    function onClickCancel() {
+        const params = new URLSearchParams({
+            page: '<%= request.getParameter("page") %>',
+            category: '<%= request.getParameter("category") %>',
+            search: '<%= request.getParameter("search") %>',
+            startDate: '<%= request.getParameter("startDate") %>',
+            endDate: '<%= request.getParameter("endDate") %>',
+        });
+
+        const viewURL = `view?action=view&id=<%= board.getBoardId() %>&${params.toString()}`;
+        location.href = viewURL;
+    }
 
 </script>
 
-<% if (board != null) { %>
 
-<%-- Show the post information --%>
+<%-- Show the board information --%>
 <div class="container my-4">
     <h1 class="my-4">게시판 - 수정</h1>
     <div class="row justify-content-center">
@@ -199,25 +198,20 @@
                         <% for (int i = 0; i < attachments.size(); i++) {
                             Attachment attachment = attachments.get(i);
                         %>
-                        <div class="file-block d-flex justify-content-between" id="attachment<%= (i+1) %>">
-                            <input type="hidden" id="attachment<%= (i+1) %>"
-                                   name="<%= attachment.getAttachmentId() %>"></hidden>
-                            <p><%= attachment.getOriginName() %>
-                            </p>
+                        <div class="file-block d-flex justify-content-between" id="attachment<%= i+1 %>">
+                            <input type="hidden" id="attachment<%= i+1 %>" name="<%= attachment.getAttachmentId() %>">
+                            <p><%= attachment.getOriginName() %></p>
                             <div>
                                 <a href="download?action=download&fileName=<%= attachment.getFileName() %>"
                                    class="btn btn-sm btn-primary">Download</a>
-                                <button class="btn btn-sm btn-danger"
-                                        onclick="deleteAttachment(<%= i+1 %>, <%= attachment.getAttachmentId() %>)">X
-                                </button>
-
+                                <button class="btn btn-sm btn-danger" onclick="deleteAttachment(<%= i+1 %>, <%= attachment.getAttachmentId() %>)">X</button>
                             </div>
                         </div>
                         <% } %>
 
                         <% for (int i = attachments.size(); i < 3; i++) { %>
                         <div class="file-block">
-                            <input type="file" id="attachment<%= (i+1) %>" name="attachment<%= (i+1) %>">
+                            <input type="file" id="attachment<%= i+1 %>" name="attachment<%= i+1 %>">
                         </div>
                         <% } %>
                     </div>
@@ -236,7 +230,6 @@
         </div>
     </div>
 </div>
-<% } %>
 
 </body>
 </html>

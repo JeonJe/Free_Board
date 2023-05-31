@@ -19,8 +19,9 @@
 </head>
 <body>
 <script>
-    // form validation check
-    document.getElementById('post-form').addEventListener('submit', function (event) {
+
+    //form validation check
+    document.getElementById('postForm').addEventListener('submit', function (event) {
         const writer = document.getElementById('writer').value;
         const password = document.getElementById('password').value;
         const confirmPassword = document.getElementById('confirmPassword').value;
@@ -33,7 +34,7 @@
             return;
         }
 
-        if (password.length < 4 || password.length >= 16 || !/[A-Za-z0-9_$@#%&*]/.test(password) || password !== confirmPassword) {
+        if (password.length < 4 || password.length >= 16 || !/[A-Za-z0-9_$@#%&*]+/.test(password) || password !== confirmPassword) {
             alert('비밀번호는 4글자 이상 16글자 미만이어야 하며, 영문, 숫자, 특수문자를 포함해야 하며, 비밀번호 확인과 일치해야 합니다.');
             event.preventDefault();
             return;
@@ -52,21 +53,21 @@
         }
     });
 </script>
+
 <div class="container my-4">
     <h1 class="my-4 ">게시판 - 등록</h1>
     <div class="row justify-content-center ">
         <div class="col-md-12 bg-light">
 
-            <form id="post-form" action="save" method="post" enctype="multipart/form-data">
+            <form id="postForm" action="save" method="post" enctype="multipart/form-data">
                 <input type="hidden" name="action" value="save">
                 <div class="form-group row border-bottom p-3">
                     <label for="category_id" class="col-sm-2 col-form-label d-flex align-items-center">카테고리:</label>
-
                     <div class="col-sm-8">
                         <select id="category_id" name="category_id" class="form-control" required>
                             <% for (Category category : categories) {
-                                    int categoryId = category.getCategoryId();
-                                    String categoryName = category.getCategoryName(); %>
+                                int categoryId = category.getCategoryId();
+                                String categoryName = category.getCategoryName(); %>
                             <option value="<%= categoryId %>"><%= categoryName %>
                             </option>
                             <% } %>
@@ -115,7 +116,7 @@
                         <input type="file" id="attachment3" name="attachment3" class="form-control-file mb-2">
                     </div>
                 </div>
-
+                <%-- Button groups --%>
                 <div class="row mt-3 justify-content-center">
                     <div class="col-md-6">
                         <input type="button" value="취소" onclick="location.href='list?action=list'"

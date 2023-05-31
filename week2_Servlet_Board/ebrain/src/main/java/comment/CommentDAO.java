@@ -22,7 +22,7 @@ public class CommentDAO {
             LocalDateTime currentTime = LocalDateTime.now();
             comment.setCreatedAt(currentTime);
 
-            session.insert("CommentMapper.save", comment);
+            session.insert("CommentMapper.saveComment", comment);
             session.commit();
         } catch (Exception e) {
             e.printStackTrace();
