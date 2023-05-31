@@ -95,8 +95,17 @@ public class BoardUpdateCommand implements Command {
 
                 AttachmentDAO attachmentDAO = new AttachmentDAO();
                 //Delete the attachments requested for removal by the user
-                for (Integer deletedAttachmentId : deletedAttachmentIds) {
-                    attachmentDAO.deleteAttachmentByAttachmentId(deletedAttachmentId);
+                for (Integer deletedId : deletedAttachmentIds) {
+                    String deletedFileName = attachmentDAO.
+                            getAttachmentInfoByAttachmentId(deletedId).getFileName();
+                    // Delete the file from the server
+                    if (deletedFileName != null) {
+                        File file = new File(uploadPath + '/'+ deletedFileName);
+                        if (file.exists()) {
+                            file.delete();
+                        }
+                    }
+                    attachmentDAO.deleteAttachmentByAttachmentId(deletedId);
                 }
 
                 for (FileItem attachmentItem : attachmentItems) {

@@ -26,6 +26,14 @@
         WHERE board_id = #{boardId}
     </select>
 
+    <!-- Get Attachment Information By Attachment ID -->
+    <select id="getAttachmentInfoByAttachmentId" parameterType="int" resultType="attachment.Attachment" resultMap="attachmentResultMap">
+        SELECT *
+        FROM attachment
+        WHERE attachment_id = #{attachmentId}
+    </select>
+
+
     <!-- Delete Attachment by Attachment ID -->
     <delete id="deleteAttachmentByAttachmentId" parameterType="int">
         DELETE FROM attachment

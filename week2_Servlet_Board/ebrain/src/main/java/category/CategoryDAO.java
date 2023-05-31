@@ -1,11 +1,8 @@
 package category;
 
+import org.apache.ibatis.session.SqlSession;
 import utils.DBUtils;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,24 +15,14 @@ public class CategoryDAO {
      */
     public static List<Category> getAllCategory() throws Exception {
         List<Category> categories = new ArrayList<>();
-        Connection conn = null;
+        SqlSession session = null;
+
         try {
-            conn = DBUtils.getConnection();
-            String sql = "SELECT * FROM category";
-            PreparedStatement pstmt = conn.prepareStatement(sql);
-            ResultSet rs = pstmt.executeQuery();
+            session = DBUtils.openSession();
+            categories = session.selectList("CategoryMapper.getAllCategory");
 
-            while (rs.next()) {
-                Category category = new Category();
-                category.setCategoryId(rs.getInt("category_id"));
-                category.setCategoryName((rs.getString("category_name")));
-                categories.add(category);
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
         } finally {
-            DBUtils.closeConnection(conn);
+            DBUtils.sessionClose(session);
         }
         return categories;
     }
@@ -43,29 +30,22 @@ public class CategoryDAO {
     /**
      * Get Category Name By Category Id
      *
-     * @param id
+     * @param categoryId
      * @return
      * @throws Exception
      */
-    public static String getCategoryNameById(int id) throws Exception {
+    public static String getCategoryNameById(int categoryId) throws Exception {
+        String categoryName = null;
+        SqlSession session = null;
 
-        Connection conn = null;
         try {
-            conn = DBUtils.getConnection();
-            String sql = "SELECT * FROM category WHERE category_id = ?";
-            PreparedStatement pstmt = conn.prepareStatement(sql);
-            pstmt.setInt(1, id);
-            ResultSet rs = pstmt.executeQuery();
+            session = DBUtils.openSession();
+            categoryName = session.selectOne("CategoryMapper.getCategoryNameById", categoryId);
 
-            if (rs.next()) {
-                return rs.getString("category_name");
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
         } finally {
-            DBUtils.closeConnection(conn);
+            DBUtils.sessionClose(session);
         }
-        return null;
+        return categoryName;
+
     }
 }

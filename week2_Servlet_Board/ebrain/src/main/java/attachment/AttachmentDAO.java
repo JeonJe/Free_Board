@@ -9,6 +9,7 @@ public class AttachmentDAO {
 
     /**
      * Save Attachment Information
+     *
      * @param attachment
      * @throws Exception
      */
@@ -27,6 +28,7 @@ public class AttachmentDAO {
 
     /**
      * Get Attachment Information By Board ID
+     *
      * @param boardId
      * @return
      * @throws Exception
@@ -48,6 +50,7 @@ public class AttachmentDAO {
 
     /**
      * Delete Attachment by Attachment ID
+     *
      * @param attachmentId
      * @throws Exception
      */
@@ -63,5 +66,23 @@ public class AttachmentDAO {
             DBUtils.sessionClose(session);
         }
     }
+
+    public Attachment getAttachmentInfoByAttachmentId(int attachmentId) throws Exception {
+        SqlSession session = null;
+        Attachment attachment = null;
+        try {
+            session = DBUtils.openSession();
+            attachment = session.selectOne("AttachmentMapper.getAttachmentInfoByAttachmentId", attachmentId);
+            session.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            DBUtils.sessionClose(session);
+        }
+        return attachment;
+    }
+
+
+
 
 }

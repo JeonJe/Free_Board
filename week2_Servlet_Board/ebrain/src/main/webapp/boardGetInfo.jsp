@@ -86,9 +86,8 @@
                             body: 'action=delete' + 'id=' + <%= board.getBoardId() %> +'&password=' + enteredPassword
                         });
                         if (!response.ok) {
-                            alert("삭제에 실패하였습니다");
+                            alert("게시글 삭제에 실패하였습니다");
                         }
-                        window.location.replace("list")
 
                     } catch (error) {
                         alert(error);

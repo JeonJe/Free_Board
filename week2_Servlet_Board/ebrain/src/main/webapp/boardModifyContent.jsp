@@ -76,12 +76,10 @@
         }
     }
 
-    // 첨부파일 추가 함수
-    // 첨부파일 추가 함수
+
     function addAttachment() {
         const attachmentsContainer = document.getElementById("attachmentsList");
 
-        // 기존 첨부파일 인덱스를 건너뛰기
         while (document.getElementById("attachment" + attachmentCounter) !== null) {
             attachmentCounter++;
         }
@@ -105,7 +103,7 @@
     }
 
     function submitForm() {
-        // 삭제된 첨부 파일 ID들을 JSON 문자열로 변환
+
         const passwordField = document.getElementById('password');
         if (passwordField.value === '') {
             alert('Password is required.');
