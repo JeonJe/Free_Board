@@ -118,46 +118,46 @@ public class BoardDAO {
 
 
     /**
-     * Search for Boards that meet the search condition
-     *
-     * @param startDate
-     * @param endDate
-     * @param category
-     * @param searchText
-     * @param currentPage
-     * @param pageSize
-     * @return
-     * @throws Exception
-     */
-    public Map<String, Object> searchBoards(LocalDate startDate, LocalDate endDate, int category, String searchText, int currentPage, int pageSize) throws Exception {
-        SqlSession session = null;
-        Map<String, Object> resultMap = new HashMap<>();
+         * Search for Boards that meet the search condition
+         *
+         * @param startDate
+         * @param endDate
+         * @param category
+         * @param searchText
+         * @param currentPage
+         * @param pageSize
+         * @return
+         * @throws Exception
+         */
+        public Map<String, Object> searchBoards(LocalDate startDate, LocalDate endDate, int category, String searchText, int currentPage, int pageSize) throws Exception {
+            SqlSession session = null;
+            Map<String, Object> resultMap = new HashMap<>();
 
-        try {
-            session = DBUtils.openSession();
-            Map<String, Object> paramMap = new HashMap<>();
-            Timestamp startTimestamp = Timestamp.valueOf(startDate.atStartOfDay());
-            Timestamp endTimestamp = Timestamp.valueOf(endDate.atStartOfDay().plusDays(1));
+            try {
+                session = DBUtils.openSession();
+                Map<String, Object> paramMap = new HashMap<>();
+                Timestamp startTimestamp = Timestamp.valueOf(startDate.atStartOfDay());
+                Timestamp endTimestamp = Timestamp.valueOf(endDate.atStartOfDay().plusDays(1));
 
-            paramMap.put("startDate", startTimestamp);
-            paramMap.put("endDate", endTimestamp);
-            paramMap.put("category", category);
-            paramMap.put("searchText", searchText);
-            paramMap.put("pageSize", pageSize);
-            paramMap.put("offset", (currentPage - 1) * pageSize);
+                paramMap.put("startDate", startTimestamp);
+                paramMap.put("endDate", endTimestamp);
+                paramMap.put("category", category);
+                paramMap.put("searchText", searchText);
+                paramMap.put("pageSize", pageSize);
+                paramMap.put("offset", (currentPage - 1) * pageSize);
 
-            List<Board> boards = session.selectList("BoardMapper.searchBoards", paramMap);
-            int totalCount = session.selectOne("BoardMapper.countSearchBoards", paramMap);
+                List<Board> boards = session.selectList("BoardMapper.searchBoards", paramMap);
+                int totalCount = session.selectOne("BoardMapper.countSearchBoards", paramMap);
 
-            resultMap.put("boards", boards);
-            resultMap.put("totalCount", totalCount);
+                resultMap.put("boards", boards);
+                resultMap.put("totalCount", totalCount);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            DBUtils.sessionClose(session);
-        }
-        return resultMap;
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                DBUtils.sessionClose(session);
+            }
+            return resultMap;
     }
 
     /**

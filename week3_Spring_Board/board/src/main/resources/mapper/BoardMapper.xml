@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ebrain.board.mapper.BoardMapper">
+    <!-- Search for Boards that meet the search condition -->
+    <select id="searchBoards" parameterType="java.util.Map" resultType="BoardVO" >
+        SELECT *
+        FROM board
+        WHERE 1=1
+        <if test="category != 0">
+            AND category_id = #{category}
+        </if>
+        <if test="searchText != null">
+            AND (title LIKE concat('%', #{searchText}, '%')
+            OR content LIKE concat('%', #{searchText}, '%')
+            OR writer LIKE concat('%', #{searchText}, '%'))
+        </if>
+        <if test="startDate != null and endDate != null">
+            AND created_at BETWEEN #{startDate} AND #{endDate}
+        </if>
+    </select>
+</mapper>

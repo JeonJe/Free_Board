@@ -39,3 +39,6 @@ build
 apache-tomcat-9.0.10/
 apache-tomcat-9.0.10
 .DS_Store
+
+week2_Servlet_Board/ebrain/src/main/resources/db.properties
+week3_Spring_Board/board/src/main/resources/application.properties

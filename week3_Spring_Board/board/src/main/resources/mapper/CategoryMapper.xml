@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ebrain.board.mapper.CategoryMapper">
+
+    <!-- Get CategoryName By category id -->
+    <select id="getCategoryNameById" parameterType="int" resultType="String">
+        SELECT category_name FROM category WHERE category_id = #{id}
+    </select>
+    <!-- Get All category inforamtion    -->
+    <select id="getAllCategory" resultType="CategoryVO">
+        SELECT *
+        FROM category
+    </select>
+</mapper>
