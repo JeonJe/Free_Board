@@ -1,5 +1,3 @@
-<%@ page import="java.util.List" %>
-<%@ page import="ebrain.board.vo.BoardVO" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <html>
@@ -31,8 +29,6 @@
                     </option>
                 </c:forEach>
             </c:if>
-
-
         </select>
 
         <input type="text" id="searchText" name="searchText" class="form-control mr-2" placeholder="카테고리 + 제목 + 내용"
@@ -67,6 +63,36 @@
         </c:if>
         </tbody>
     </table>
+
+
+    <!-- pagination -->
+    <div class="d-flex justify-content-between">
+        <div class="text-center mx-auto">
+            <!-- Set currentPage to 1 if it's null -->
+            <c:set var="currentPage" value="${empty params.currentPage ? 1 : params.currentPage}"/>
+            <c:if test="${params.currentPage > 1}">
+                <a href="list?action=list&page=${params.currentPage - 1}&category=${params.category}&searchText=${params.searchText}&startDate=${params.startDate}&endDate=${params.endDate}">&lt;&nbsp;</a>
+                <a href="list?action=list&page=1&category=${params.category}&searchText=${params.searchText}&startDate=${params.startDate}&endDate=${params.endDate}"><<&nbsp;</a>
+            </c:if>
+
+            <c:forEach var="i" begin="1" end="${totalPages}">
+                <c:choose>
+                    <c:when test="${i == params.currentPage}">
+                        <strong>${i}</strong>
+                    </c:when>
+                    <c:otherwise>
+                        <a href="list?action=list&page=${i}&category=${params.category}&searchText=${params.searchText}&startDate=${params.startDate}&endDate=${params.endDate}">${i}</a>
+                    </c:otherwise>
+                </c:choose>
+            </c:forEach>
+
+            <c:if test="${params.currentPage < totalPages}">
+                <a href="list?action=list&page=${params.currentPage + 1}&category=${params.category}&searchText=${params.searchText}&startDate=${params.startDate}&endDate=${params.endDate}">&nbsp;&gt;</a>
+                <a href="list?action=list&page=${totalPages}&category=${params.category}&searchText=${params.searchText}&startDate=${params.startDate}&endDate=${params.endDate}">&nbsp;>></a>
+            </c:if>
+        </div>
+        <a href="write?action=write" class="btn btn-primary">등록</a>
+    </div>
 </div>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </body>

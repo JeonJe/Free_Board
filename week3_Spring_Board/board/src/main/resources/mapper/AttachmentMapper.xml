@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+    첨부 파일 매퍼
+    AttachmentMapper 인터페이스와 연결
+-->
+<mapper namespace="ebrain.board.mapper.AttachmentMapper">
+
+    <!-- 첨부 파일 정보 저장 -->
+    <insert id="saveAttachment" parameterType="AttachmentVO">
+        INSERT INTO attachment (board_id, filename, origin_filename)
+        VALUES (#{boardId}, #{fileName}, #{originName})
+    </insert>
+
+    <!-- 게시글 ID에 해당하는 첨부 파일 정보 조회 -->
+    <select id="getAttachmentsByBoardId" parameterType="int" resultType="AttachmentVO">
+        SELECT *
+        FROM attachment
+        WHERE board_id = #{boardId}
+    </select>
+
+    <!-- 첨부 파일 ID에 해당하는 첨부 파일 정보 조회 -->
+    <select id="getAttachmentInfoByAttachmentId" parameterType="int" resultType="AttachmentVO">
+        SELECT *
+        FROM attachment
+        WHERE attachment_id = #{attachmentId}
+    </select>
+
+    <!-- 첨부 파일 ID에 해당하는 첨부 파일 삭제 -->
+    <delete id="deleteAttachmentByAttachmentId" parameterType="int">
+        DELETE FROM attachment
+        WHERE attachment_id = #{attachmentId}
+    </delete>
+
+</mapper>

@@ -2,8 +2,43 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
+<!--
+    게시글 매퍼
+    BoardMapper 인터페이스와 연결
+-->
 <mapper namespace="ebrain.board.mapper.BoardMapper">
-    <!-- Search for Boards that meet the search condition -->
+
+    <!-- 게시글 정보 저장 -->
+    <insert id="saveBoard" parameterType="BoardVO" useGeneratedKeys="true" keyProperty="boardId">
+        INSERT INTO board (category_id, writer, password, title,
+                           content, created_at, modified_at, visit_count)
+        VALUES (#{categoryId}, #{writer}, #{password}, #{title},
+                #{content}, #{createdAt}, #{modifiedAt}, #{visitCount})
+    </insert>
+
+    <!-- 게시글 삭제 -->
+    <delete id="deleteBoard" parameterType="int">
+        DELETE FROM board WHERE board_id = #{boardId}
+    </delete>
+
+    <!-- 게시글 정보 업데이트 -->
+    <update id="updateBoard" parameterType="BoardVO">
+        UPDATE board
+        SET writer = #{writer}, title = #{title}, content = #{content}, modified_at = #{modifiedAt}
+        WHERE board_id = #{boardId}
+    </update>
+
+    <!-- 비밀번호 검증 -->
+    <select id="validatePassword" resultType="boolean" parameterType="map">
+        SELECT EXISTS (
+            SELECT 1
+            FROM board
+            WHERE board_id = #{boardId}
+              AND password = #{enteredPassword}
+        ) AS result
+    </select>
+
+    <!-- 검색 조건에 맞는 게시글 검색 -->
     <select id="searchBoards" parameterType="java.util.Map" resultType="BoardVO" >
         SELECT *
         FROM board
@@ -20,4 +55,37 @@
             AND created_at BETWEEN #{startDate} AND #{endDate}
         </if>
     </select>
+
+    <!-- 검색 조건에 맞는 게시글 수 조회 -->
+    <select id="countSearchBoards" parameterType="java.util.Map" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM board WHERE 1=1
+        <if test="category != 0">
+            AND category_id = #{category}
+        </if>
+        <if test="searchText != null">
+            AND (title LIKE concat('%', #{searchText}, '%')
+            OR content LIKE concat('%', #{searchText}, '%')
+            OR writer LIKE concat('%', #{searchText}, '%'))
+        </if>
+        <if test="startDate != null and endDate != null">
+            AND created_at
+            BETWEEN #{startDate}
+            AND #{endDate}
+        </if>
+    </select>
+
+    <!-- 게시글 ID에 해당하는 게시글 정보 조회 -->
+    <select id="getBoardInfoById" resultType="BoardVO" parameterType="int" >
+        SELECT *
+        FROM board
+        WHERE board_id = #{boardId}
+    </select>
+
+    <!-- 게시글 조회수 업데이트 -->
+    <update id="updateVisitCount" parameterType="map">
+        UPDATE board
+        SET visit_count = #{currentVisitCount} + 1
+        WHERE board_id = #{boardId}
+    </update>
+
 </mapper>

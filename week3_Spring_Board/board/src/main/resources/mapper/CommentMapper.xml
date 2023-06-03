@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+    댓글 매퍼
+    CommentMapper 인터페이스와 연결
+-->
+<mapper namespace="ebrain.board.mapper.CommentMapper">
+    <!-- Comment 저장 -->
+    <insert id="saveComment" parameterType="CommentVO">
+        INSERT INTO comment (writer, content, created_at, board_id)
+        VALUES (#{writer}, #{content}, #{createdAt}, #{boardId})
+    </insert>
+
+    <!-- boardId에 해당하는 댓글 조회 -->
+    <select id="getCommentsByBoardId" parameterType="int" resultType="CommentVO" >
+        SELECT *
+        FROM comment
+        WHERE board_id = #{id}
+    </select>
+
+</mapper>

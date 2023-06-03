@@ -2,13 +2,18 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
+<!--
+    카테고리 매퍼
+    CategoryMapper 인터페이스와 연결
+-->
 <mapper namespace="ebrain.board.mapper.CategoryMapper">
 
-    <!-- Get CategoryName By category id -->
+    <!-- 카테고리 ID에 해당하는 카테고리 이름 조회 -->
     <select id="getCategoryNameById" parameterType="int" resultType="String">
         SELECT category_name FROM category WHERE category_id = #{id}
     </select>
-    <!-- Get All category inforamtion    -->
+
+    <!-- 모든 카테고리 정보 조회 -->
     <select id="getAllCategory" resultType="CategoryVO">
         SELECT *
         FROM category

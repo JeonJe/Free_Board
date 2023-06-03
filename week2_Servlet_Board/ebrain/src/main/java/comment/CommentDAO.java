@@ -37,7 +37,7 @@ public class CommentDAO {
      * @return
      * @throws Exception
      */
-    public ist<Comment> getCommentsByBoardId(int boardId) Lthrows Exception {
+    public List<Comment> getCommentsByBoardId(int boardId) throws Exception {
         SqlSession session = null;
         List<Comment> comments = null;
         try {

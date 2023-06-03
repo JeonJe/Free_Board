@@ -16,6 +16,7 @@
         <result property="modifiedAt" column="modified_at"/>
         <result property="visitCount" column="visit_count"/>
     </resultMap>
+
     <!-- Save the Board Information -->
     <insert id="saveBoard" parameterType="board.Board" useGeneratedKeys="true" keyProperty="boardId">
         INSERT INTO board (category_id, writer, password, title,

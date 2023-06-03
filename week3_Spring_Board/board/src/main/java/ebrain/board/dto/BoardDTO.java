@@ -12,39 +12,39 @@ import java.time.LocalDateTime;
 @ToString
 public class BoardDTO {
     /**
-     * Board ID
+     * 게시판 ID
      */
     private int boardId;
     /**
-     * Category ID of the board
+     * 게시판의 카테고리 ID
      */
     private int categoryId;
     /**
-     * Writer of the board
+     * 게시판 작성자
      */
     private String writer;
     /**
-     * Password of the board
+     * 게시판 비밀번호
      */
     private String password;
     /**
-     * Title of the board
+     * 게시판 제목
      */
     private String title;
     /**
-     * Content of the board
+     * 게시판 내용
      */
     private String content;
     /**
-     * Created Time of the board
+     * 게시판 작성 시간
      */
     private LocalDateTime createdAt;
     /**
-     * Modified Time of the board
+     * 게시판 수정 시간
      */
     private LocalDateTime modifiedAt;
     /**
-     * Visit count of the board
+     * 게시판 방문 횟수
      */
     private int visitCount;
 

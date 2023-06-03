@@ -19,6 +19,7 @@
     <mappers>
         <mapper resource="mapper/BoardMapper.xml" />
         <mapper resource="mapper/CategoryMapper.xml" />
-        <!-- 다른 매퍼 파일 등록 -->
+        <mapper resource="mapper/AttachmentMapper.xml" />
+        <mapper resource="mapper/CommentMapper.xml" />
     </mappers>
 </configuration>
