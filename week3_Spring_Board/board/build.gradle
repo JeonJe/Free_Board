@@ -36,11 +36,11 @@ dependencies {
     //Maria DB 연결을 위해 추가
     implementation group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '3.0.3'
 
-    //mybatis
+    //mybatis 사용을 위해 추가
     implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.1'
-    //Used for file upload to server
+    //서버에 파일 업로드를 위해 추가
     implementation 'commons-fileupload:commons-fileupload:1.4'
-    //Used for json (deleted attachment ID list)
+    //JSON 사용을 위해 추가 (삭제되는 첨부파일 아이디 목록 전달 시)
     implementation 'com.google.code.gson:gson:2.9.0'
 
 

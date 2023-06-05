@@ -13,18 +13,18 @@
     <form action="list" method="get" class="form-inline mb-4">
         <input type="hidden" name="action" value="list">
         <input type="date" id="startDate" name="startDate" class="form-control mr-2"
-               value="${params.startDate != null ? params.startDate : LocalDate.now().minusYears(1)}">
+               value="${searchCondition.startDate != null ? searchCondition.startDate : LocalDate.now().minusYears(1)}">
 
         <input type="date" id="endDate" name="endDate" class="form-control mr-2"
-               value="${params.endDate != null ? params.endDate : LocalDate.now()}">
+               value="${searchCondition.endDate != null ? searchCondition.endDate : LocalDate.now()}">
 
         <select id="category" name="category" class="form-control mr-2">
-            <option value="0" ${params.category != null && params.category == 0 ? 'selected' : ''}>
+            <option value="0" ${searchCondition.category != null && searchCondition.category == 0 ? 'selected' : ''}>
                 전체 카테고리
             </option>
             <c:if test="${not empty categories}">
                 <c:forEach items="${categories}" var="categoryItem">
-                    <option value="${categoryItem.categoryId}" ${categoryItem.categoryId == params['category'] ? 'selected' : ''}>
+                    <option value="${categoryItem.categoryId}" ${categoryItem.categoryId == searchCondition['category'] ? 'selected' : ''}>
                             ${categoryItem.categoryName}
                     </option>
                 </c:forEach>
@@ -32,7 +32,7 @@
         </select>
 
         <input type="text" id="searchText" name="searchText" class="form-control mr-2" placeholder="카테고리 + 제목 + 내용"
-               value="${params.searchText != null ? params.searchText : ''}">
+               value="${searchCondition.searchText != null ? searchCondition.searchText : ''}">
 
         <input type="submit" value="검색" class="btn btn-primary">
     </form>
@@ -69,29 +69,29 @@
     <div class="d-flex justify-content-between">
         <div class="text-center mx-auto">
             <!-- Set currentPage to 1 if it's null -->
-            <c:set var="currentPage" value="${empty params.currentPage ? 1 : params.currentPage}"/>
-            <c:if test="${params.currentPage > 1}">
-                <a href="list?action=list&page=${params.currentPage - 1}&category=${params.category}&searchText=${params.searchText}&startDate=${params.startDate}&endDate=${params.endDate}">&lt;&nbsp;</a>
-                <a href="list?action=list&page=1&category=${params.category}&searchText=${params.searchText}&startDate=${params.startDate}&endDate=${params.endDate}"><<&nbsp;</a>
+            <c:set var="currentPage" value="${empty searchCondition.currentPage ? 1 : searchCondition.currentPage}"/>
+            <c:if test="${searchCondition.currentPage > 1}">
+                <a href="list?action=list&page=${searchCondition.currentPage - 1}&category=${searchCondition.category}&searchText=${searchCondition.searchText}&startDate=${searchCondition.startDate}&endDate=${searchCondition.endDate}">&lt;&nbsp;</a>
+                <a href="list?action=list&page=1&category=${searchCondition.category}&searchText=${searchCondition.searchText}&startDate=${searchCondition.startDate}&endDate=${searchCondition.endDate}"><<&nbsp;</a>
             </c:if>
 
             <c:forEach var="i" begin="1" end="${totalPages}">
                 <c:choose>
-                    <c:when test="${i == params.currentPage}">
+                    <c:when test="${i == searchCondition.currentPage}">
                         <strong>${i}</strong>
                     </c:when>
                     <c:otherwise>
-                        <a href="list?action=list&page=${i}&category=${params.category}&searchText=${params.searchText}&startDate=${params.startDate}&endDate=${params.endDate}">${i}</a>
+                        <a href="list?action=list&page=${i}&category=${searchCondition.category}&searchText=${searchCondition.searchText}&startDate=${searchCondition.startDate}&endDate=${searchCondition.endDate}">${i}</a>
                     </c:otherwise>
                 </c:choose>
             </c:forEach>
 
-            <c:if test="${params.currentPage < totalPages}">
-                <a href="list?action=list&page=${params.currentPage + 1}&category=${params.category}&searchText=${params.searchText}&startDate=${params.startDate}&endDate=${params.endDate}">&nbsp;&gt;</a>
-                <a href="list?action=list&page=${totalPages}&category=${params.category}&searchText=${params.searchText}&startDate=${params.startDate}&endDate=${params.endDate}">&nbsp;>></a>
+            <c:if test="${searchCondition.currentPage < totalPages}">
+                <a href="list?action=list&page=${searchCondition.currentPage + 1}&category=${searchCondition.category}&searchText=${searchCondition.searchText}&startDate=${searchCondition.startDate}&endDate=${searchCondition.endDate}">&nbsp;&gt;</a>
+                <a href="list?action=list&page=${totalPages}&category=${searchCondition.category}&searchText=${searchCondition.searchText}&startDate=${searchCondition.startDate}&endDate=${searchCondition.endDate}">&nbsp;>></a>
             </c:if>
         </div>
-        <a href="write?action=write" class="btn btn-primary">등록</a>
+        <a href="write?action=write&&page=${searchCondition.page}&category=${searchCondition.category}&searchText=${searchCondition.searchText}&startDate=${searchCondition.startDate}&endDate=${searchCondition.endDate}" class="btn btn-primary">등록</a>
     </div>
 </div>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>

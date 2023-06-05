@@ -46,7 +46,7 @@
         <if test="category != 0">
             AND category_id = #{category}
         </if>
-        <if test="searchText != null">
+        <if test="searchText != null and searchText != ''">
             AND (title LIKE concat('%', #{searchText}, '%')
             OR content LIKE concat('%', #{searchText}, '%')
             OR writer LIKE concat('%', #{searchText}, '%'))
@@ -54,6 +54,8 @@
         <if test="startDate != null and endDate != null">
             AND created_at BETWEEN #{startDate} AND #{endDate}
         </if>
+        ORDER BY created_at DESC
+        LIMIT #{pageSize} OFFSET #{offset}
     </select>
 
     <!-- 검색 조건에 맞는 게시글 수 조회 -->
@@ -62,7 +64,7 @@
         <if test="category != 0">
             AND category_id = #{category}
         </if>
-        <if test="searchText != null">
+        <if test="searchText != null and searchText != ''">
             AND (title LIKE concat('%', #{searchText}, '%')
             OR content LIKE concat('%', #{searchText}, '%')
             OR writer LIKE concat('%', #{searchText}, '%'))

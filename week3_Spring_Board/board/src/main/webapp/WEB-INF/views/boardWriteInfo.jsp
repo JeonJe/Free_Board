@@ -105,7 +105,7 @@
                 <%-- Button groups --%>
                 <div class="row mt-3 justify-content-center">
                     <div class="col-md-6">
-                        <input type="button" value="취소" onclick="location.href='list?action=list'"
+                        <input type="button" value="취소" onclick="location.href='list?action=list&page=${searchCondition.page}&category=${searchCondition.category}&searchText=${searchCondition.searchText}&startDate=${searchCondition.startDate}&endDate=${searchCondition.endDate}'"
                                class="btn btn-secondary btn-block">
                     </div>
                     <div class="col-md-6">

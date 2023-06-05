@@ -51,6 +51,7 @@ public class BoardVO {
      * 게시물 작성 시간을 yyyy.MM.dd HH:mm 형식으로 반환하는 메서드
      * @return 게시물 작성 시간 문자열
      */
+    //TODO : 포맷팅은 화면에서 하는 것, 데이터베이스에서는 표준으로 저장
     public String getCreatedAt() {
         if (createdAt == null) {
             return "";

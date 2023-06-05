@@ -51,11 +51,11 @@
         if (hashedPassword === password) {
             hidePasswordModal();
             if (isEdit) {
-                const editPage = '${param.page}';
-                const editCategory = '${param.category}';
-                const editSearch = '${param.searchText}';
-                const editStartDate = '${param.startDate}';
-                const editEndDate = '${param.endDate}';
+                const editPage = '${searchCondition.page}';
+                const editCategory = '${searchCondition.category}';
+                const editSearch = '${searchCondition.searchText}';
+                const editStartDate = '${searchCondition.startDate}';
+                const editEndDate = '${searchCondition.endDate}';
 
                 const redirectURL = `modify?action=modify&id=${board.boardId}&page=${editPage}&
                 category=${editCategory}&search=${editSearch}&startDate=${editStartDate}&endDate=${editEndDate}`;
@@ -171,11 +171,11 @@
         <form action="add-comment" method="post" class="w-75">
             <input type="hidden" name="action" value="addComment">
             <input type="hidden" name="id" value="${board.boardId}">
-            <input type="hidden" name="page" value="${param.page}">
-            <input type="hidden" name="category" value="${param.category}">
-            <input type="hidden" name="searchText" value="${param.searchText}">
-            <input type="hidden" name="startDate" value="${param.startDate}">
-            <input type="hidden" name="endDate" value="${param.endDate}">
+            <input type="hidden" name="page" value="${searchCondition.page}">
+            <input type="hidden" name="category" value="${searchCondition.category}">
+            <input type="hidden" name="searchText" value="${searchCondition.searchText}">
+            <input type="hidden" name="startDate" value="${searchCondition.startDate}">
+            <input type="hidden" name="endDate" value="${searchCondition.endDate}">
             <div class="row">
                 <div class="col-8">
                     <div class="form-group">
@@ -193,7 +193,7 @@
     <!-- button group -->
     <div class="d-flex justify-content-center mt-3">
         <div class="buttons">
-            <a href="list?action=list&page=${param.page}&category=${param.category}&searchText=${param.searchText}&startDate=${param.startDate}&endDate=${param.endDate}"
+            <a href="list?action=list&page=${searchCondition.page}&category=${searchCondition.category}&searchText=${searchCondition.searchText}&startDate=${searchCondition.startDate}&endDate=${searchCondition.endDate}"
                class="btn btn-secondary">목록으로 돌아가기</a>
             <button class="btn btn-primary" onclick="showPasswordModal('edit')">수정</button>
             <button class="btn btn-primary" onclick="showPasswordModal('delete')">삭제</button>

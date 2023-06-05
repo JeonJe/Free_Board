@@ -106,6 +106,11 @@ public class BoardService {
      * @param boardId 조회할 게시글의 ID
      * @return 조회된 게시글과 관련된 정보를 담은 맵 객체
      */
+
+    //boardVO로 리턴하게끔 개선 가능
+    //board.getComment, boardAttach()
+    //또는 Comments[], attchments[]
+    //map return type은 어떤게 리턴될지 명확하지가 않음 명확하게 작성 필요
     public Map<String, Object> getBoardInfoByBoardId(int boardId) {
         Map<String, Object> resultMap = new HashMap<>();
         BoardVO board = boardMapper.getBoardInfoById(boardId);
