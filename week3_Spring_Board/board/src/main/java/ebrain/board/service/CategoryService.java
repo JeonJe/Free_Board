@@ -1,6 +1,6 @@
 package ebrain.board.service;
 
-import ebrain.board.mapper.CategoryMapper;
+import ebrain.board.mapper.CategoryRepository;
 import ebrain.board.vo.CategoryVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,7 +14,7 @@ import java.util.List;
 public class CategoryService  {
 
     @Autowired
-    private CategoryMapper categoryMapper;
+    private CategoryRepository categoryMapper;
 
     /**
      * 모든 카테고리를 조회하는 메서드

@@ -9,7 +9,7 @@ import java.util.Map;
  * 게시글과 관련된 데이터베이스 작업을 담당하는 인터페이스
  */
 @Mapper
-public interface BoardMapper {
+public interface BoardRepository {
     /**
      * 주어진 검색 조건에 맞는 게시글을 검색하는 메서드
      *

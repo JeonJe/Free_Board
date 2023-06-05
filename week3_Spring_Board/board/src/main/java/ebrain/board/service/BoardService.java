@@ -1,10 +1,10 @@
 package ebrain.board.service;
 
 import ebrain.board.exception.FormValidationInvalidException;
-import ebrain.board.mapper.AttachmentMapper;
-import ebrain.board.mapper.BoardMapper;
-import ebrain.board.mapper.CategoryMapper;
-import ebrain.board.mapper.CommentMapper;
+import ebrain.board.mapper.AttachmentRepository;
+import ebrain.board.mapper.BoardRepository;
+import ebrain.board.mapper.CategoryRepository;
+import ebrain.board.mapper.CommentRepository;
 import ebrain.board.utils.BoardUtils;
 import ebrain.board.vo.AttachmentVO;
 import ebrain.board.vo.BoardVO;
@@ -26,45 +26,29 @@ import java.util.*;
 public class BoardService {
 
     @Autowired
-    private BoardMapper boardMapper;
+    private BoardRepository boardRepository;
 
     @Autowired
-    private CommentMapper commentMapper;
+    private CommentRepository commentRepository;
 
     @Autowired
-    private AttachmentMapper attachmentMapper;
+    private AttachmentRepository attachmentRepository;
 
     @Autowired
-    private CategoryMapper categoryMapper;
+    private CategoryRepository categoryMapper;
 
-    /**
-     * 주어진 검색 조건에 맞는 게시글을 검색하는 메서드
-     *
-     * @param params 검색 조건을 담은 맵 객체
-     * @return 검색된 게시글과 총 개수를 담은 맵 객체
-     */
+
     public Map<String, Object> searchBoards(Map<String, Object> params) {
         Map<String, Object> resultMap = new HashMap<>();
-        List<BoardVO> boards = boardMapper.searchBoards(params);
-        int totalCount = boardMapper.countSearchBoards(params);
+        List<BoardVO> boards = boardRepository.searchBoards(params);
+        int totalCount = boardRepository.countSearchBoards(params);
         resultMap.put("boards", boards);
         resultMap.put("totalCount", totalCount);
         return resultMap;
     }
 
 
-    /**
-     * 게시글을 저장하는 메서드
-     *
-     * @param categoryValue    게시글의 카테고리 ID를 나타내는 문자열
-     * @param writer           게시글 작성자
-     * @param password         게시글 비밀번호
-     * @param confirmPassword  게시글 비밀번호 확인
-     * @param title            게시글 제목
-     * @param content          게시글 내용
-     * @param files            첨부 파일 배열
-     * @throws Exception 예외 발생 시
-     */
+
     public void saveBoard(String categoryValue, String writer, String password, String confirmPassword, String title, String content, MultipartFile[] files) throws Exception {
         int categoryId = Integer.parseInt(categoryValue);
         String hashedPassword = BoardUtils.hashPassword(password);
@@ -84,7 +68,7 @@ public class BoardService {
         board.setCreatedAt(currentTime);
         board.setModifiedAt(currentTime);
 
-        boardMapper.saveBoard(board);
+        boardRepository.saveBoard(board);
         int boardId = board.getBoardId(); // Assuming you have a getter
 
         String uploadPath = ResourceBundle.getBundle("application").getString("UPLOAD_PATH");
@@ -95,39 +79,30 @@ public class BoardService {
                 attachment.setBoardId(boardId);
                 attachment.setFileName(numberedFileName);
                 attachment.setOriginName(file.getOriginalFilename());
-                attachmentMapper.saveAttachment(attachment);
+                attachmentRepository.saveAttachment(attachment);
             }
         }
     }
 
-    /**
-     * 주어진 게시글 ID에 해당하는 게시글 정보를 조회하는 메서드
-     *
-     * @param boardId 조회할 게시글의 ID
-     * @return 조회된 게시글과 관련된 정보를 담은 맵 객체
-     */
-
     //boardVO로 리턴하게끔 개선 가능
-    //board.getComment, boardAttach()
-    //또는 Comments[], attchments[]
-    //map return type은 어떤게 리턴될지 명확하지가 않음 명확하게 작성 필요
-    public Map<String, Object> getBoardInfoByBoardId(int boardId) {
+
+    public BoardVO getBoardInfoByBoardId(int boardId) {
         Map<String, Object> resultMap = new HashMap<>();
-        BoardVO board = boardMapper.getBoardInfoById(boardId);
+        BoardVO board = boardRepository.getBoardInfoById(boardId);
 
         Map<String, Object> paramsMap = new HashMap<>();
         paramsMap.put("boardId", boardId);
         paramsMap.put("currentVisitCount", board.getVisitCount());
-        boardMapper.updateVisitCount(paramsMap);
+        boardRepository.updateVisitCount(paramsMap);
 
-        List<CommentVO> comments = commentMapper.getCommentsByBoardId(boardId);
-        List<AttachmentVO> attachments = attachmentMapper.getAttachmentsByBoardId(boardId);
-        String categoryName = categoryMapper.getCategoryNameById(boardId);
+//        List<CommentVO> comments = commentRepository.getCommentsByBoardId(boardId);
+//        List<AttachmentVO> attachments = attachmentRepository.getAttachmentsByBoardId(boardId);
+//        String categoryName = categoryMapper.getCategoryNameById(boardId);
 
-        resultMap.put("board", board);
-        resultMap.put("comments", comments);
-        resultMap.put("attachments", attachments);
-        resultMap.put("categoryName", categoryName);
-        return resultMap;
+//        resultMap.put("board", board);
+//        resultMap.put("comments", comments);
+//        resultMap.put("attachments", attachments);
+//        resultMap.put("categoryName", categoryName);
+        return board;
     }
 }

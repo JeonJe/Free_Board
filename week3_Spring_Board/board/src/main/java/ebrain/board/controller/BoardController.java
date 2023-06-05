@@ -1,20 +1,16 @@
 package ebrain.board.controller;
 
+import ebrain.board.service.AttachmentService;
 import ebrain.board.service.CategoryService;
 import ebrain.board.service.CommentService;
 import ebrain.board.vo.*;
-import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ui.Model;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import ebrain.board.service.BoardService;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -23,12 +19,9 @@ import java.util.Map;
 
 /**
  * BoardController class
- * <p>
- * 게시판과 관련된 모든 요청을 처리하는 역할
- * 게시글 생성, 게시글 등록, 게시글 수정, 게시글 삭제, 게시글 보기 등 수행
- * 수행 내용에 따라 각 서비스를 사용하여 뷰를 반환
+ * 게시판과 관련된 모든 요청을 처리하고 json 데이터 반환
  */
-@Controller
+@RestController
 public class BoardController {
     private static final Logger log = LoggerFactory.getLogger(BoardController.class);
     /**
@@ -44,43 +37,29 @@ public class BoardController {
      */
     private final CommentService commentService;
 
+    private final AttachmentService attachmentService;
+
     /**
      * 생성자 주입
      *
-     * @param boardService
-     * @param categoryService
-     * @param commentService
+     * @param boardService      게시글 서비스
+     * @param categoryService   카테고리 서비스
+     * @param commentService    댓글 서비스
+     * @param attachmentService 첨부파일 서비스
      */
     @Autowired
-    public BoardController(BoardService boardService, CategoryService categoryService, CommentService commentService) {
+    public BoardController(BoardService boardService, CategoryService categoryService, CommentService commentService, AttachmentService attachmentService) {
         this.boardService = boardService;
         this.categoryService = categoryService;
         this.commentService = commentService;
+        this.attachmentService = attachmentService;
     }
 
-
-    @GetMapping("/list")
-    public String getBoardList(
-            @ModelAttribute SearchConditionVO searchConditionParams,
-            Model model) {
-
-        Map<String, Object> searchCondition = setSearchCondition(searchConditionParams);
-        Map<String, Object> searchBoardsResult = boardService.searchBoards(searchCondition);
-        List<CategoryVO> categories = categoryService.getAllCategory();
-        List<BoardVO> boards = (List<BoardVO>) searchBoardsResult.get("boards");
-        int pageSize = (int) searchCondition.get("pageSize");
-        int totalCount = (int) searchBoardsResult.get("totalCount");
-        int totalPages = (int) Math.ceil((double) totalCount / pageSize);
-
-        model.addAttribute("searchCondition", searchCondition);
-        model.addAttribute("searchBoards", boards);
-        model.addAttribute("categories", categories);
-        model.addAttribute("totalCount", totalCount);
-        model.addAttribute("totalPages", totalPages);
-
-        return "boardGetList";
-    }
-
+    /**
+     * 게시글 검색 조건을 Map에 설정하는 함수
+     * @param searchConditionParams 검색어 조건 (현재페이지, 시작일, 종료일, 검색어, 카테고리)
+     * @return 검색조건을 설정한 Map 반환
+     */
     private Map<String, Object> setSearchCondition(SearchConditionVO searchConditionParams) {
 
         int pageSize = 10;
@@ -101,111 +80,146 @@ public class BoardController {
 
         return searchCondition;
     }
+    /**
+     * 게시글 목록을 조회하는 함수
+     *
+     * @param searchConditionParams 검색 조건
+     * @return 게시글 목록 및 관련 정보를 담은 ResponseEntity
+     */
+    @GetMapping("/list")
+    public ResponseEntity<?> getBoardList(
+            @ModelAttribute SearchConditionVO searchConditionParams) {
+
+        if (searchConditionParams == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("유효하지 않은 검색 조건입니다.");
+        }
+
+        Map<String, Object> searchCondition = setSearchCondition(searchConditionParams);
+        Map<String, Object> searchBoardsResult = boardService.searchBoards(searchCondition);
+        if (searchBoardsResult == null) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("검색에 실패하였습니다.");
+        }
+
+        List<CategoryVO> categories = categoryService.getAllCategory();
+        List<BoardVO> boards = (List<BoardVO>) searchBoardsResult.get("boards");
+        int totalCount = (int) searchBoardsResult.get("totalCount");
+        int pageSize = (int) searchCondition.get("pageSize");
+        int totalPages = (int) Math.ceil((double) totalCount / pageSize);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("searchCondition", searchCondition);
+        response.put("searchBoards", boards);
+        response.put("categories", categories);
+        response.put("totalCount", totalCount);
+        response.put("totalPages", totalPages);
+
+        return ResponseEntity.ok(response);
+    }
 
     /**
-     * 게시글 등록 버튼을 눌렀을 때 카테고리 목록을 가져와서 뷰를 보여주는 함수
+     * 게시글 작성 페이지로 이동하는 함수
      *
-     * @param model 데이터베이스의 카테고리 목록을 가지고 있는 모델
-     * @return 게시글 작성 페이지 boardWriteInfo.jsp 반환
+     * @param searchConditionParams 검색 조건
+     * @return 게시글 작성 페이지 관련 정보를 담은 ResponseEntity
      */
-
     @GetMapping("/write")
-    public String clickBoardWriteButton(@ModelAttribute SearchConditionVO searchConditionParams,
-                                        Model model) {
+    public ResponseEntity<?> clickBoardWriteButton(@RequestBody SearchConditionVO searchConditionParams
+    ) {
+        if (searchConditionParams == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("유효하지 않은 검색 조건입니다.");
+        }
 
         List<CategoryVO> categories = categoryService.getAllCategory();
         Map<String, Object> searchCondition = setSearchCondition(searchConditionParams);
 
-        model.addAttribute("categories", categories);
-        model.addAttribute("searchCondition", searchCondition);
-        System.out.println("write button 클릭 시 searchCondition = " + searchCondition);
-        return "boardWriteInfo";
+        Map<String, Object> response = new HashMap<>();
+        response.put("categories", categories);
+        response.put("searchCondition", searchCondition);
+        return ResponseEntity.ok(response);
     }
 
     /**
-     * 게시글 상세 내용을 가져오는 함수
+     * 게시글 상세 정보를 조회하는 함수
      *
-     * @param request 게시글 ID를 포함하는 request
-     * @param model   게시글 ID의 정보를 담고 있는 모델
-     * @return 게시글 상세 내용을 보여주는 페이지 boardGetInfo.jsp 반환
+     * @param searchConditionParams 검색 조건
+     * @param boardId              게시글 ID
+     * @return 게시글 상세 정보 및 관련 정보를 담은 ResponseEntity
      */
-
     @GetMapping("/view")
-    public String getBoardInfo(@ModelAttribute SearchConditionVO searchConditionParams,
-                               @RequestParam("id") Integer boardId
-            , Model model) {
+    public ResponseEntity<?> getBoardInfo(@ModelAttribute SearchConditionVO searchConditionParams,
+                                          @RequestParam(value = "boardId", required = true) Integer boardId) {
 
-        Map<String, Object> resultMap = boardService.getBoardInfoByBoardId(boardId);
+        if (searchConditionParams == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("유효하지 않은 검색 조건입니다.");
+        }
+
+        BoardVO board = boardService.getBoardInfoByBoardId(boardId);
+        List<CommentVO> comments = commentService.getCommentsByBoardId(boardId);
+        List<AttachmentVO> attachments = attachmentService.getAttachmentsByBoardId(boardId);
         Map<String, Object> searchCondition = setSearchCondition(searchConditionParams);
 
-        model.addAttribute("board", resultMap.get("board"));
-        model.addAttribute("attachments", resultMap.get("attachments"));
-        model.addAttribute("comments", resultMap.get("comments"));
-        model.addAttribute("searchCondition", searchCondition);
+        Map<String, Object> response = new HashMap<>();
+        response.put("board", board);
+        response.put("attachments", attachments);
+        response.put("comments", comments);
+        response.put("searchCondition", searchCondition);
 
-        return "boardGetInfo";
+        return ResponseEntity.ok(response);
     }
 
-    /**
-     * 게시글 내용을 저장하는 함수
-     *
-     * @param categoryValue   카테고리번호
-     * @param writer          게시글 작성자
-     * @param password        게시글 비밀번호
-     * @param confirmPassword 게시글 비밀번호 확인
-     * @param title           제목
-     * @param content         내용
-     * @param files           1,2,3 첨부파일
-     * @return 파일 저장 후 게시글 목록을 보여주는 boardGetList.jsp 반환
-     * @throws Exception
-     */
-    @PostMapping("/save")
-    //TODO : category_id 잘못, value
-    public String saveBoardInfo(@RequestParam("category_id") String categoryValue,
-                                @RequestParam("writer") String writer,
-                                @RequestParam("password") String password,
-                                @RequestParam("confirmPassword") String confirmPassword,
-                                @RequestParam("title") String title,
-                                @RequestParam("content") String content,
-                                @RequestParam("file1") MultipartFile file1,
-                                @RequestParam("file2") MultipartFile file2,
-                                @RequestParam("file3") MultipartFile file3
-    ) throws Exception {
-        //TODO : Q. 스프링에서는 HttpServletRequest를 전달하지않고 @RequestParam을 전달? 다수의 인자를 전달받을 때도 적용?
-        //TODO : attachment Service를 Controller에서 사용하는지 boardService의 saveBoard 안에서 사용하는지? -> 현재는 saveBoard안에서 처리
-        //VO를 만들어서 requestparam전달하기
-        //body에서 스프링이 알아서 변환 , 파라미터 핸들링 기법 확인하기
-        MultipartFile[] files = {file1, file2, file3};
-        boardService.saveBoard(categoryValue, writer, password, confirmPassword, title, content, files);
-
-        return "boardGetList";
-    }
+//    @PostMapping("/save")
+//    public String saveBoardInfo(@RequestParam("category_id") String categoryValue,
+//                                @RequestParam("writer") String writer,
+//                                @RequestParam("password") String password,
+//                                @RequestParam("confirmPassword") String confirmPassword,
+//                                @RequestParam("title") String title,
+//                                @RequestParam("content") String content,
+//                                @RequestParam("file1") MultipartFile file1,
+//                                @RequestParam("file2") MultipartFile file2,
+//                                @RequestParam("file3") MultipartFile file3
+//    ) throws Exception {
+//        //VO를 만들어서 requestparam전달하기
+//        //body에서 스프링이 알아서 변환 , 파라미터 핸들링 기법 확인하기
+//        MultipartFile[] files = {file1, file2, file3};
+//        boardService.saveBoard(categoryValue, writer, password, confirmPassword, title, content, files);
+//
+//        return "boardGetList";
+//    }
+//
 
     /**
-     * 게시판에 댓글을 추가하는 함수
+     * 댓글을 추가하는 함수
      *
-     * @param request 게시판 ID와 댓글 내용을 포함하는 request
-     * @param model   게시글 내용을 보여주기 위해 게시글 내용을 담고 있는 모델
-     * @return 게시글 상세 정보를 나타내는 페이지 boardGetInfo.jsp 반환
+     * @param searchConditionParams  검색 조건
+     * @param requestBody           요청 바디 데이터
+     * @return 댓글 추가 후 게시글 상세 정보 및 관련 정보를 담은 ResponseEntity
      */
     @PostMapping("/add-comment")
-    public String addComment(HttpServletRequest request, Model model) {
+    public ResponseEntity<?> addComment(
+            @ModelAttribute SearchConditionVO searchConditionParams,
+            @RequestBody Map<String, Object> requestBody) {
 
-        int boardId = Integer.parseInt(request.getParameter("id"));
-        String commentContent = request.getParameter("content");
+        int boardId = (Integer) requestBody.get("boardId");
+        String content = (String) requestBody.get("content");
 
         Map<String, Object> params = new HashMap<>();
         params.put("boardId", boardId);
-        params.put("content", commentContent);
+        params.put("content", content);
 
         commentService.saveComment(params);
 
-        Map<String, Object> resultMap = boardService.getBoardInfoByBoardId(boardId);
-        model.addAttribute("board", resultMap.get("board"));
-        model.addAttribute("attachments", resultMap.get("attachments"));
-        model.addAttribute("comments", resultMap.get("comments"));
+        BoardVO board = boardService.getBoardInfoByBoardId(boardId);
+        List<CommentVO> comments = commentService.getCommentsByBoardId(boardId);
+        List<AttachmentVO> attachments = attachmentService.getAttachmentsByBoardId(boardId);
+        Map<String, Object> searchCondition = setSearchCondition(searchConditionParams);
 
-        return "boardGetInfo";
+        Map<String, Object> response = new HashMap<>();
+        response.put("board", board);
+        response.put("attachments", attachments);
+        response.put("comments", comments);
+        response.put("searchCondition", searchCondition);
+
+        return ResponseEntity.ok(response);
     }
 
 

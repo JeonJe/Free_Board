@@ -4,9 +4,9 @@
 
 <!--
     첨부 파일 매퍼
-    AttachmentMapper 인터페이스와 연결
+    AttachmentRepository 인터페이스와 연결
 -->
-<mapper namespace="ebrain.board.mapper.AttachmentMapper">
+<mapper namespace="ebrain.board.mapper.AttachmentRepository">
 
     <!-- 첨부 파일 정보 저장 -->
     <insert id="saveAttachment" parameterType="AttachmentVO">

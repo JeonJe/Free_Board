@@ -1,7 +1,6 @@
 package ebrain.board.mapper;
 
 import ebrain.board.vo.AttachmentVO;
-import ebrain.board.vo.CategoryVO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -9,7 +8,7 @@ import java.util.List;
  * 첨부파일과 관련된 데이터베이스 작업을 담당하는 인터페이스
  */
 @Mapper
-public interface AttachmentMapper {
+public interface AttachmentRepository {
     /**
      * 첨부파일을 데이터베이스에 저장하는 메서드
      *

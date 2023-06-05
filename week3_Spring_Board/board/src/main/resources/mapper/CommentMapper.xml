@@ -4,9 +4,9 @@
 
 <!--
     댓글 매퍼
-    CommentMapper 인터페이스와 연결
+    CommentRepository 인터페이스와 연결
 -->
-<mapper namespace="ebrain.board.mapper.CommentMapper">
+<mapper namespace="ebrain.board.mapper.CommentRepository">
     <!-- Comment 저장 -->
     <insert id="saveComment" parameterType="CommentVO">
         INSERT INTO comment (writer, content, created_at, board_id)

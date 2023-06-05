@@ -1,8 +1,6 @@
 package ebrain.board.service;
 
-import ebrain.board.mapper.CategoryMapper;
-import ebrain.board.mapper.CommentMapper;
-import ebrain.board.vo.CategoryVO;
+import ebrain.board.mapper.CommentRepository;
 import ebrain.board.vo.CommentVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,7 +16,7 @@ import java.util.Map;
 public class CommentService {
 
     @Autowired
-    private CommentMapper commentMapper;
+    private CommentRepository commentRepository;
 
     /**
      * 댓글을 저장하는 메서드
@@ -32,7 +30,7 @@ public class CommentService {
         comment.setWriter("-");
         LocalDateTime currentTime = LocalDateTime.now();
         comment.setCreatedAt(currentTime);
-        commentMapper.saveComment(comment);
+        commentRepository.saveComment(comment);
     }
 
     /**
@@ -42,6 +40,6 @@ public class CommentService {
      * @return 조회된 모든 댓글 리스트
      */
     public List<CommentVO> getCommentsByBoardId(int boardId){
-        return commentMapper.getCommentsByBoardId(boardId);
+        return commentRepository.getCommentsByBoardId(boardId);
     }
 }

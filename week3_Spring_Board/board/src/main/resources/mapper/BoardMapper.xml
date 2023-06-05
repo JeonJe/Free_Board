@@ -4,9 +4,9 @@
 
 <!--
     게시글 매퍼
-    BoardMapper 인터페이스와 연결
+    BoardRepository 인터페이스와 연결
 -->
-<mapper namespace="ebrain.board.mapper.BoardMapper">
+<mapper namespace="ebrain.board.mapper.BoardRepository">
 
     <!-- 게시글 정보 저장 -->
     <insert id="saveBoard" parameterType="BoardVO" useGeneratedKeys="true" keyProperty="boardId">

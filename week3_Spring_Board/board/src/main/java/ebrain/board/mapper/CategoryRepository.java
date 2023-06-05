@@ -9,7 +9,7 @@ import java.util.List;
  * 게시글 카테고리와 관련된 데이터베이스 작업을 담당하는 인터페이스
  */
 @Mapper
-public interface CategoryMapper {
+public interface CategoryRepository {
 
     /**
      * 모든 게시글 카테고리를 데이터베이스에서 조회하는 메서드

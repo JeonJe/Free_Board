@@ -4,9 +4,9 @@
 
 <!--
     카테고리 매퍼
-    CategoryMapper 인터페이스와 연결
+    CategoryRepository 인터페이스와 연결
 -->
-<mapper namespace="ebrain.board.mapper.CategoryMapper">
+<mapper namespace="ebrain.board.mapper.CategoryRepository">
 
     <!-- 카테고리 ID에 해당하는 카테고리 이름 조회 -->
     <select id="getCategoryNameById" parameterType="int" resultType="String">
