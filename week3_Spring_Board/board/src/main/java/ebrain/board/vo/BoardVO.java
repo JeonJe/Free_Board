@@ -52,27 +52,5 @@ public class BoardVO {
      */
     private int visitCount;
 
-    /**
-     * 게시물 작성 시간을 yyyy.MM.dd HH:mm 형식으로 반환하는 메서드
-     * @return 게시물 작성 시간 문자열
-     */
-//    public String getCreatedAt() {
-//        if (createdAt == null) {
-//            return "";
-//        }
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm");
-//        return createdAt.format(formatter);
-//    }
 
-    /**
-     * 게시물 수정 시간을 yyyy.MM.dd HH:mm 형식으로 반환하는 메서드
-     * @return 게시물 수정 시간 문자열
-     */
-//    public String getModifiedAt() {
-//        if (modifiedAt == null) {
-//            return "";
-//        }
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm");
-//        return modifiedAt.format(formatter);
-//    }
 }

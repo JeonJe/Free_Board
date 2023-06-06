@@ -16,13 +16,23 @@ import java.util.Map;
 @Service
 public class CommentService {
 
-    @Autowired
-    private CommentRepository commentRepository;
+
+    private final CommentRepository commentRepository;
 
     /**
-     * 댓글을 저장하는 메서드
+     * CommentService 생성자입니다.
+     *
+     * @param commentRepository CommentRepository 객체
+     */
+    @Autowired
+    public CommentService(CommentRepository commentRepository) {
+        this.commentRepository = commentRepository;
+    }
+    /**
+     * 댓글을 저장하는 메서드입니다.
      *
      * @param params 저장할 댓글 정보를 담은 맵
+     * @throws SQLException SQL 예외가 발생한 경우
      */
     public void saveComment(Map<String, Object> params) throws SQLException {
 
@@ -30,7 +40,7 @@ public class CommentService {
 
         CommentVO comment = new CommentVO();
 
-        comment.setBoardId((Integer)params.get("boardId"));
+        comment.setBoardId((Integer) params.get("boardId"));
         comment.setContent((String) params.get("content"));
         comment.setCreatedAt(currentTime);
         comment.setWriter("-");
@@ -39,12 +49,13 @@ public class CommentService {
     }
 
     /**
-     * 주어진 게시글 ID에 해당하는 모든 댓글을 조회하는 메서드
+     * 주어진 게시글 ID에 해당하는 모든 댓글을 조회하는 메서드입니다.
      *
      * @param boardId 조회할 게시글의 ID
      * @return 조회된 모든 댓글 리스트
+     * @throws SQLException SQL 예외가 발생한 경우
      */
-    public List<CommentVO> getCommentsByBoardId(int boardId) throws SQLException{
+    public List<CommentVO> getCommentsByBoardId(int boardId) throws SQLException {
         return commentRepository.getCommentsByBoardId(boardId);
     }
 }

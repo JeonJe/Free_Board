@@ -14,23 +14,34 @@ import java.util.List;
 @Service
 public class CategoryService  {
 
-    @Autowired
-    private CategoryRepository categoryMapper;
+    private final CategoryRepository categoryMapper;
 
     /**
-     * 모든 카테고리를 조회하는 메서드
+     * CategoryService 생성자입니다.
      *
-     * @return 모든 카테고리 정보를 담은 리스트
+     * @param categoryMapper CategoryRepository 객체
+     */
+    @Autowired
+    public CategoryService(CategoryRepository categoryMapper) {
+        this.categoryMapper = categoryMapper;
+    }
+
+    /**
+     * 모든 카테고리를 조회하는 메서드입니다.
+     *
+     * @return 모든 카테고리 리스트
+     * @throws SQLException SQL 예외가 발생한 경우
      */
     public List<CategoryVO> getAllCategory() throws SQLException {
         return categoryMapper.getAllCategory();
     }
 
     /**
-     * 주어진 카테고리 ID에 해당하는 카테고리 이름을 조회하는 메서드
+     * 주어진 카테고리 ID에 해당하는 카테고리 이름을 조회하는 메서드입니다.
      *
-     * @param categoryId 조회할 카테고리의 ID
-     * @return 조회된 카테고리 이름
+     * @param categoryId 카테고리 ID
+     * @return 카테고리 이름
+     * @throws SQLException SQL 예외가 발생한 경우
      */
     public String getCategoryNameById(int categoryId) throws SQLException {
         return categoryMapper.getCategoryNameById(categoryId);
