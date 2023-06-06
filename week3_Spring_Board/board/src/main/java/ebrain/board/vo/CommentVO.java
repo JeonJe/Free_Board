@@ -36,11 +36,11 @@ public class CommentVO {
      * 댓글 작성 시간을 형식에 맞추어 문자열로 반환
      * @return 형식에 맞는 댓글 작성 시간 문자열
      */
-    public String getCreatedAt() {
-        if (createdAt == null) {
-            return "";
-        }
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm");
-        return createdAt.format(formatter);
-    }
+//    public String getCreatedAt() {
+//        if (createdAt == null) {
+//            return "";
+//        }
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm");
+//        return createdAt.format(formatter);
+//    }
 }

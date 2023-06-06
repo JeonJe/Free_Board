@@ -5,6 +5,7 @@ import ebrain.board.vo.CategoryVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -21,7 +22,7 @@ public class CategoryService  {
      *
      * @return 모든 카테고리 정보를 담은 리스트
      */
-    public List<CategoryVO> getAllCategory(){
+    public List<CategoryVO> getAllCategory() throws SQLException {
         return categoryMapper.getAllCategory();
     }
 
@@ -31,7 +32,7 @@ public class CategoryService  {
      * @param categoryId 조회할 카테고리의 ID
      * @return 조회된 카테고리 이름
      */
-    public String getCategoryNameById(int categoryId){
+    public String getCategoryNameById(int categoryId) throws SQLException {
         return categoryMapper.getCategoryNameById(categoryId);
     }
 

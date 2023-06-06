@@ -1,18 +1,21 @@
 package ebrain.board.controller;
 
+import ebrain.board.exception.PasswordInvalidException;
 import ebrain.board.service.AttachmentService;
 import ebrain.board.service.CategoryService;
 import ebrain.board.service.CommentService;
 import ebrain.board.vo.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import ebrain.board.service.BoardService;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +26,8 @@ import java.util.Map;
  */
 @RestController
 public class BoardController {
-    private static final Logger log = LoggerFactory.getLogger(BoardController.class);
+
+    private static final String SQL_ERROR_MESSAGE = "SQL 오류";
     /**
      * 게시글 관련 비지니스 로직 수행
      */
@@ -36,7 +40,9 @@ public class BoardController {
      * 게시판 댓글 관련 비지니스 로직 수행
      */
     private final CommentService commentService;
-
+    /**
+     * 게시판 첨부파일 관련 비지니스 로직 수행
+     */
     private final AttachmentService attachmentService;
 
     /**
@@ -56,9 +62,10 @@ public class BoardController {
     }
 
     /**
-     * 게시글 검색 조건을 Map에 설정하는 함수
-     * @param searchConditionParams 검색어 조건 (현재페이지, 시작일, 종료일, 검색어, 카테고리)
-     * @return 검색조건을 설정한 Map 반환
+     * 검색 조건을 설정하는 메소드입니다.
+     *
+     * @param searchConditionParams 검색 조건 정보를 담고 있는 SearchConditionVO 객체
+     * @return 검색 조건을 담고 있는 Map 객체
      */
     private Map<String, Object> setSearchCondition(SearchConditionVO searchConditionParams) {
 
@@ -80,35 +87,34 @@ public class BoardController {
 
         return searchCondition;
     }
+
     /**
-     * 게시글 목록을 조회하는 함수
+     * 게시글 목록을 조회하는 요청을 처리하는 메소드입니다.
      *
-     * @param searchConditionParams 검색 조건
-     * @return 게시글 목록 및 관련 정보를 담은 ResponseEntity
+     * @param searchConditionParams 검색 조건 정보를 담고 있는 SearchConditionVO 객체
+     * @return 게시글 목록과 검색 조건을 담고 있는 ResponseEntity 객체
+     * @throws SQLException SQL 예외 발생 시
      */
     @GetMapping("/list")
     public ResponseEntity<?> getBoardList(
-            @ModelAttribute SearchConditionVO searchConditionParams) {
+            @ModelAttribute SearchConditionVO searchConditionParams) throws SQLException {
 
         if (searchConditionParams == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("유효하지 않은 검색 조건입니다.");
         }
 
         Map<String, Object> searchCondition = setSearchCondition(searchConditionParams);
-        Map<String, Object> searchBoardsResult = boardService.searchBoards(searchCondition);
-        if (searchBoardsResult == null) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("검색에 실패하였습니다.");
-        }
 
+        int totalCount = (int) boardService.countSearchBoards(searchCondition);
+        List<BoardVO> searchBoards = boardService.searchBoards(searchCondition);
         List<CategoryVO> categories = categoryService.getAllCategory();
-        List<BoardVO> boards = (List<BoardVO>) searchBoardsResult.get("boards");
-        int totalCount = (int) searchBoardsResult.get("totalCount");
+
         int pageSize = (int) searchCondition.get("pageSize");
         int totalPages = (int) Math.ceil((double) totalCount / pageSize);
 
         Map<String, Object> response = new HashMap<>();
         response.put("searchCondition", searchCondition);
-        response.put("searchBoards", boards);
+        response.put("searchBoards", searchBoards);
         response.put("categories", categories);
         response.put("totalCount", totalCount);
         response.put("totalPages", totalPages);
@@ -116,88 +122,108 @@ public class BoardController {
         return ResponseEntity.ok(response);
     }
 
+
     /**
-     * 게시글 작성 페이지로 이동하는 함수
+     * 게시글 작성 페이지를 요청하는 메소드입니다.
      *
-     * @param searchConditionParams 검색 조건
-     * @return 게시글 작성 페이지 관련 정보를 담은 ResponseEntity
+     * @param searchConditionParams 검색 조건 정보를 담고 있는 SearchConditionVO 객체
+     * @return 게시글 작성 페이지와 검색 조건을 담고 있는 ResponseEntity 객체
      */
     @GetMapping("/write")
-    public ResponseEntity<?> clickBoardWriteButton(@RequestBody SearchConditionVO searchConditionParams
-    ) {
+    public ResponseEntity<?> clickBoardWriteButton(@ModelAttribute SearchConditionVO searchConditionParams) {
         if (searchConditionParams == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("유효하지 않은 검색 조건입니다.");
         }
 
-        List<CategoryVO> categories = categoryService.getAllCategory();
-        Map<String, Object> searchCondition = setSearchCondition(searchConditionParams);
+        try {
+            List<CategoryVO> categories = categoryService.getAllCategory();
+            Map<String, Object> searchCondition = setSearchCondition(searchConditionParams);
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("categories", categories);
-        response.put("searchCondition", searchCondition);
-        return ResponseEntity.ok(response);
+            Map<String, Object> response = new HashMap<>();
+            response.put("categories", categories);
+            response.put("searchCondition", searchCondition);
+            return ResponseEntity.ok(response);
+
+        } catch (SQLException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(SQL_ERROR_MESSAGE);
+        }
+
     }
 
     /**
-     * 게시글 상세 정보를 조회하는 함수
+     * 게시글 상세 정보를 조회하는 요청을 처리하는 메소드입니다.
      *
-     * @param searchConditionParams 검색 조건
-     * @param boardId              게시글 ID
-     * @return 게시글 상세 정보 및 관련 정보를 담은 ResponseEntity
+     * @param searchConditionParams 검색 조건 정보를 담고 있는 SearchConditionVO 객체
+     * @param boardId               조회할 게시글의 ID
+     * @return 게시글 상세 정보와 검색 조건을 담고 있는 ResponseEntity 객체
      */
     @GetMapping("/view")
     public ResponseEntity<?> getBoardInfo(@ModelAttribute SearchConditionVO searchConditionParams,
-                                          @RequestParam(value = "boardId", required = true) Integer boardId) {
+                                          @RequestParam(value = "boardId", required = true) Integer boardId) throws SQLException {
 
         if (searchConditionParams == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("유효하지 않은 검색 조건입니다.");
         }
 
-        BoardVO board = boardService.getBoardInfoByBoardId(boardId);
-        List<CommentVO> comments = commentService.getCommentsByBoardId(boardId);
-        List<AttachmentVO> attachments = attachmentService.getAttachmentsByBoardId(boardId);
-        Map<String, Object> searchCondition = setSearchCondition(searchConditionParams);
+        try {
+            BoardVO board = boardService.getBoardInfoByBoardId(boardId);
+            List<CommentVO> comments = commentService.getCommentsByBoardId(boardId);
+            List<AttachmentVO> attachments = attachmentService.getAttachmentsByBoardId(boardId);
+            Map<String, Object> searchCondition = setSearchCondition(searchConditionParams);
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("board", board);
-        response.put("attachments", attachments);
-        response.put("comments", comments);
-        response.put("searchCondition", searchCondition);
+            Map<String, Object> response = new HashMap<>();
+            response.put("board", board);
+            response.put("attachments", attachments);
+            response.put("comments", comments);
+            response.put("searchCondition", searchCondition);
 
-        return ResponseEntity.ok(response);
+            return ResponseEntity.ok(response);
+
+        } catch (SQLException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(SQL_ERROR_MESSAGE);
+        }
     }
 
-//    @PostMapping("/save")
-//    public String saveBoardInfo(@RequestParam("category_id") String categoryValue,
-//                                @RequestParam("writer") String writer,
-//                                @RequestParam("password") String password,
-//                                @RequestParam("confirmPassword") String confirmPassword,
-//                                @RequestParam("title") String title,
-//                                @RequestParam("content") String content,
-//                                @RequestParam("file1") MultipartFile file1,
-//                                @RequestParam("file2") MultipartFile file2,
-//                                @RequestParam("file3") MultipartFile file3
-//    ) throws Exception {
-//        //VO를 만들어서 requestparam전달하기
-//        //body에서 스프링이 알아서 변환 , 파라미터 핸들링 기법 확인하기
-//        MultipartFile[] files = {file1, file2, file3};
-//        boardService.saveBoard(categoryValue, writer, password, confirmPassword, title, content, files);
-//
-//        return "boardGetList";
-//    }
-//
+    /**
+     * 게시글을 저장하는 요청을 처리합니다.
+     *
+     * @param board 게시글 정보를 담고 있는 BoardVO 객체
+     * @param files 업로드된 첨부 파일 목록을 담고 있는 List<MultipartFile> 객체
+     * @return ResponseEntity 객체
+     * @throws Exception 예외 발생 시
+     */
+    @PostMapping("/save")
+    public ResponseEntity<?> saveBoardInfo(@ModelAttribute BoardVO board,
+                                           @RequestParam("files") List<MultipartFile> files) throws Exception {
+        if (board == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("저장하려는 정보가 없습니다");
+        }
+
+        try {
+            LocalDateTime now = LocalDateTime.now();
+            board.setCreatedAt(now);
+            board.setModifiedAt(now);
+
+            boardService.saveBoard(board, files);
+            return ResponseEntity.ok("게시글 저장 성공");
+
+        } catch (SQLException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(SQL_ERROR_MESSAGE);
+        }
+    }
 
     /**
-     * 댓글을 추가하는 함수
+     * 댓글을 추가하는 요청을 처리합니다.
      *
-     * @param searchConditionParams  검색 조건
-     * @param requestBody           요청 바디 데이터
-     * @return 댓글 추가 후 게시글 상세 정보 및 관련 정보를 담은 ResponseEntity
+     * @param searchConditionParams 검색 조건 정보를 담고 있는 SearchConditionVO 객체
+     * @param requestBody           요청 본문에 포함된 데이터를 담고 있는 Map 객체
+     * @return 게시글 상세 정보와 검색 조건을 담고 있는 ResponseEntity 객체
+     * @throws SQLException SQL 예외 발생 시
      */
     @PostMapping("/add-comment")
     public ResponseEntity<?> addComment(
             @ModelAttribute SearchConditionVO searchConditionParams,
-            @RequestBody Map<String, Object> requestBody) {
+            @RequestBody Map<String, Object> requestBody) throws SQLException {
 
         int boardId = (Integer) requestBody.get("boardId");
         String content = (String) requestBody.get("content");
@@ -206,20 +232,79 @@ public class BoardController {
         params.put("boardId", boardId);
         params.put("content", content);
 
-        commentService.saveComment(params);
+        try{
+            commentService.saveComment(params);
 
-        BoardVO board = boardService.getBoardInfoByBoardId(boardId);
-        List<CommentVO> comments = commentService.getCommentsByBoardId(boardId);
-        List<AttachmentVO> attachments = attachmentService.getAttachmentsByBoardId(boardId);
-        Map<String, Object> searchCondition = setSearchCondition(searchConditionParams);
+            BoardVO board = boardService.getBoardInfoByBoardId(boardId);
+            List<CommentVO> comments = commentService.getCommentsByBoardId(boardId);
+            List<AttachmentVO> attachments = attachmentService.getAttachmentsByBoardId(boardId);
+            Map<String, Object> searchCondition = setSearchCondition(searchConditionParams);
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("board", board);
-        response.put("attachments", attachments);
-        response.put("comments", comments);
-        response.put("searchCondition", searchCondition);
+            Map<String, Object> response = new HashMap<>();
+            response.put("board", board);
+            response.put("attachments", attachments);
+            response.put("comments", comments);
+            response.put("searchCondition", searchCondition);
 
-        return ResponseEntity.ok(response);
+            return ResponseEntity.ok(response);
+
+        } catch (SQLException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(SQL_ERROR_MESSAGE);
+        }
+
+    }
+
+    /**
+     * 게시글 삭제 요청을 처리합니다.
+     *
+     * @param boardId  삭제할 게시글의 ID를 나타내는 Integer 값
+     * @param password 게시글을 삭제하기 위한 비밀번호를 나타내는 String 값
+     * @return ResponseEntity 객체
+     */
+    @PostMapping("/delete")
+    public ResponseEntity<?> deleteBoard(
+            @RequestParam(value = "boardId", required = true) Integer boardId,
+            @RequestParam(value = "password", required = true) String password) {
+        try {
+            boardService.deleteBoard(boardId, password);
+            return ResponseEntity.ok("삭제에 성공하였습니다.");
+        } catch (SQLException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(SQL_ERROR_MESSAGE);
+        } catch (PasswordInvalidException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    /**
+     * 게시글을 수정하는 요청을 처리하는 메소드입니다.
+     *
+     * @param newBoard              수정할 게시글 정보를 담고 있는 BoardVO 객체
+     * @param files                 업로드된 첨부 파일 목록을 담고 있는 List<MultipartFile> 객체
+     * @param deletedAttachmentIds  삭제할 첨부 파일의 ID 목록을 담고 있는 List<Integer> 객체
+     * @return                      응답 상태와 메시지를 담고 있는 ResponseEntity 객체
+     * @throws Exception            게시글 수정 과정에서 발생하는 예외
+     */
+    @PostMapping("/update")
+    public ResponseEntity<?> updateBoard(@ModelAttribute BoardVO newBoard,
+                                           @RequestParam("files") List<MultipartFile> files,
+                                         @RequestParam("deletedAttachmentIds") List<Integer > deletedAttachmentIds
+                                         ) throws Exception {
+        if (newBoard == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("저장하려는 정보가 없습니다");
+        }
+
+        try {
+            LocalDateTime now = LocalDateTime.now();
+            newBoard.setModifiedAt(now);
+
+            boardService.updateBoard(newBoard, files, deletedAttachmentIds);
+            return ResponseEntity.ok("게시글 수정 성공");
+
+        } catch (SQLException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(SQL_ERROR_MESSAGE);
+        } catch (PasswordInvalidException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
 

@@ -5,6 +5,7 @@ import ebrain.board.vo.CommentVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -23,13 +24,17 @@ public class CommentService {
      *
      * @param params 저장할 댓글 정보를 담은 맵
      */
-    public void saveComment(Map<String, Object> params){
+    public void saveComment(Map<String, Object> params) throws SQLException {
+
+        LocalDateTime currentTime = LocalDateTime.now();
+
         CommentVO comment = new CommentVO();
+
         comment.setBoardId((Integer)params.get("boardId"));
         comment.setContent((String) params.get("content"));
-        comment.setWriter("-");
-        LocalDateTime currentTime = LocalDateTime.now();
         comment.setCreatedAt(currentTime);
+        comment.setWriter("-");
+
         commentRepository.saveComment(comment);
     }
 
@@ -39,7 +44,7 @@ public class CommentService {
      * @param boardId 조회할 게시글의 ID
      * @return 조회된 모든 댓글 리스트
      */
-    public List<CommentVO> getCommentsByBoardId(int boardId){
+    public List<CommentVO> getCommentsByBoardId(int boardId) throws SQLException{
         return commentRepository.getCommentsByBoardId(boardId);
     }
 }

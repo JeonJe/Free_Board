@@ -26,6 +26,11 @@ public class BoardVO {
      * 게시물 비밀번호
      */
     private String password;
+
+    /**
+     * 게시물 비밀번호 확인
+     */
+    private String confirmPassword;
     /**
      * 게시물 제목
      */
@@ -51,24 +56,23 @@ public class BoardVO {
      * 게시물 작성 시간을 yyyy.MM.dd HH:mm 형식으로 반환하는 메서드
      * @return 게시물 작성 시간 문자열
      */
-    //TODO : 포맷팅은 화면에서 하는 것, 데이터베이스에서는 표준으로 저장
-    public String getCreatedAt() {
-        if (createdAt == null) {
-            return "";
-        }
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm");
-        return createdAt.format(formatter);
-    }
+//    public String getCreatedAt() {
+//        if (createdAt == null) {
+//            return "";
+//        }
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm");
+//        return createdAt.format(formatter);
+//    }
 
     /**
      * 게시물 수정 시간을 yyyy.MM.dd HH:mm 형식으로 반환하는 메서드
      * @return 게시물 수정 시간 문자열
      */
-    public String getModifiedAt() {
-        if (modifiedAt == null) {
-            return "";
-        }
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm");
-        return modifiedAt.format(formatter);
-    }
+//    public String getModifiedAt() {
+//        if (modifiedAt == null) {
+//            return "";
+//        }
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm");
+//        return modifiedAt.format(formatter);
+//    }
 }
