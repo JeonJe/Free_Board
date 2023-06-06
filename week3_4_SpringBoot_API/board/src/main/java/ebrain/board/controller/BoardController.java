@@ -25,6 +25,7 @@ import java.util.Map;
  * BoardController class
  * 게시판과 관련된 모든 요청을 처리하고 json 데이터 반환
  */
+@CrossOrigin(origins = "http://localhost:8082")
 @RestController
 public class BoardController {
 
@@ -72,7 +73,7 @@ public class BoardController {
 
         int pageSize = 10;
         int currentPage = searchConditionParams.getPage() != null ? searchConditionParams.getPage() : 1;
-        int category = searchConditionParams.getCategory() != null ? searchConditionParams.getCategory() : 0;
+        int categoryId = searchConditionParams.getCategoryId() != null ? searchConditionParams.getCategoryId() : 0;
         LocalDate startDate = searchConditionParams.getStartDate() != null ? searchConditionParams.getStartDate() : LocalDate.now().minusYears(1);
         LocalDate endDate = searchConditionParams.getEndDate() != null ? searchConditionParams.getEndDate() : LocalDate.now();
         String searchText = searchConditionParams.getSearchText() != null ? searchConditionParams.getSearchText() : "";
@@ -80,7 +81,7 @@ public class BoardController {
         Map<String, Object> searchCondition = new HashMap<>();
         searchCondition.put("startDate", startDate);
         searchCondition.put("endDate", endDate);
-        searchCondition.put("category", category);
+        searchCondition.put("categoryId", categoryId);
         searchCondition.put("searchText", searchText);
         searchCondition.put("currentPage", currentPage);
         searchCondition.put("pageSize", pageSize);
@@ -110,6 +111,7 @@ public class BoardController {
         try {
             List<BoardVO> searchBoards = boardService.searchBoards(searchCondition);
             List<CategoryVO> categories = categoryService.getAllCategory();
+
             int totalCount = boardService.countSearchBoards(searchCondition);
             int pageSize = (int) searchCondition.get("pageSize");
             int totalPages = (int) Math.ceil((double) totalCount / pageSize);
@@ -118,6 +120,7 @@ public class BoardController {
             response.put("searchCondition", searchCondition);
             response.put("searchBoards", searchBoards);
             response.put("categories", categories);
+            response.put("categoryName", categories);
             response.put("totalCount", totalCount);
             response.put("totalPages", totalPages);
 
@@ -323,6 +326,17 @@ public class BoardController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+
+    @GetMapping("/category/{categoryId}")
+    public ResponseEntity<String>  getCategoryNameByCategoryId(@PathVariable int categoryId) {
+        try {
+            String categoryName = categoryService.getCategoryNameByCategoryId(categoryId);
+            return ResponseEntity.ok(categoryName);
+        } catch (SQLException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("카테고리 이름을 가져올 수 없습니다.");
+        }
+    }
+
 
 
 }

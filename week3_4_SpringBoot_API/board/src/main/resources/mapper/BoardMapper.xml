@@ -43,8 +43,8 @@
         SELECT *
         FROM board
         WHERE 1=1
-        <if test="category != 0">
-            AND category_id = #{category}
+        <if test="categoryId != 0">
+            AND category_id = #{categoryId}
         </if>
         <if test="searchText != null and searchText != ''">
             AND (title LIKE concat('%', #{searchText}, '%')
@@ -61,8 +61,8 @@
     <!-- 검색 조건에 맞는 게시글 수 조회 -->
     <select id="countSearchBoards" parameterType="java.util.Map" resultType="java.lang.Integer">
         SELECT COUNT(*) FROM board WHERE 1=1
-        <if test="category != 0">
-            AND category_id = #{category}
+        <if test="categoryId != 0">
+            AND category_id = #{categoryId}
         </if>
         <if test="searchText != null and searchText != ''">
             AND (title LIKE concat('%', #{searchText}, '%')

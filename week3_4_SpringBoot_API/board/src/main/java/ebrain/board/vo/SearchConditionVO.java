@@ -9,7 +9,7 @@ public class SearchConditionVO {
     /**
      * 검색할 카테고리의 ID
      */
-    private Integer category;
+    private Integer categoryId;
 
     /**
      * 검색 결과 페이지 번호

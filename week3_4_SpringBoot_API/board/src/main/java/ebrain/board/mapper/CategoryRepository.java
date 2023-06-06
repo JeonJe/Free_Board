@@ -24,5 +24,5 @@ public interface CategoryRepository {
      * @param categoryId 조회하고자 하는 카테고리의 ID
      * @return 조회된 카테고리의 이름
      */
-    String getCategoryNameById(int categoryId);
+    String getCategoryNameByCategoryId(int categoryId);
 }

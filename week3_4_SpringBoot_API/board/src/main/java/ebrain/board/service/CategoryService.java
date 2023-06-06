@@ -43,8 +43,8 @@ public class CategoryService  {
      * @return 카테고리 이름
      * @throws SQLException SQL 예외가 발생한 경우
      */
-    public String getCategoryNameById(int categoryId) throws SQLException {
-        return categoryMapper.getCategoryNameById(categoryId);
+    public String getCategoryNameByCategoryId(int categoryId) throws SQLException {
+        return categoryMapper.getCategoryNameByCategoryId(categoryId);
     }
 
 }

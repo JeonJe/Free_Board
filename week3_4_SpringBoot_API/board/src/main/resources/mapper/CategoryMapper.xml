@@ -9,8 +9,8 @@
 <mapper namespace="ebrain.board.mapper.CategoryRepository">
 
     <!-- 카테고리 ID에 해당하는 카테고리 이름 조회 -->
-    <select id="getCategoryNameById" parameterType="int" resultType="String">
-        SELECT category_name FROM category WHERE category_id = #{id}
+    <select id="getCategoryNameByCategoryId" parameterType="int" resultType="String">
+        SELECT category_name FROM category WHERE category_id = #{categoryId}
     </select>
 
     <!-- 모든 카테고리 정보 조회 -->
