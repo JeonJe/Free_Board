@@ -1,5 +1,8 @@
 package ebrain.board.utils;
 
+/**
+ * 스트링 관련 유틸리티 클래스
+ */
 public class StringUtils {
 
     /**

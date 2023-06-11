@@ -27,6 +27,9 @@ import java.util.Map;
  */
 @CrossOrigin(origins = "http://localhost:8082")
 @RestController
+
+
+
 public class BoardController {
 
     private static final String SQL_ERROR_MESSAGE = "SQL 오류";
@@ -76,6 +79,7 @@ public class BoardController {
         int categoryId = searchConditionParams.getCategoryId() != null ? searchConditionParams.getCategoryId() : 0;
         LocalDate startDate = searchConditionParams.getStartDate() != null ? searchConditionParams.getStartDate() : LocalDate.now().minusYears(1);
         LocalDate endDate = searchConditionParams.getEndDate() != null ? searchConditionParams.getEndDate() : LocalDate.now();
+        //TODO : strip to empty 사용하여 string null 확인을 깔끔하게 처리
         String searchText = searchConditionParams.getSearchText() != null ? searchConditionParams.getSearchText() : "";
 
         Map<String, Object> searchCondition = new HashMap<>();
@@ -97,7 +101,10 @@ public class BoardController {
      * @return 게시글 목록과 검색 조건을 담고 있는 ResponseEntity 객체
      * @throws SQLException SQL 예외 발생 시
      */
+
+
     @GetMapping("/list")
+    //TODO : list -> /board/list 로 명확하게 작성
     public ResponseEntity<Map<String, Object>> getBoardList(
             @ModelAttribute SearchConditionVO searchConditionParams) throws SQLException {
 
@@ -109,6 +116,7 @@ public class BoardController {
 
         Map<String, Object> searchCondition = setSearchCondition(searchConditionParams);
         try {
+            //TODO : 컨트롤러에서 sestSearchCondition에서 처리하지말고 쿼리에서 처리하도록 변경, Map보다는 명확한 vo로 사용하는 것이 좋음
             List<BoardVO> searchBoards = boardService.searchBoards(searchCondition);
             List<CategoryVO> categories = categoryService.getAllCategory();
 
@@ -117,11 +125,14 @@ public class BoardController {
             int totalPages = (int) Math.ceil((double) totalCount / pageSize);
 
             Map<String, Object> response = new HashMap<>();
+            //TODO : api result class 로 작성시 search 관련 코드는 묶을 수 있음
             response.put("searchCondition", searchCondition);
             response.put("searchBoards", searchBoards);
             response.put("categories", categories);
             response.put("categoryName", categories);
             response.put("totalCount", totalCount);
+            //TODO : total 페이지를 가능하면 화면쪽에서 현재페이지 번호와 몇개 가져오는지 화면에서 전달하면 서버는
+            //짜르는거 자체를 프론트에서 pageSize자체를 받아오면 됨 , 오프셋도 화면에서 처리 가능
             response.put("totalPages", totalPages);
 
             return ResponseEntity.ok(response);
@@ -134,35 +145,7 @@ public class BoardController {
     }
 
 
-    /**
-     * 게시글 작성 페이지를 요청하는 메소드입니다.
-     *
-     * @param searchConditionParams 검색 조건 정보를 담고 있는 SearchConditionVO 객체
-     * @return 게시글 작성 페이지와 검색 조건을 담고 있는 ResponseEntity 객체
-     */
-    @GetMapping("/write")
-    public ResponseEntity<Map<String, Object>> clickBoardWriteButton(@ModelAttribute SearchConditionVO searchConditionParams) {
-        if (searchConditionParams == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).
-                    body(Collections.singletonMap("error", "유효하지 않은 검색 조건입니다."));
-        }
 
-        try {
-            List<CategoryVO> categories = categoryService.getAllCategory();
-            Map<String, Object> searchCondition = setSearchCondition(searchConditionParams);
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("categories", categories);
-            response.put("searchCondition", searchCondition);
-
-            return ResponseEntity.ok(response);
-
-        } catch (SQLException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).
-                    body(Collections.singletonMap("error", SQL_ERROR_MESSAGE));
-        }
-
-    }
 
     /**
      * 게시글 상세 정보를 조회하는 요청을 처리하는 메소드입니다.
@@ -313,6 +296,7 @@ public class BoardController {
         }
 
         try {
+            //TODO : db 쿼리에서 처리, 쿼리 value쪽에 now()로 만들어 코드 줄일 수 있음
             LocalDateTime now = LocalDateTime.now();
             newBoard.setModifiedAt(now);
 
@@ -327,6 +311,11 @@ public class BoardController {
         }
     }
 
+    /**
+     * 카테고리 ID에 따른 카테고리 이름을 가져오는 메소드입니다.
+     * @param categoryId 카테고리 ID
+     * @return  카테고리 이름 또는 에러 메시지
+     */
     @GetMapping("/category/{categoryId}")
     public ResponseEntity<String>  getCategoryNameByCategoryId(@PathVariable int categoryId) {
         try {
@@ -336,6 +325,19 @@ public class BoardController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("카테고리 이름을 가져올 수 없습니다.");
         }
     }
+
+
+//    public class APIResult {
+//
+//        /**
+//         * 0 성공
+//         */
+//        private int result;
+//
+//
+//
+//
+//    }
 
 
 

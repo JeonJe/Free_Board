@@ -75,6 +75,7 @@ public class BoardService {
             throw new FormValidationInvalidException("폼 유효성 검증에 실패하였습니다.");
         }
 
+        //TODO : 아래 코드를 멤버변수로 만들어 @Value("${UPLOAD_PATH}") 체크
         String uploadPath = ResourceBundle.getBundle("application").getString("UPLOAD_PATH");
         String hashedPassword = BoardUtils.hashPassword(board.getPassword());
         board.setPassword(hashedPassword);
@@ -111,6 +112,7 @@ public class BoardService {
             throw new FormValidationInvalidException("폼 유효성 검증에 실패하였습니다.");
         }
 
+        //TODO : 수정
         String uploadPath = ResourceBundle.getBundle("application").getString("UPLOAD_PATH");
         String hashedPassword = BoardUtils.hashPassword(board.getPassword());
         board.setPassword(hashedPassword);
