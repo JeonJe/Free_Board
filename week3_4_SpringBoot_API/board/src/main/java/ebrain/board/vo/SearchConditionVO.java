@@ -30,4 +30,19 @@ public class SearchConditionVO {
      * 검색 종료 날짜
      */
     private LocalDate endDate;
+    /**
+     * 페이지 사이즈
+     */
+    private Integer pageSize;
+    /**
+     * 현재페이지
+     */
+    private Integer currentPage;
+    /**
+     * 페이지 오프셋
+     */
+    private Integer offset;
+
+
+
 }

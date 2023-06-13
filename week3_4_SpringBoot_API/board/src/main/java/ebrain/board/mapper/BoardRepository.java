@@ -1,6 +1,7 @@
 package ebrain.board.mapper;
 
 import ebrain.board.vo.BoardVO;
+import ebrain.board.vo.SearchConditionVO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -16,7 +17,7 @@ public interface BoardRepository {
      * @param params 검색 조건을 담은 맵 객체
      * @return 검색된 게시글의 리스트
      */
-    List<BoardVO> searchBoards(Map<String, Object> params);
+    List<BoardVO> searchBoards(SearchConditionVO searchParams);
 
     /**
      * 주어진 검색 조건에 맞는 게시글의 개수를 반환하는 메서드
@@ -24,7 +25,7 @@ public interface BoardRepository {
      * @param params 검색 조건을 담은 맵 객체
      * @return 검색된 게시글의 개수
      */
-    int countSearchBoards(Map<String, Object> params);
+    int countSearchBoards(SearchConditionVO searchParams);
 
     /**
      * 게시글의 조회수를 증가시키는 메서드

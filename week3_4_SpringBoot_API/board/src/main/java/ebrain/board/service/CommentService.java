@@ -36,13 +36,10 @@ public class CommentService {
      */
     public void saveComment(Map<String, Object> params) throws SQLException {
 
-        LocalDateTime currentTime = LocalDateTime.now();
-
         CommentVO comment = new CommentVO();
 
         comment.setBoardId((Integer) params.get("boardId"));
         comment.setContent((String) params.get("content"));
-        comment.setCreatedAt(currentTime);
         comment.setWriter("-");
 
         commentRepository.saveComment(comment);

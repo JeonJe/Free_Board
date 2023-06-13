@@ -13,7 +13,7 @@
         INSERT INTO board (category_id, writer, password, title,
                            content, created_at, modified_at, visit_count)
         VALUES (#{categoryId}, #{writer}, #{password}, #{title},
-                #{content}, #{createdAt}, #{modifiedAt}, #{visitCount})
+                #{content}, NOW(), NOW(), #{visitCount})
     </insert>
 
     <!-- 게시글 삭제 -->
@@ -24,7 +24,7 @@
     <!-- 게시글 정보 업데이트 -->
     <update id="updateBoard" parameterType="BoardVO">
         UPDATE board
-        SET writer = #{writer}, title = #{title}, content = #{content}, modified_at = #{modifiedAt}
+        SET writer = #{writer}, title = #{title}, content = #{content}, modified_at = NOW()
         WHERE board_id = #{boardId}
     </update>
 
@@ -39,11 +39,11 @@
     </select>
 
     <!-- 검색 조건에 맞는 게시글 검색 -->
-    <select id="searchBoards" parameterType="java.util.Map" resultType="BoardVO" >
+    <select id="searchBoards" parameterType="SearchConditionVO" resultType="BoardVO" >
         SELECT *
         FROM board
         WHERE 1=1
-        <if test="categoryId != 0">
+        <if test="categoryId != null and categoryId != 0 ">
             AND category_id = #{categoryId}
         </if>
         <if test="searchText != null and searchText != ''">
@@ -51,15 +51,31 @@
             OR content LIKE concat('%', #{searchText}, '%')
             OR writer LIKE concat('%', #{searchText}, '%'))
         </if>
+        <if test="startDate == null or endDate == null">
+            AND created_at BETWEEN DATE_SUB(NOW(), INTERVAL 1 YEAR) AND NOW()
+        </if>
         <if test="startDate != null and endDate != null">
             AND created_at BETWEEN #{startDate} AND #{endDate}
         </if>
         ORDER BY created_at DESC
-        LIMIT #{pageSize} OFFSET #{offset}
+        LIMIT
+        <if test="pageSize == null">
+            10
+        </if>
+        <if test="pageSize != null">
+            #{pageSize}
+        </if>
+        OFFSET
+        <if test="currentPage == null">
+            1
+        </if>
+        <if test="currentPage != null">
+            #{(currentPage - 1) * (pageSize != null ? pageSize : 10)}
+        </if>
     </select>
 
     <!-- 검색 조건에 맞는 게시글 수 조회 -->
-    <select id="countSearchBoards" parameterType="java.util.Map" resultType="java.lang.Integer">
+    <select id="countSearchBoards" parameterType="SearchConditionVO" resultType="java.lang.Integer">
         SELECT COUNT(*) FROM board WHERE 1=1
         <if test="categoryId != 0">
             AND category_id = #{categoryId}
@@ -68,6 +84,9 @@
             AND (title LIKE concat('%', #{searchText}, '%')
             OR content LIKE concat('%', #{searchText}, '%')
             OR writer LIKE concat('%', #{searchText}, '%'))
+        </if>
+        <if test="startDate == null or endDate == null">
+            AND created_at BETWEEN DATE_SUB(NOW(), INTERVAL 1 YEAR) AND NOW()
         </if>
         <if test="startDate != null and endDate != null">
             AND created_at

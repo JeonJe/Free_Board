@@ -10,7 +10,9 @@ import ebrain.board.vo.AttachmentVO;
 import ebrain.board.vo.BoardVO;
 
 
+import ebrain.board.vo.SearchConditionVO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -35,6 +37,12 @@ public class BoardService {
      */
     private final AttachmentRepository attachmentRepository;
 
+    /**
+     * 파일 업로드 경로
+     */
+    @Value("${UPLOAD_PATH}")
+    private String UPLOAD_PATH;
+
     @Autowired
     public BoardService(BoardRepository boardRepository, AttachmentRepository attachmentRepository) {
         this.boardRepository = boardRepository;
@@ -47,8 +55,9 @@ public class BoardService {
      * @return 검색 결과로 조회된 게시글 목록
      * @throws SQLException SQL 예외 발생 시
      */
-    public List<BoardVO> searchBoards(Map<String, Object> params) throws SQLException {
-        return boardRepository.searchBoards(params);
+    public List<BoardVO> searchBoards(SearchConditionVO searchParams) throws SQLException {
+        System.out.println("searchParams = " + searchParams);
+        return boardRepository.searchBoards(searchParams);
     }
     /**
      * 검색 조건에 해당하는 게시글의 총 개수를 조회하는 메서드입니다.
@@ -57,7 +66,7 @@ public class BoardService {
      * @return 검색 결과로 조회된 게시글의 총 개수
      * @throws SQLException SQL 예외 발생 시
      */
-    public int countSearchBoards(Map<String, Object> searchParams) throws SQLException {
+    public int countSearchBoards(SearchConditionVO searchParams) throws SQLException {
         return boardRepository.countSearchBoards(searchParams);
     }
 
@@ -76,7 +85,7 @@ public class BoardService {
         }
 
         //TODO : 아래 코드를 멤버변수로 만들어 @Value("${UPLOAD_PATH}") 체크
-        String uploadPath = ResourceBundle.getBundle("application").getString("UPLOAD_PATH");
+//        String uploadPath = ResourceBundle.getBundle("application").getString("UPLOAD_PATH");
         String hashedPassword = BoardUtils.hashPassword(board.getPassword());
         board.setPassword(hashedPassword);
         board.setConfirmPassword(hashedPassword);
@@ -87,7 +96,7 @@ public class BoardService {
         for (MultipartFile file : files) {
             if (!file.isEmpty()) {
                 String originName = file.getOriginalFilename();
-                String numberedFileName = BoardUtils.uploadFile(file, uploadPath);
+                String numberedFileName = BoardUtils.uploadFile(file, UPLOAD_PATH);
                 AttachmentVO attachment = new AttachmentVO();
                 attachment.setBoardId(boardId);
                 attachment.setFileName(numberedFileName);
@@ -113,7 +122,7 @@ public class BoardService {
         }
 
         //TODO : 수정
-        String uploadPath = ResourceBundle.getBundle("application").getString("UPLOAD_PATH");
+//        String uploadPath = ResourceBundle.getBundle("application").getString("UPLOAD_PATH");
         String hashedPassword = BoardUtils.hashPassword(board.getPassword());
         board.setPassword(hashedPassword);
         board.setConfirmPassword(hashedPassword);
@@ -124,7 +133,7 @@ public class BoardService {
 
             //업로드 폴더에서 파일 삭제
             if (deletedFileName != null) {
-                File file = new File(uploadPath + '/' + deletedFileName);
+                File file = new File(UPLOAD_PATH + '/' + deletedFileName);
                 if (file.exists()) {
                     file.delete();
                 }
@@ -139,7 +148,7 @@ public class BoardService {
             if (!file.isEmpty()) {
                 //새로운 파일 업로드 및 데이터베이스 저장
                 String originName = file.getOriginalFilename();
-                String numberedFileName = BoardUtils.uploadFile(file, uploadPath);
+                String numberedFileName = BoardUtils.uploadFile(file, UPLOAD_PATH);
                 AttachmentVO attachment = new AttachmentVO();
                 attachment.setBoardId(board.getBoardId());
                 attachment.setFileName(numberedFileName);

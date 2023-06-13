@@ -10,7 +10,7 @@
     <!-- Comment 저장 -->
     <insert id="saveComment" parameterType="CommentVO">
         INSERT INTO comment (writer, content, created_at, board_id)
-        VALUES (#{writer}, #{content}, #{createdAt}, #{boardId})
+        VALUES (#{writer}, #{content}, NOW(), #{boardId})
     </insert>
 
     <!-- boardId에 해당하는 댓글 조회 -->

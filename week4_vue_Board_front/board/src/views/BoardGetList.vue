@@ -10,7 +10,6 @@
 
     <select id="category" name="categoryId" class="form-control mr-2" v-model="searchCondition.categoryId">
     <option value="0">전체 카테고리</option>
-<!--        //TODO : 서브쿼리로 변경 필요 -->
     <option v-for="category in categories" :value="category.categoryId" :key="category.categoryId" :selected="category.categoryId === searchCondition.categoryId">
       {{ category.categoryName }}
     </option>
@@ -36,7 +35,7 @@
       <tbody>
         <tr v-for="(boardItem) in searchBoards" :key="boardItem.boardId">
           <td>{{ getCategoryName(boardItem.categoryId) }}</td>
-          <td><a :href="'view?id=' + boardItem.boardId">{{ boardItem.title }}</a></td>
+          <td><a :href="'board/view?id=' + boardItem.boardId">{{ boardItem.title }}</a></td>
           <td>{{ boardItem.writer }}</td>
           <td>{{ boardItem.visitCount }}</td>
           <td>{{ dateFormat(boardItem.createdAt) }}</td>
@@ -67,7 +66,7 @@
 </template>
 
 <script>
-import api from "../../../../../../../week4_vue_Board_front/board/src/scripts/APICreate.js";
+import api from "../scripts/APICreate.js";
 
 export default {
   data() {
@@ -105,17 +104,19 @@ export default {
   },
   methods: {
     getBoardList() {
-      const url = `list?page=${this.searchCondition.page}&categoryId=${this.searchCondition.categoryId}&searchText=${this.searchCondition.searchText}&startDate=${this.searchCondition.startDate}&endDate=${this.searchCondition.endDate}`;
+      
+      const url = `board/list?page=${this.searchCondition.page}&categoryId=${this.searchCondition.categoryId}&searchText=${this.searchCondition.searchText}&startDate=${this.searchCondition.startDate}&endDate=${this.searchCondition.endDate}`;
       console.log(url)
       api
         .get(url)
         .then(response => {
           const data = response.data;
-          this.searchCondition.categoryId = data.searchCondition.categoryId;
-          this.searchCondition.page = data.searchCondition.page;
-          this.searchCondition.searchText = data.searchCondition.searchText;
-          this.searchCondition.startDate = data.searchCondition.startDate;
-          this.searchCondition.endDate = data.searchCondition.endDate;
+          console.log(data)
+          this.searchCondition.categoryId = data.searchBoards.categoryId;
+          this.searchCondition.page = data.searchBoards.page;
+          this.searchCondition.searchText = data.searchBoards.searchText;
+          this.searchCondition.startDate = data.searchBoards.startDate;
+          this.searchCondition.endDate = data.searchBoards.endDate;
           this.searchBoards = data.searchBoards;
           this.totalPages = data.totalPages;
           this.categories = data.categories;
@@ -145,7 +146,7 @@ export default {
       return `${year}-${month}-${day}`;
     },
     getPageUrl(page) {
-      return `list?&page=${page}&categoryId=${this.searchCondition.categoryId}&searchText=${this.searchCondition.searchText}&startDate=${this.searchCondition.startDate}&endDate=${this.searchCondition.endDate}`;
+      return `board/list?&page=${page}&categoryId=${this.searchCondition.categoryId}&searchText=${this.searchCondition.searchText}&startDate=${this.searchCondition.startDate}&endDate=${this.searchCondition.endDate}`;
     },
     searchBoardsAction() {
       this.searchCondition.page = 1;

@@ -80,7 +80,7 @@
 </template>
 
 <script>
-import api from "../../../../../../../week4_vue_Board_front/board/src/scripts/APICreate.js";
+import api from "../scripts/APICreate.js";
 
 export default {
     data() {
@@ -96,7 +96,7 @@ export default {
                 attachment2: null,
                 attachment3: null,
             },
-            categories: [], // Assign the categories data from the backend to this array
+            categories: [], 
             searchCondition: {
                 page: '',
                 category: '',
@@ -112,7 +112,7 @@ export default {
 
     methods: {
         getBoardInfo(){
-            const url = `write?page=${this.searchCondition.page}&category=${this.searchCondition.category}&searchText=${this.searchCondition.searchText}&startDate=${this.searchCondition.startDate}&endDate=${this.searchCondition.endDate}`;
+            const url = `board/write?page=${this.searchCondition.page}&category=${this.searchCondition.category}&searchText=${this.searchCondition.searchText}&startDate=${this.searchCondition.startDate}&endDate=${this.searchCondition.endDate}`;
             api
                 .get(url)
                 .then(response => {
@@ -129,17 +129,12 @@ export default {
                 });
         },
          handleFileChange(event, fieldName) {
-            // Handle the file change event
-            // Access the selected file using event.target.files[0]
-            // Assign it to the corresponding property in formData
 
             const file = event.target.files[0];
 
-            // Example: Assign the file to the attachment1 property
             this.formData[fieldName] = file;
         },
         submitForm() {
-            // Form validation checks
             if (this.formData.writer.length < 3 || this.formData.writer.length >= 5) {
                 alert('작성자는 3글자 이상 5글자 미만이어야 합니다.');
                 return;
@@ -165,7 +160,6 @@ export default {
                 return;
             }
 
-            // Handle the form submission and API request to save the data
         },
     },
 };
