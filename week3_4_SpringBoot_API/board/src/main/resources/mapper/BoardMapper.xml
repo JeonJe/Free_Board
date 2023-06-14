@@ -58,20 +58,9 @@
             AND created_at BETWEEN #{startDate} AND #{endDate}
         </if>
         ORDER BY created_at DESC
-        LIMIT
-        <if test="pageSize == null">
-            10
-        </if>
-        <if test="pageSize != null">
-            #{pageSize}
-        </if>
-        OFFSET
-        <if test="currentPage == null">
-            1
-        </if>
-        <if test="currentPage != null">
-            #{(currentPage - 1) * (pageSize != null ? pageSize : 10)}
-        </if>
+        LIMIT #{pageSize}
+        OFFSET #{offset}
+
     </select>
 
     <!-- 검색 조건에 맞는 게시글 수 조회 -->

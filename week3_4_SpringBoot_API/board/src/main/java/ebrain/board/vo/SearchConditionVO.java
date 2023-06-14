@@ -11,10 +11,6 @@ public class SearchConditionVO {
      */
     private Integer categoryId;
 
-    /**
-     * 검색 결과 페이지 번호
-     */
-    private Integer page;
 
     /**
      * 검색 키워드
@@ -38,10 +34,12 @@ public class SearchConditionVO {
      * 현재페이지
      */
     private Integer currentPage;
+
     /**
-     * 페이지 오프셋
+     * 페이지 offset
      */
     private Integer offset;
+
 
 
 

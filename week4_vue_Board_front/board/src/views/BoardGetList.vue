@@ -20,7 +20,7 @@
 
       <button type="submit" class="btn btn-primary">검색</button>
     </form>
-
+  <p>총 {{ this.totalCount }} 건</p>
     <table class="table table-striped text-center">
       <thead class="text-center">
         <tr>
@@ -47,17 +47,17 @@
     <!-- pagination -->
     <div class="d-flex justify-content-between">
       <div class="text-center mx-auto">
-        <a v-if="searchCondition.currentPage > 1" :href="getPageUrl(searchCondition.currentPage - 1)">&lt;&nbsp;</a>
-        <a v-if="searchCondition.currentPage > 1" :href="getPageUrl(1)">&lt;&lt;&nbsp;</a>
+         <a v-if="searchCondition.currentPage > 1" @click="getPageData(searchCondition.currentPage - 1)">&lt;&nbsp;</a>
+    <a v-if="searchCondition.currentPage > 1" @click="getPageData(1)">&lt;&lt;&nbsp;</a>
 
-        <template v-for="i in totalPages" :key="i">
-          <strong v-if="i === searchCondition.currentPage">{{ i }}</strong>
-          <a v-else :href="getPageUrl(i)">{{ i }}</a>
-        </template>
+    <template v-for="i in totalPages" :key="i">
+      <strong v-if="i === searchCondition.currentPage">{{ i }}</strong>
+      <a v-else @click="getPageData(i)">{{ i }}</a>
+    </template>
 
-        <a v-if="searchCondition.currentPage < totalPages"
-          :href="getPageUrl(searchCondition.currentPage + 1)">&nbsp;&gt;</a>
-        <a v-if="searchCondition.currentPage < totalPages" :href="getPageUrl(totalPages)">&nbsp;&gt;&gt;</a>
+    <a v-if="searchCondition.currentPage < totalPages" @click="getPageData(searchCondition.currentPage + 1)">&nbsp;&gt;</a>
+    <a v-if="searchCondition.currentPage < totalPages" @click="getPageData(totalPages)">&nbsp;&gt;&gt;</a>
+    <!-- ... -->
       </div>
       <button @click="handleRegisterClick" class="btn btn-primary">등록</button>
   
@@ -69,28 +69,33 @@
 import api from "../scripts/APICreate.js";
 
 export default {
+  
+
   data() {
     const currentDate = new Date();
     const oneYearAgo = new Date(currentDate.getFullYear() - 1, currentDate.getMonth(), currentDate.getDate());
     const formattedStartDate = oneYearAgo.toISOString().slice(0, 10);
     const formattedEndDate = currentDate.toISOString().slice(0, 10);
-
+    //클라이언트가 전달해주는 파라미터 초기값
     return {
       searchCondition: {
         categoryId: 0,
-        page: 1,
         searchText: '',
         startDate: formattedStartDate,
         endDate: formattedEndDate,
         currentPage: 1,
+        pageSize : 10,
+        offset : 1,
       },
       searchBoards: [],
+      totalCount : 0,
       categories: [],
       categoryName: '',
       totalPages: 0,
     };
   },
   computed: {
+    //카테고리 id에 따른 이름을 가져오는 함수
     getCategoryName() {
       return (categoryId) => {
         const category = this.categories.find((category) => category.categoryId === categoryId);
@@ -102,24 +107,33 @@ export default {
   mounted() {
     this.getBoardList();
   },
+
   methods: {
     getBoardList() {
-      
-      const url = `board/list?page=${this.searchCondition.page}&categoryId=${this.searchCondition.categoryId}&searchText=${this.searchCondition.searchText}&startDate=${this.searchCondition.startDate}&endDate=${this.searchCondition.endDate}`;
-      console.log(url)
+      const currentDate = new Date();
+      const oneYearAgo = new Date(currentDate.getFullYear() - 1, currentDate.getMonth(), currentDate.getDate());
+      const formattedStartDate = oneYearAgo.toISOString().slice(0, 10);
+      const formattedEndDate = currentDate.toISOString().slice(0, 10);
+
+      const url = `board/list?currentPage=${this.searchCondition.currentPage}&categoryId=${this.searchCondition.categoryId}&searchText=${this.searchCondition.searchText}&startDate=${this.searchCondition.startDate}&endDate=${this.searchCondition.endDate}&pageSize=${this.searchCondition.pageSize}`;
+
       api
         .get(url)
         .then(response => {
           const data = response.data;
-          console.log(data)
-          this.searchCondition.categoryId = data.searchBoards.categoryId;
-          this.searchCondition.page = data.searchBoards.page;
-          this.searchCondition.searchText = data.searchBoards.searchText;
-          this.searchCondition.startDate = data.searchBoards.startDate;
-          this.searchCondition.endDate = data.searchBoards.endDate;
-          this.searchBoards = data.searchBoards;
-          this.totalPages = data.totalPages;
-          this.categories = data.categories;
+          const responseData = data.data[0]; 
+          
+          this.searchCondition.categoryId = responseData.searchCondition.categoryId || 0;
+          this.searchCondition.searchText = responseData.searchCondition.searchText || '';
+          this.searchCondition.startDate = responseData.searchCondition.startDate || formattedStartDate;
+          this.searchCondition.endDate = responseData.searchCondition.endDate || formattedEndDate;
+          this.searchCondition.currentPage = responseData.searchCondition.currentPage || 1;
+          this.searchCondition.pageSize = responseData.searchCondition.pageSize || 10;
+          this.totalCount = responseData.totalCount || 0;
+          this.totalPages = Math.ceil(responseData.totalCount / this.searchCondition.pageSize); 
+          this.searchBoards = responseData.searchBoards;
+          this.categories = responseData.categories;
+                    
         })
         .catch(error => {
           console.error('Error:', error);
@@ -130,7 +144,7 @@ export default {
       this.$router.push({
         path: '/write',
         query: {
-          page: this.searchCondition.page,
+          currentPage: this.searchCondition.currentPage,
           categoryId: this.searchCondition.categoryId,
           searchText: this.searchCondition.searchText,
           startDate: this.searchCondition.startDate,
@@ -145,11 +159,12 @@ export default {
       const day = String(date.getDate()).padStart(2, '0');
       return `${year}-${month}-${day}`;
     },
-    getPageUrl(page) {
-      return `board/list?&page=${page}&categoryId=${this.searchCondition.categoryId}&searchText=${this.searchCondition.searchText}&startDate=${this.searchCondition.startDate}&endDate=${this.searchCondition.endDate}`;
+    getPageData(currentPage) {
+      this.searchCondition.currentPage = currentPage; 
+      this.getBoardList();
     },
     searchBoardsAction() {
-      this.searchCondition.page = 1;
+      this.searchCondition.currentPage = 1;
       this.getBoardList();
     },
   },

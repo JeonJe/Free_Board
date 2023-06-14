@@ -10,12 +10,12 @@ const routes = [
     component: BoardGetList
   },
   {
-    path: '/list',
+    path: '/board/list',
     name: 'BoardGetList',
     component: BoardGetList
   },
     {
-    path: '/write',
+    path: '/board/write',
     name: 'BoardWriteInfo',
     component: BoardWriteInfo
   }

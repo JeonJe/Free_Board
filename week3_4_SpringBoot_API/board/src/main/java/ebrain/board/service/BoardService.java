@@ -56,7 +56,6 @@ public class BoardService {
      * @throws SQLException SQL 예외 발생 시
      */
     public List<BoardVO> searchBoards(SearchConditionVO searchParams) throws SQLException {
-        System.out.println("searchParams = " + searchParams);
         return boardRepository.searchBoards(searchParams);
     }
     /**

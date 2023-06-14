@@ -1,12 +1,13 @@
 package ebrain.board.controller;
 
+import ebrain.board.reponse.APIResponse;
 import ebrain.board.exception.PasswordInvalidException;
+import ebrain.board.reponse.SearchResponse;
 import ebrain.board.service.AttachmentService;
 import ebrain.board.service.CategoryService;
 import ebrain.board.service.CommentService;
 import ebrain.board.vo.*;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,8 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -65,34 +64,6 @@ public class BoardController {
         this.attachmentService = attachmentService;
     }
 
-    /**
-     * 검색 조건을 설정하는 메소드입니다.
-     *
-     * @param searchConditionParams 검색 조건 정보를 담고 있는 SearchConditionVO 객체
-     * @return 검색 조건을 담고 있는 Map 객체
-     */
-//    private Map<String, Object> setSearchCondition(SearchConditionVO searchConditionParams) {
-//
-////        int pageSize = 10;
-////        int currentPage = searchConditionParams.getPage() != null ? searchConditionParams.getPage() : 1;
-////        int categoryId = searchConditionParams.getCategoryId() != null ? searchConditionParams.getCategoryId() : 0;
-////        LocalDate startDate = searchConditionParams.getStartDate() != null ? searchConditionParams.getStartDate() : LocalDate.now().minusYears(1);
-////        LocalDate endDate = searchConditionParams.getEndDate() != null ? searchConditionParams.getEndDate() : LocalDate.now();
-//
-//        //String searchText = searchConditionParams.getSearchText() != null ? searchConditionParams.getSearchText() : "";
-////        String searchText = StringUtils.isEmpty(searchConditionParams.getSearchText())  ? "" : searchConditionParams.getSearchText() ;
-//
-//        Map<String, Object> searchCondition = new HashMap<>();
-////        searchCondition.put("startDate", startDate);
-////        searchCondition.put("endDate", endDate);
-////        searchCondition.put("categoryId", categoryId);
-////        searchCondition.put("searchText", searchText);
-////        searchCondition.put("currentPage", currentPage);
-////        searchCondition.put("pageSize", pageSize);
-////        searchCondition.put("offset", (currentPage - 1) * pageSize);
-//
-//        return searchCondition;
-//    }
 
     /**
      * 게시글 목록을 조회하는 요청을 처리하는 메소드입니다.
@@ -104,41 +75,40 @@ public class BoardController {
 
 
     @GetMapping("/board/list")
-    public ResponseEntity<Map<String, Object>> getBoardList(
+    public ResponseEntity<APIResponse> getBoardList(
             @ModelAttribute SearchConditionVO searchConditionParams) throws SQLException {
-
+        APIResponse apiResponse = new APIResponse();
         if (searchConditionParams == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).
-                    body(Collections.singletonMap("error", "유효하지 않은 검색 조건입니다."));
-        }
-        System.out.println("searchConditionParams = " + searchConditionParams);
+            apiResponse.setSuccess(false);
+            apiResponse.setMessage("유효한 검색조건이 아닙니다.");
 
-        //Map<String, Object> searchCondition = setSearchCondition(searchConditionParams);
+            return ResponseEntity.badRequest().body(apiResponse);
+        }
+
         try {
-            //TODO : 컨트롤러에서 sestSearchCondition에서 처리하지말고 쿼리에서 처리하도록 변경, Map보다는 명확한 vo로 사용하는 것이 좋음
+            Integer pageOffSet = (searchConditionParams.getCurrentPage() - 1) * searchConditionParams.getPageSize();
+            searchConditionParams.setOffset(pageOffSet);
             List<BoardVO> searchBoards = boardService.searchBoards(searchConditionParams);
             List<CategoryVO> categories = categoryService.getAllCategory();
-
             int totalCount = boardService.countSearchBoards(searchConditionParams);
-//            int pageSize = (int) searchCondition.get("pageSize");
-//            int totalPages = (int) Math.ceil((double) totalCount / pageSize);
 
-            Map<String, Object> response = new HashMap<>();
-            //TODO : api result class 로 작성시 search 관련 코드는 묶을 수 있음
-//            response.put("searchCondition", searchCondition);
-            response.put("searchBoards", searchBoards);
-            response.put("categories", categories);
-            response.put("categoryName", categories);
-            response.put("totalCount", totalCount);
+            SearchResponse response = new SearchResponse();
+            response.setSearchCondition(searchConditionParams);
+            response.setSearchBoards(searchBoards);
+            response.setCategories(categories);
+            response.setTotalCount(totalCount);
+
             //TODO : total 페이지를 가능하면 화면쪽에서 현재페이지 번호와 몇개 가져오는지 화면에서 전달하면 서버는
             //짜르는거 자체를 프론트에서 pageSize자체를 받아오면 됨 , 오프셋도 화면에서 처리 가능
-//            response.put("totalPages", totalPages);
-
-            return ResponseEntity.ok(response);
+            apiResponse.setSuccess(true);
+            apiResponse.setData(Collections.singletonList(response));
+            return ResponseEntity.ok(apiResponse);
 
         } catch (SQLException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).
-                    body(Collections.singletonMap("error", SQL_ERROR_MESSAGE));
+            apiResponse.setSuccess(false);
+            apiResponse.setMessage("Internal server error");
+            apiResponse.setData(Collections.singletonList(SQL_ERROR_MESSAGE));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(apiResponse);
         }
 
     }
@@ -301,35 +271,4 @@ public class BoardController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
-
-    /**
-     * 카테고리 ID에 따른 카테고리 이름을 가져오는 메소드입니다.
-     * @param categoryId 카테고리 ID
-     * @return  카테고리 이름 또는 에러 메시지
-     */
-    @GetMapping("/category/{categoryId}")
-    public ResponseEntity<String>  getCategoryNameByCategoryId(@PathVariable int categoryId) {
-        try {
-            String categoryName = categoryService.getCategoryNameByCategoryId(categoryId);
-            return ResponseEntity.ok(categoryName);
-        } catch (SQLException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("카테고리 이름을 가져올 수 없습니다.");
-        }
-    }
-
-
-//    public class APIResult {
-//
-//        /**
-//         * 0 성공
-//         */
-//        private int result;
-//
-//
-//
-//
-//    }
-
-
-
 }
