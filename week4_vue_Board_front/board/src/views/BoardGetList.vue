@@ -2,25 +2,26 @@
   <div class="container">
     <h1 class="my-4">자유 게시판 목록</h1>
 
-    <!-- Form of the Searching Condition -->
+    <!-- 검색 조건 입력 폼  -->
     <form class="form-inline mb-4" @submit.prevent="searchBoardsAction">
       <input type="date" id="startDate" name="startDate" class="form-control mr-2" v-model="searchCondition.startDate" />
 
       <input type="date" id="endDate" name="endDate" class="form-control mr-2" v-model="searchCondition.endDate" />
 
-    <select id="category" name="categoryId" class="form-control mr-2" v-model="searchCondition.categoryId">
-    <option value="0">전체 카테고리</option>
-    <option v-for="category in categories" :value="category.categoryId" :key="category.categoryId" :selected="category.categoryId === searchCondition.categoryId">
-      {{ category.categoryName }}
-    </option>
-  </select>
+      <select id="category" name="categoryId" class="form-control mr-2" v-model="searchCondition.categoryId">
+        <option value="0">전체 카테고리</option>
+        <option v-for="category in categories" :value="category.categoryId" :key="category.categoryId"
+          :selected="category.categoryId === searchCondition.categoryId">
+          {{ category.categoryName }}
+        </option>
+      </select>
 
       <input type="text" id="searchText" name="searchText" class="form-control mr-2" placeholder="카테고리 + 제목 + 내용"
         v-model="searchCondition.searchText" />
 
       <button type="submit" class="btn btn-primary">검색</button>
     </form>
-  <p>총 {{ this.totalCount }} 건</p>
+    <p>총 {{ this.totalCount }} 건</p>
     <table class="table table-striped text-center">
       <thead class="text-center">
         <tr>
@@ -35,7 +36,10 @@
       <tbody>
         <tr v-for="(boardItem) in searchBoards" :key="boardItem.boardId">
           <td>{{ getCategoryName(boardItem.categoryId) }}</td>
-          <td><a :href="'board/view?id=' + boardItem.boardId">{{ boardItem.title }}</a></td>
+          <router-link
+            :to="`/board/view?boardId=${boardItem.boardId}&searchText=${this.searchCondition.searchText}&startDate=${this.searchCondition.startDate}&endDate=${this.searchCondition.endDate}&categoryId=${boardItem.categoryId}&currentPage=${this.searchCondition.currentPage}`">
+            {{ boardItem.title }}
+          </router-link>
           <td>{{ boardItem.writer }}</td>
           <td>{{ boardItem.visitCount }}</td>
           <td>{{ dateFormat(boardItem.createdAt) }}</td>
@@ -47,29 +51,30 @@
     <!-- pagination -->
     <div class="d-flex justify-content-between">
       <div class="text-center mx-auto">
-         <a v-if="searchCondition.currentPage > 1" @click="getPageData(searchCondition.currentPage - 1)">&lt;&nbsp;</a>
-    <a v-if="searchCondition.currentPage > 1" @click="getPageData(1)">&lt;&lt;&nbsp;</a>
+        <a v-if="searchCondition.currentPage > 1" @click="getPageData(searchCondition.currentPage - 1)">&lt;&nbsp;</a>
+        <a v-if="searchCondition.currentPage > 1" @click="getPageData(1)">&lt;&lt;&nbsp;</a>
 
-    <template v-for="i in totalPages" :key="i">
-      <strong v-if="i === searchCondition.currentPage">{{ i }}</strong>
-      <a v-else @click="getPageData(i)">{{ i }}</a>
-    </template>
+        <template v-for="i in totalPages" :key="i">
+          <strong v-if="i === searchCondition.currentPage">{{ i }}</strong>
+          <a v-else @click="getPageData(i)">{{ i }}</a>
+        </template>
 
-    <a v-if="searchCondition.currentPage < totalPages" @click="getPageData(searchCondition.currentPage + 1)">&nbsp;&gt;</a>
-    <a v-if="searchCondition.currentPage < totalPages" @click="getPageData(totalPages)">&nbsp;&gt;&gt;</a>
-    <!-- ... -->
+        <a v-if="searchCondition.currentPage < totalPages"
+          @click="getPageData(searchCondition.currentPage + 1)">&nbsp;&gt;</a>
+        <a v-if="searchCondition.currentPage < totalPages" @click="getPageData(totalPages)">&nbsp;&gt;&gt;</a>
+
       </div>
       <button @click="handleRegisterClick" class="btn btn-primary">등록</button>
-  
+
     </div>
   </div>
 </template>
 
 <script>
-import { api,  } from "../scripts/APICreate.js";
+import { api, } from "../scripts/APICreate.js";
 
 export default {
-  
+
   // 컴포넌트 인스턴스 생성시점 호출
   data() {
     return {
@@ -103,41 +108,41 @@ export default {
       const formattedEndDate = currentDate.toISOString().slice(0, 10);
 
       const urlParams = new URLSearchParams(window.location.search);
-      const categoryId = urlParams.get('categoryId') || 0;
-      const searchText = urlParams.get('searchText') || '';
-      const startDate = urlParams.get('startDate') || formattedStartDate;
-      const endDate = urlParams.get('endDate') || formattedEndDate;
-      const currentPage = urlParams.get('currentPage') || 1;
-      const pageSize = urlParams.get('pageSize') || 10;
-      const offset = urlParams.get('offset') || 0;
+      const defaultCategoryId = urlParams.get('categoryId') || 0;
+      const defaultSearchText = urlParams.get('searchText') || '';
+      const defaultStartDate = urlParams.get('startDate') || formattedStartDate;
+      const defaultEndDate = urlParams.get('endDate') || formattedEndDate;
+      const defaultCurrentPage = urlParams.get('currentPage') || 1;
+      const defaultPageSize = urlParams.get('pageSize') || 10;
+      const defaultOffset = urlParams.get('offset') || 0;
 
       return {
-        categoryId: categoryId,
-        searchText: searchText,
-        startDate: startDate,
-        endDate: endDate,
-        currentPage: currentPage,
-        pageSize: pageSize,
-        offset: offset,
+        categoryId: defaultCategoryId,
+        searchText: defaultSearchText,
+        startDate: defaultStartDate,
+        endDate: defaultEndDate,
+        currentPage: defaultCurrentPage,
+        pageSize: defaultPageSize,
+        offset: defaultOffset,
       };
     },
 
     //현재 검색조건에 맞는 게시글을 가져오는 함수 
     getBoardList() {
-      
+
       const url = `board/list?currentPage=${this.searchCondition.currentPage}&categoryId=${this.searchCondition.categoryId}&searchText=${this.searchCondition.searchText}&startDate=${this.searchCondition.startDate}&endDate=${this.searchCondition.endDate}&pageSize=${this.searchCondition.pageSize}&offset=${this.searchCondition.offset}`;
 
       api
         .get(url)
         .then(response => {
-          const responseData = response.data.data; 
+          const responseData = response.data.data;
 
           Object.assign(this.searchCondition, responseData.searchCondition);
           this.totalCount = responseData.totalCount;
-          this.totalPages = Math.ceil(responseData.totalCount / this.searchCondition.pageSize); 
+          this.totalPages = Math.ceil(responseData.totalCount / this.searchCondition.pageSize);
           this.searchBoards = responseData.searchBoards;
           this.categories = responseData.categories;
-                    
+
         })
         .catch(error => {
           console.error('Error:', error);
@@ -175,6 +180,6 @@ export default {
       this.getBoardList();
     },
   },
-  
+
 };
 </script>

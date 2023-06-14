@@ -10,7 +10,8 @@
                             <!-- 카테고리 -->
                             <select id="category_id" name="category_id" class="form-control" required
                                 v-model="formData.categoryId">
-                                <option v-for="category in categories" :value="category.categoryId" :key="category.categoryId">
+                                <option v-for="category in categories" :value="category.categoryId"
+                                    :key="category.categoryId">
                                     {{ category.categoryName }}
                                 </option>
                             </select>
@@ -181,25 +182,24 @@ export default {
             summitFormData.append('confirmPassword', this.formData.confirmPassword);
             summitFormData.append('title', this.formData.title);
             summitFormData.append('content', this.formData.content);
-            
-            // 첨부 파일들 추가
-            this.formData.files.forEach((file, ) => {
+
+            // 첨부 파일 추가
+            this.formData.files.forEach((file,) => {
                 summitFormData.append(`files`, file);
             });
 
             const url = `board/save`;
-    
-            // api
+
             multipartApi
                 .post(url, summitFormData)
                 .then(response => {
-                     alert(response.data.data);
-                     this.$router.push('/board/list');
+                    alert(response.data.data);
+                    this.$router.push('/board/list');
                 })
                 .catch(error => {
                     console.error('Error:', error);
                 });
-            
+
         },
         getCancelUrl() {
             const {
