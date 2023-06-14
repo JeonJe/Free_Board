@@ -2,12 +2,15 @@ package ebrain.board.controller;
 
 import ebrain.board.reponse.APIResponse;
 import ebrain.board.exception.PasswordInvalidException;
-import ebrain.board.reponse.SearchResponse;
+import ebrain.board.reponse.BoardInfoResponse;
+import ebrain.board.reponse.BoardSearchResponse;
 import ebrain.board.service.AttachmentService;
 import ebrain.board.service.CategoryService;
 import ebrain.board.service.CommentService;
+import ebrain.board.utils.BoardUtils;
 import ebrain.board.vo.*;
 
+import org.apache.ibatis.jdbc.SQL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +33,7 @@ import java.util.Map;
 
 public class BoardController {
 
-    private static final String SQL_ERROR_MESSAGE = "SQL 오류";
+    private static final String SQL_ERROR_MESSAGE = "SQL 오류가 발생하였습니다.";
     /**
      * 게시글 관련 비지니스 로직 수행
      */
@@ -73,44 +76,31 @@ public class BoardController {
      * @throws SQLException SQL 예외 발생 시
      */
 
-
     @GetMapping("/board/list")
     public ResponseEntity<APIResponse> getBoardList(
             @ModelAttribute SearchConditionVO searchConditionParams) throws SQLException {
-        APIResponse apiResponse = new APIResponse();
-        if (searchConditionParams == null) {
-            apiResponse.setSuccess(false);
-            apiResponse.setMessage("유효한 검색조건이 아닙니다.");
 
-            return ResponseEntity.badRequest().body(apiResponse);
+        if (searchConditionParams == null) {
+            return BoardUtils.createBadRequestResponse("유효한 검색조건이 아닙니다.");
         }
 
         try {
-            Integer pageOffSet = (searchConditionParams.getCurrentPage() - 1) * searchConditionParams.getPageSize();
-            searchConditionParams.setOffset(pageOffSet);
             List<BoardVO> searchBoards = boardService.searchBoards(searchConditionParams);
             List<CategoryVO> categories = categoryService.getAllCategory();
             int totalCount = boardService.countSearchBoards(searchConditionParams);
 
-            SearchResponse response = new SearchResponse();
-            response.setSearchCondition(searchConditionParams);
-            response.setSearchBoards(searchBoards);
-            response.setCategories(categories);
-            response.setTotalCount(totalCount);
+            BoardSearchResponse boardSearchResponse = new BoardSearchResponse();
+            boardSearchResponse.setSearchCondition(searchConditionParams);
+            boardSearchResponse.setSearchBoards(searchBoards);
+            boardSearchResponse.setCategories(categories);
+            boardSearchResponse.setTotalCount(totalCount);
 
-            //TODO : total 페이지를 가능하면 화면쪽에서 현재페이지 번호와 몇개 가져오는지 화면에서 전달하면 서버는
-            //짜르는거 자체를 프론트에서 pageSize자체를 받아오면 됨 , 오프셋도 화면에서 처리 가능
-            apiResponse.setSuccess(true);
-            apiResponse.setData(Collections.singletonList(response));
-            return ResponseEntity.ok(apiResponse);
+            return BoardUtils.createOkResponse(boardSearchResponse);
+
 
         } catch (SQLException e) {
-            apiResponse.setSuccess(false);
-            apiResponse.setMessage("Internal server error");
-            apiResponse.setData(Collections.singletonList(SQL_ERROR_MESSAGE));
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(apiResponse);
+            return BoardUtils.createInternalServerErrorResponse(SQL_ERROR_MESSAGE);
         }
-
     }
 
 
@@ -124,32 +114,29 @@ public class BoardController {
      * @return 게시글 상세 정보와 검색 조건을 담고 있는 ResponseEntity 객체
      */
     @GetMapping("/board/view")
-    public ResponseEntity<Map<String, Object>> getBoardInfo(@ModelAttribute SearchConditionVO searchConditionParams,
+    public ResponseEntity<APIResponse> getBoardInfo(@ModelAttribute SearchConditionVO searchConditionParams,
                                           @RequestParam(value = "boardId", required = true) Integer boardId) throws SQLException {
 
         if (searchConditionParams == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).
-                    body(Collections.singletonMap("error", "유효하지 않은 검색 조건입니다."));
+            return BoardUtils.createBadRequestResponse("유효한 검색조건이 아닙니다.");
         }
 
         try {
             BoardVO board = boardService.getBoardInfoByBoardId(boardId);
             List<CommentVO> comments = commentService.getCommentsByBoardId(boardId);
             List<AttachmentVO> attachments = attachmentService.getAttachmentsByBoardId(boardId);
-//            Map<String, Object> searchCondition = setSearchCondition(searchConditionParams);
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("board", board);
-            response.put("attachments", attachments);
-            response.put("comments", comments);
-//            response.put("searchCondition", searchCondition);
+            BoardInfoResponse boardInfoResponse = new BoardInfoResponse();
+            boardInfoResponse.setBoard(board);
+            boardInfoResponse.setComments(comments);
+            boardInfoResponse.setAttachments(attachments);
 
-            return ResponseEntity.ok(response);
+            return BoardUtils.createOkResponse(boardInfoResponse);
 
         } catch (SQLException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).
-                    body(Collections.singletonMap("error", SQL_ERROR_MESSAGE));
+            return BoardUtils.createInternalServerErrorResponse(SQL_ERROR_MESSAGE);
         }
+
     }
 
     /**
@@ -160,20 +147,19 @@ public class BoardController {
      * @return ResponseEntity 객체
      * @throws Exception 예외 발생 시
      */
-    @PostMapping("/save")
-    public ResponseEntity<String> saveBoardInfo(@ModelAttribute BoardVO board,
+    @PostMapping("/board/save")
+    public ResponseEntity<APIResponse> saveBoardInfo(@ModelAttribute BoardVO board,
                                                              @RequestParam(value="files", required = false) List<MultipartFile> files) throws Exception {
         if (board == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("저장하려는 정보가 없습니다");
+            BoardUtils.createBadRequestResponse("게시글 정보가 필요합니다.");
         }
 
         try {
             boardService.saveBoard(board, files);
-            return ResponseEntity.ok("게시글 저장 성공");
+            return BoardUtils.createOkResponse("게시글 저장 성공");
 
         } catch (SQLException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).
-                    body(SQL_ERROR_MESSAGE);
+            return BoardUtils.createInternalServerErrorResponse(SQL_ERROR_MESSAGE);
         }
     }
 
@@ -270,5 +256,17 @@ public class BoardController {
         } catch (PasswordInvalidException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
+    }
+
+    @GetMapping("/category/list")
+    public ResponseEntity<APIResponse> getCategoryList(){
+        try{
+            List<CategoryVO> categories = categoryService.getAllCategory();
+            return BoardUtils.createOkResponse(categories);
+
+        }catch(SQLException e){
+            return BoardUtils.createInternalServerErrorResponse(SQL_ERROR_MESSAGE);
+        }
+
     }
 }

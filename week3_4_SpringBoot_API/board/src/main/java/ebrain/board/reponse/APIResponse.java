@@ -8,5 +8,5 @@ import java.util.List;
 public class APIResponse {
     private boolean success;
     private String message;
-    private List<Object> data;
+    private Object data;
 }

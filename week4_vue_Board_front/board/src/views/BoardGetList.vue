@@ -66,31 +66,17 @@
 </template>
 
 <script>
-import api from "../scripts/APICreate.js";
+import { api,  } from "../scripts/APICreate.js";
 
 export default {
   
-
+  // 컴포넌트 인스턴스 생성시점 호출
   data() {
-    const currentDate = new Date();
-    const oneYearAgo = new Date(currentDate.getFullYear() - 1, currentDate.getMonth(), currentDate.getDate());
-    const formattedStartDate = oneYearAgo.toISOString().slice(0, 10);
-    const formattedEndDate = currentDate.toISOString().slice(0, 10);
-    //클라이언트가 전달해주는 파라미터 초기값
     return {
-      searchCondition: {
-        categoryId: 0,
-        searchText: '',
-        startDate: formattedStartDate,
-        endDate: formattedEndDate,
-        currentPage: 1,
-        pageSize : 10,
-        offset : 1,
-      },
+      searchCondition: this.createDefaultSearchCondition(),
       searchBoards: [],
-      totalCount : 0,
       categories: [],
-      categoryName: '',
+      totalCount: 0,
       totalPages: 0,
     };
   },
@@ -109,27 +95,45 @@ export default {
   },
 
   methods: {
-    getBoardList() {
+    //초기 검색조건을 설정하는 함수 
+    createDefaultSearchCondition() {
       const currentDate = new Date();
       const oneYearAgo = new Date(currentDate.getFullYear() - 1, currentDate.getMonth(), currentDate.getDate());
       const formattedStartDate = oneYearAgo.toISOString().slice(0, 10);
       const formattedEndDate = currentDate.toISOString().slice(0, 10);
 
-      const url = `board/list?currentPage=${this.searchCondition.currentPage}&categoryId=${this.searchCondition.categoryId}&searchText=${this.searchCondition.searchText}&startDate=${this.searchCondition.startDate}&endDate=${this.searchCondition.endDate}&pageSize=${this.searchCondition.pageSize}`;
+      const urlParams = new URLSearchParams(window.location.search);
+      const categoryId = urlParams.get('categoryId') || 0;
+      const searchText = urlParams.get('searchText') || '';
+      const startDate = urlParams.get('startDate') || formattedStartDate;
+      const endDate = urlParams.get('endDate') || formattedEndDate;
+      const currentPage = urlParams.get('currentPage') || 1;
+      const pageSize = urlParams.get('pageSize') || 10;
+      const offset = urlParams.get('offset') || 0;
+
+      return {
+        categoryId: categoryId,
+        searchText: searchText,
+        startDate: startDate,
+        endDate: endDate,
+        currentPage: currentPage,
+        pageSize: pageSize,
+        offset: offset,
+      };
+    },
+
+    //현재 검색조건에 맞는 게시글을 가져오는 함수 
+    getBoardList() {
+      
+      const url = `board/list?currentPage=${this.searchCondition.currentPage}&categoryId=${this.searchCondition.categoryId}&searchText=${this.searchCondition.searchText}&startDate=${this.searchCondition.startDate}&endDate=${this.searchCondition.endDate}&pageSize=${this.searchCondition.pageSize}&offset=${this.searchCondition.offset}`;
 
       api
         .get(url)
         .then(response => {
-          const data = response.data;
-          const responseData = data.data[0]; 
-          
-          this.searchCondition.categoryId = responseData.searchCondition.categoryId || 0;
-          this.searchCondition.searchText = responseData.searchCondition.searchText || '';
-          this.searchCondition.startDate = responseData.searchCondition.startDate || formattedStartDate;
-          this.searchCondition.endDate = responseData.searchCondition.endDate || formattedEndDate;
-          this.searchCondition.currentPage = responseData.searchCondition.currentPage || 1;
-          this.searchCondition.pageSize = responseData.searchCondition.pageSize || 10;
-          this.totalCount = responseData.totalCount || 0;
+          const responseData = response.data.data; 
+
+          Object.assign(this.searchCondition, responseData.searchCondition);
+          this.totalCount = responseData.totalCount;
           this.totalPages = Math.ceil(responseData.totalCount / this.searchCondition.pageSize); 
           this.searchBoards = responseData.searchBoards;
           this.categories = responseData.categories;
@@ -142,7 +146,7 @@ export default {
 
     handleRegisterClick() {
       this.$router.push({
-        path: '/write',
+        path: '/board/write',
         query: {
           currentPage: this.searchCondition.currentPage,
           categoryId: this.searchCondition.categoryId,
@@ -160,11 +164,14 @@ export default {
       return `${year}-${month}-${day}`;
     },
     getPageData(currentPage) {
-      this.searchCondition.currentPage = currentPage; 
+      this.searchCondition.currentPage = currentPage;
+      this.searchCondition.offset = (currentPage - 1) * this.searchCondition.pageSize;
       this.getBoardList();
     },
+
     searchBoardsAction() {
       this.searchCondition.currentPage = 1;
+      this.searchCondition.offset = 0;
       this.getBoardList();
     },
   },

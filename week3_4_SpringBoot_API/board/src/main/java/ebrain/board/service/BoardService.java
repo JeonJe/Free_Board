@@ -56,6 +56,7 @@ public class BoardService {
      * @throws SQLException SQL 예외 발생 시
      */
     public List<BoardVO> searchBoards(SearchConditionVO searchParams) throws SQLException {
+
         return boardRepository.searchBoards(searchParams);
     }
     /**
@@ -83,8 +84,6 @@ public class BoardService {
             throw new FormValidationInvalidException("폼 유효성 검증에 실패하였습니다.");
         }
 
-        //TODO : 아래 코드를 멤버변수로 만들어 @Value("${UPLOAD_PATH}") 체크
-//        String uploadPath = ResourceBundle.getBundle("application").getString("UPLOAD_PATH");
         String hashedPassword = BoardUtils.hashPassword(board.getPassword());
         board.setPassword(hashedPassword);
         board.setConfirmPassword(hashedPassword);
@@ -92,17 +91,20 @@ public class BoardService {
         boardRepository.saveBoard(board);
         int boardId = board.getBoardId();
 
-        for (MultipartFile file : files) {
-            if (!file.isEmpty()) {
-                String originName = file.getOriginalFilename();
-                String numberedFileName = BoardUtils.uploadFile(file, UPLOAD_PATH);
-                AttachmentVO attachment = new AttachmentVO();
-                attachment.setBoardId(boardId);
-                attachment.setFileName(numberedFileName);
-                attachment.setOriginName(originName);
-                attachmentRepository.saveAttachment(attachment);
+        if (files != null){
+            for (MultipartFile file : files) {
+                if (!file.isEmpty()) {
+                    String originName = file.getOriginalFilename();
+                    String numberedFileName = BoardUtils.uploadFile(file, UPLOAD_PATH);
+                    AttachmentVO attachment = new AttachmentVO();
+                    attachment.setBoardId(boardId);
+                    attachment.setFileName(numberedFileName);
+                    attachment.setOriginName(originName);
+                    attachmentRepository.saveAttachment(attachment);
+                }
             }
         }
+
     }
     /**
      * 게시글을 수정하는 메서드입니다.
@@ -120,8 +122,6 @@ public class BoardService {
             throw new FormValidationInvalidException("폼 유효성 검증에 실패하였습니다.");
         }
 
-        //TODO : 수정
-//        String uploadPath = ResourceBundle.getBundle("application").getString("UPLOAD_PATH");
         String hashedPassword = BoardUtils.hashPassword(board.getPassword());
         board.setPassword(hashedPassword);
         board.setConfirmPassword(hashedPassword);

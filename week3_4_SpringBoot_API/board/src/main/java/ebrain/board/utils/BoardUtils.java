@@ -1,6 +1,9 @@
 package ebrain.board.utils;
 
+import ebrain.board.reponse.APIResponse;
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -98,5 +101,29 @@ public class BoardUtils {
         file.transferTo(uploadedFile);
 
         return uploadedFile.getName();
+    }
+
+    public static ResponseEntity<APIResponse> createBadRequestResponse(String message) {
+        APIResponse apiResponse = new APIResponse();
+        apiResponse.setSuccess(false);
+        apiResponse.setMessage(message);
+        return ResponseEntity.badRequest().body(apiResponse);
+    }
+
+
+    public static ResponseEntity<APIResponse> createOkResponse(Object data) {
+        APIResponse apiResponse = new APIResponse();
+        apiResponse.setSuccess(true);
+        apiResponse.setData(data);
+        return ResponseEntity.ok(apiResponse);
+    }
+
+
+    public static ResponseEntity<APIResponse> createInternalServerErrorResponse(String errorMessage) {
+        APIResponse apiResponse = new APIResponse();
+        apiResponse.setSuccess(false);
+        apiResponse.setMessage("Internal server error");
+        apiResponse.setData(errorMessage);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(apiResponse);
     }
 }

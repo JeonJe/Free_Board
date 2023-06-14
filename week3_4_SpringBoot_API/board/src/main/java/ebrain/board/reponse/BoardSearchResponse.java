@@ -9,10 +9,9 @@ import java.util.List;
 
 @Data
 
-public class SearchResponse {
+public class BoardSearchResponse {
     private SearchConditionVO searchCondition;
     private List<BoardVO> searchBoards;
     private List<CategoryVO> categories;
     private int totalCount;
-    private int totalPages;
 }
