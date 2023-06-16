@@ -40,21 +40,21 @@
             </div>
         </div>
         <div class="card-body border">
-            <div class="card-text">{{ board.content }}</div>
+            <div class="card-text"> 내용 : {{ board.content }}</div>
         </div>
-        <br>
-        <div>
-            <a v-for="attachment in attachments" :key="attachment.fileName"
-                :href="'download?fileName=' + attachment.fileName" class="mb-2 text-decoration-underline d-block">{{
-                    attachment.originName }}</a>
-        </div>
-        <br>
+        <!-- 첨부파일  -->
+
+   <a v-for="attachment in attachments" :key="attachment.attachmentId"
+       :href="`http://localhost:8080/attachment/download?attachmentId=${attachment.attachmentId}`"
+       class="mb-2 d-block" download>
+      {{ attachment.fileName }}<br>
+    </a>    
         <!-- 댓글 -->
         <div>
             <div v-if="comments && comments.length > 0" class="list-group comment-item bg-light">
                 <div v-for="comment in comments" :key="comment.createdAt" class="list-group-item comment-item">
                     <div class="d-flex justify-content-between">
-                        <small class="mb-1">{{ comment.createdAt }}</small>
+                        <small class="mb-1">{{ dateFormat(comment.createdAt) }}</small>
                     </div>
                     <p class="mb-1">{{ comment.content }}</p>
                 </div>
@@ -77,6 +77,11 @@
                 </div>
             </form>
         </div>
+        <div>
+    
+        </div>
+        
+        
         <!-- 버튼그룹 -->
         <div class="d-flex justify-content-center mt-3">
             <div class="buttons">
@@ -91,7 +96,8 @@
 </template>
 
 <script>
-import { BOARD_LIST_URL, BOARD_VIEW_URL, BOARD_DELETE_URL, BOARD_ADD_COMMENT_URL, BOARD_UPDATE_URL } from "../scripts/URLs.js";
+import { BOARD_LIST_URL, BOARD_VIEW_URL, BOARD_DELETE_URL,
+     BOARD_ADD_COMMENT_URL, BOARD_UPDATE_URL, ATTACHMENT_DOWNLOAD_URL } from "../scripts/URLs.js";
 import { api, } from "../scripts/APICreate.js";
 import moment from 'moment'
 
@@ -162,6 +168,8 @@ export default {
                     const responseData = response.data.data;
                     Object.assign(this.board, responseData.board);
                     Object.assign(this.comments, responseData.comments);
+                    Object.assign(this.attachments, responseData.attachments);
+                    console.log(this.attachments);
                 })
                 .catch(error => {
                     console.log(error);
@@ -258,6 +266,38 @@ export default {
 
             return listPage;
         },
+        downloadAttachment(attachmentId){
+            const requestURL = `${ATTACHMENT_DOWNLOAD_URL}?attachmentId=${attachmentId}`
+            console.log(requestURL);
+            api
+                .get(requestURL, { responseType: 'blob' }) // 응답 데이터를 blob 형식으로 설정
+                .then(response => {
+                 const contentDisposition = response.headers['content-disposition'];
+                    const fileNameMatch = contentDisposition && contentDisposition.match(/filename=([^;]+)/);
+                    const fileName = fileNameMatch ? fileNameMatch[1] : 'attachment';
+                    console.log(fileNameMatch, fileName)
+                    const blobData = new Blob([response.data], { type: response.data.type });
+
+                    const downloadLink = document.createElement('a');
+                    downloadLink.href = window.URL.createObjectURL(blobData);
+                    downloadLink.download = fileName;
+                    downloadLink.style.display = 'none';
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+                    document.body.removeChild(downloadLink);
+
+                   
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+        },
+          getDownloadURL(attachmentId) {
+            
+            const requestURL =  `"http://localhost:8080${ATTACHMENT_DOWNLOAD_URL}?attachmentId=${attachmentId}`;
+            return requestURL;
+            
+        }
     },
 };
 </script>

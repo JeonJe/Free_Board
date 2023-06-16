@@ -1,18 +1,27 @@
 package ebrain.board.utils;
 
 import ebrain.board.reponse.APIResponse;
+import ebrain.board.vo.AttachmentVO;
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.security.MessageDigest;
 /**
  * 게시판 관련 유틸리티 클래스
  */
 public class BoardUtils {
+
 
     /**
      * 폼 유효성을 검사하는 메서드
@@ -102,6 +111,34 @@ public class BoardUtils {
 
         return uploadedFile.getName();
     }
+
+    public static ResponseEntity<Resource> fileDownload(AttachmentVO attachment, String UPLOAD_PATH) throws IOException {
+        // 파일을 읽어올 InputStream을 생성합니다.
+        String filePath = UPLOAD_PATH + File.separator + attachment.getFileName();
+        File file = new File(filePath);
+
+        // 파일이 존재하는지 확인
+        if (!file.exists()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
+
+        // 파일 다운로드를 위한 Response Header를 설정합니다.
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + attachment.getFileName());
+
+        // 파일의 MIME 타입을 설정합니다.
+        String contentType = Files.probeContentType(file.toPath());
+        headers.setContentType(MediaType.parseMediaType(contentType));
+
+        // 파일의 크기를 설정합니다.
+        long contentLength = file.length();
+        headers.setContentLength(contentLength);
+        // 파일 다운로드 응답을 생성하여 반환합니다.
+        return new ResponseEntity<>(resource, headers, HttpStatus.OK);
+    }
+
 
     public static ResponseEntity<APIResponse> createBadRequestResponse(String message) {
         APIResponse apiResponse = new APIResponse();

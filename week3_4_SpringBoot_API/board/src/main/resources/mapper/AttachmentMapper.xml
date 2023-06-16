@@ -16,14 +16,14 @@
 
     <!-- 게시글 ID에 해당하는 첨부 파일 정보 조회 -->
     <select id="getAttachmentsByBoardId" parameterType="int" resultType="AttachmentVO">
-        SELECT *
+        SELECT attachment_id, board_id, filename, origin_filename AS originName
         FROM attachment
         WHERE board_id = #{boardId}
     </select>
 
     <!-- 첨부 파일 ID에 해당하는 첨부 파일 정보 조회 -->
     <select id="getAttachmentInfoByAttachmentId" parameterType="int" resultType="AttachmentVO">
-        SELECT *
+        SELECT attachment_id, board_id, filename, origin_filename AS originName
         FROM attachment
         WHERE attachment_id = #{attachmentId}
     </select>

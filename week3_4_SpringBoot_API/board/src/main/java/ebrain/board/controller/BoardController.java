@@ -12,6 +12,8 @@ import ebrain.board.vo.*;
 
 import org.apache.ibatis.jdbc.SQL;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import ebrain.board.service.BoardService;
@@ -50,6 +52,9 @@ public class BoardController {
      * 게시판 첨부파일 관련 비지니스 로직 수행
      */
     private final AttachmentService attachmentService;
+
+    @Value("${UPLOAD_PATH}")
+    private String UPLOAD_PATH;
 
     /**
      * 생성자 주입
@@ -151,7 +156,7 @@ public class BoardController {
     public ResponseEntity<APIResponse> saveBoardInfo(@ModelAttribute BoardVO board,
                                                              @RequestParam(value="files", required = false) List<MultipartFile> files) throws Exception {
         if (board == null) {
-            BoardUtils.createBadRequestResponse("게시글 정보가 필요합니다.");
+            return BoardUtils.createBadRequestResponse("게시글 정보가 필요합니다.");
         }
 
         try {
@@ -235,25 +240,41 @@ public class BoardController {
      * @throws Exception 게시글 수정 과정에서 발생하는 예외
      */
     @PostMapping("/board/update")
-    public ResponseEntity<String> updateBoard(@ModelAttribute BoardVO newBoard,
+    public ResponseEntity<APIResponse> updateBoard(@ModelAttribute BoardVO newBoard,
                                               @RequestParam(value = "files", required = false ) List<MultipartFile> files,
                                               @RequestParam(value = "deletedAttachmentIds", required = false) List<Integer> deletedAttachmentIds
     ) throws Exception {
         if (newBoard == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("저장하려는 정보가 없습니다");
+            return BoardUtils.createBadRequestResponse("저장하려는 정보가 없습니다");
         }
 
         try {
             boardService.updateBoard(newBoard, files, deletedAttachmentIds);
-            return ResponseEntity.ok("게시글 수정 성공");
+            return BoardUtils.createOkResponse("수정에 성공하였습니다.");
 
         } catch (SQLException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).
-                    body(SQL_ERROR_MESSAGE);
+            return BoardUtils.createInternalServerErrorResponse(SQL_ERROR_MESSAGE);
         } catch (PasswordInvalidException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return BoardUtils.createBadRequestResponse(e.getMessage());
         }
     }
+
+    @GetMapping("/attachment/download")
+    public ResponseEntity<Resource> attachmentDownload(@RequestParam(value = "attachmentId", required = true ) Integer attachmentId)
+     throws Exception{
+
+        try {
+            AttachmentVO attachment = attachmentService.getAttachmentByAttachmentId(attachmentId);
+            if (attachment == null) {
+                return ResponseEntity.notFound().build();
+            }
+            return BoardUtils.fileDownload(attachment, UPLOAD_PATH);
+
+        } catch (SQLException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
 
     @GetMapping("/category/list")
     public ResponseEntity<APIResponse> getCategoryList(){

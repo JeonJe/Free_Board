@@ -129,36 +129,41 @@ public class BoardService {
         board.setPassword(hashedPassword);
         board.setConfirmPassword(hashedPassword);
 
-        for (Integer deletedId : deletedAttachmentIds) {
-            String deletedFileName = attachmentRepository.
-                    getAttachmentInfoByAttachmentId(deletedId).getFileName();
+        if (deletedAttachmentIds != null){
+            for (Integer deletedId : deletedAttachmentIds) {
+                String deletedFileName = attachmentRepository.
+                        getAttachmentInfoByAttachmentId(deletedId).getFileName();
 
-            //업로드 폴더에서 파일 삭제
-            if (deletedFileName != null) {
-                File file = new File(UPLOAD_PATH + '/' + deletedFileName);
-                if (file.exists()) {
-                    file.delete();
+                //업로드 폴더에서 파일 삭제
+                if (deletedFileName != null) {
+                    File file = new File(UPLOAD_PATH + '/' + deletedFileName);
+                    if (file.exists()) {
+                        file.delete();
+                    }
                 }
+                //데이터베이스서 첨부파일 정보 삭제
+                attachmentRepository.deleteAttachmentByAttachmentId(deletedId);
             }
-            //데이터베이스서 첨부파일 정보 삭제
-            attachmentRepository.deleteAttachmentByAttachmentId(deletedId);
         }
 
-        boardRepository.updateBoard(board);
 
-        for (MultipartFile file : files) {
-            if (!file.isEmpty()) {
-                //새로운 파일 업로드 및 데이터베이스 저장
-                String originName = file.getOriginalFilename();
-                String numberedFileName = BoardUtils.uploadFile(file, UPLOAD_PATH);
-                AttachmentVO attachment = new AttachmentVO();
-                attachment.setBoardId(board.getBoardId());
-                attachment.setFileName(numberedFileName);
-                attachment.setOriginName(originName);
-                attachmentRepository.saveAttachment(attachment);
+        boardRepository.updateBoard(board);
+        if (files != null) {
+            for (MultipartFile file : files) {
+                if (!file.isEmpty()) {
+                    //새로운 파일 업로드 및 데이터베이스 저장
+                    String originName = file.getOriginalFilename();
+                    String numberedFileName = BoardUtils.uploadFile(file, UPLOAD_PATH);
+                    AttachmentVO attachment = new AttachmentVO();
+                    attachment.setBoardId(board.getBoardId());
+                    attachment.setFileName(numberedFileName);
+                    attachment.setOriginName(originName);
+                    attachmentRepository.saveAttachment(attachment);
+                }
             }
         }
     }
+
 
     /**
      * 주어진 게시글 ID에 해당하는 게시글의 상세 정보를 조회하는 메서드입니다.

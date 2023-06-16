@@ -4,8 +4,19 @@ import ebrain.board.mapper.AttachmentRepository;
 import ebrain.board.mapper.CategoryRepository;
 import ebrain.board.vo.AttachmentVO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -17,6 +28,8 @@ import java.util.List;
 public class AttachmentService {
 
     private final AttachmentRepository attachmentMapper;
+
+
 
     /**
      * AttachmentService의 생성자입니다.
@@ -39,4 +52,10 @@ public class AttachmentService {
     public List<AttachmentVO> getAttachmentsByBoardId(int boardId) throws SQLException {
         return attachmentMapper.getAttachmentsByBoardId(boardId);
     }
+
+    public AttachmentVO getAttachmentByAttachmentId(int attachmentId) throws SQLException{
+        return attachmentMapper.getAttachmentInfoByAttachmentId(attachmentId);
+    }
+
+
 }

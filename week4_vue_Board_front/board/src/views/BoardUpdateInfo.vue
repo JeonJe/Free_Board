@@ -7,7 +7,7 @@
             <div class="card-header bg-transparent pb-0">
                 <div class="d-flex justify-content-between">
                     <input type="text" id="writer" name="writer" v-model="board.writer" class="form-control" >
-                    <input type="password" id="enteredPassword" name="enteredPassword" class="form-control" >
+                    <input type="password" id="enteredPassword" v-model="enteredPassword" class="form-control" >
                     <div class="d-flex">
                         <p class="mb-0 me-4 mr-2">등록일시: {{ dateFormat(board.createdAt) }}</p>
                         <p class="mb-0">수정일시: {{ dateFormat(board.modifiedAt) }}</p>
@@ -25,9 +25,11 @@
         </div>
         <br>
         <div>
-            <a v-for="attachment in attachments" :key="attachment.fileName"
+            <!-- <a v-for="attachment in attachments" :key="attachment.fileName"
                 :href="'download?fileName=' + attachment.fileName" class="mb-2 text-decoration-underline d-block">{{
-                    attachment.originName }}</a>
+                    attachment.originName }}</a> -->
+            <a v-for="attachment in attachments" :key="attachment.attachmentId" :href="'download?attachmentId=' + attachment.attachmentId" class="mb-2 text-decoration-underline d-block">
+            {{ attachment.originName }}</a>
         </div>
         <br>
        
@@ -46,7 +48,7 @@
 </template>
 
 <script>
-import {  BOARD_VIEW_URL } from "../scripts/URLs.js";
+import {  BOARD_VIEW_URL, BOARD_UPDATE_URL } from "../scripts/URLs.js";
 import { api, multipartApi, } from "../scripts/APICreate.js";
 import moment from 'moment'
 
@@ -120,6 +122,7 @@ export default {
                 .then(response => {
                     const responseData = response.data.data;
                     Object.assign(this.board, responseData.board);
+                    Object.assign(this.attachments, responseData.attachments);
                 })
                 .catch(error => {
                     console.log(error);
@@ -144,7 +147,31 @@ export default {
             
             //TODO : 업데이트 정보를 비밀번호와 함께 서버에 전달 
      
-            //  this.$router.push('/board/view'); // 저장 후 이동할 경로 설정
+             const summitFormData = new FormData();
+
+            // formData에 폼 데이터 추가
+            summitFormData.append('boardId', this.board.boardId);
+            summitFormData.append('categoryId', this.board.categoryId);
+            summitFormData.append('writer', this.board.writer);
+            summitFormData.append('password', this.enteredPassword);
+            summitFormData.append('title', this.board.title);
+            summitFormData.append('content', this.board.content);
+
+            // // 첨부 파일 추가
+            // this.formData.files.forEach((file,) => {
+            //     summitFormData.append(`files`, file);
+            // });
+     
+            multipartApi
+                .post(BOARD_UPDATE_URL, summitFormData)
+                .then(response => {
+                    alert(response.data);
+                    
+                })
+               .catch(error => {
+                    console.log(error);
+                });
+
         },
          getBoardDetail(boardId) {
 
