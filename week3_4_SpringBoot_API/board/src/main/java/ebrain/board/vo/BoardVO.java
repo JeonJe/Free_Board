@@ -19,6 +19,10 @@ public class BoardVO {
      */
     private int categoryId;
     /**
+     * 카테고리 이름
+     */
+    private String categoryName;
+    /**
      * 게시물 작성자
      */
     private String writer;
@@ -51,6 +55,8 @@ public class BoardVO {
      * 게시물 조회수
      */
     private int visitCount;
+
+
 
 
 }

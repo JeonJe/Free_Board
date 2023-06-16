@@ -37,6 +37,8 @@ public class BoardService {
      */
     private final AttachmentRepository attachmentRepository;
 
+    private final CategoryService categoryService;
+
     /**
      * 파일 업로드 경로
      */
@@ -44,9 +46,10 @@ public class BoardService {
     private String UPLOAD_PATH;
 
     @Autowired
-    public BoardService(BoardRepository boardRepository, AttachmentRepository attachmentRepository) {
+    public BoardService(BoardRepository boardRepository, AttachmentRepository attachmentRepository, CategoryService categoryService) {
         this.boardRepository = boardRepository;
         this.attachmentRepository = attachmentRepository;
+        this.categoryService = categoryService;
     }
     /**
      * 검색 조건에 해당하는 게시글 목록을 조회하는 메서드입니다.
@@ -168,6 +171,7 @@ public class BoardService {
     public BoardVO getBoardInfoByBoardId(int boardId) throws SQLException {
 
         BoardVO board = boardRepository.getBoardInfoById(boardId);
+        board.setCategoryName(categoryService.getCategoryNameByCategoryId(board.getCategoryId()));
 
         Map<String, Object> paramsMap = new HashMap<>();
         paramsMap.put("boardId", boardId);

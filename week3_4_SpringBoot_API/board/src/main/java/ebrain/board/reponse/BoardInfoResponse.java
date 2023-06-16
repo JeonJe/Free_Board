@@ -10,6 +10,7 @@ import java.util.List;
 @Data
 public class BoardInfoResponse {
     private BoardVO board;
+    private String categoryName;
     private List<CommentVO> comments;
     private List<AttachmentVO> attachments;
 }

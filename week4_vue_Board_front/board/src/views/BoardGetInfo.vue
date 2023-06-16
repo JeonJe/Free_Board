@@ -11,17 +11,18 @@
                             @click="hidePasswordModal()">&times;</button>
                     </div>
                     <div class="modal-body">
-                        <form @submit="validatePassword">
-                            <input type="password" v-model="password" required>
+                        <form @submit.prevent="validatePassword">
+                            <input type="password" name="enteredPassword" v-model="password" required>
                             <br>
                             <div v-if="passwordError" class="error-message">{{ passwordError }}</div>
                             <br>
-                            <input type="submit" value="확인" class="btn btn-primary">
+                            <button type="submit" class="btn btn-primary">확인</button>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
+
         <!-- 게시글 내용 -->
         <div class="card mb-3">
             <div class="card-header bg-transparent pb-0">
@@ -79,8 +80,9 @@
         <!-- 버튼그룹 -->
         <div class="d-flex justify-content-center mt-3">
             <div class="buttons">
-                <!-- <a :href="'list?action=list&page=' + param.page + '&category=' + param.category + '&searchText=' + param.searchText + '&startDate=' + param.startDate + '&endDate=' + param.endDate"
-                    class="btn btn-secondary">목록으로 돌아가기</a> -->
+                <router-link :to="clickCancleButton()" class="btn btn-secondary btn-block">
+                    취소
+                </router-link>
                 <button class="btn btn-primary" @click="handlePasswordModal('edit')">수정</button>
                 <button class="btn btn-primary" @click="handlePasswordModal('delete')">삭제</button>
             </div>
@@ -89,6 +91,7 @@
 </template>
 
 <script>
+import { BOARD_LIST_URL, BOARD_VIEW_URL, BOARD_DELETE_URL, BOARD_ADD_COMMENT_URL, BOARD_UPDATE_URL } from "../scripts/URLs.js";
 import { api, } from "../scripts/APICreate.js";
 import moment from 'moment'
 
@@ -102,6 +105,7 @@ export default {
             board: {
                 boardId: '',
                 writer: '',
+                password: '',
                 createdAt: '',
                 modifiedAt: '',
                 categoryId: '',
@@ -119,28 +123,41 @@ export default {
                 searchText: '',
                 startDate: '',
                 endDate: '',
+                pageSize: 10,
+                offset : 0
             },
         };
     },
     mounted() {
+        this.board.boardId = this.$route.query.boardId;
         this.searchCondition.currentPage = this.$route.query.currentPage;
         this.searchCondition.categoryId = this.$route.query.categoryId;
         this.searchCondition.searchText = this.$route.query.searchText;
         this.searchCondition.startDate = this.$route.query.startDate;
         this.searchCondition.endDate = this.$route.query.endDate;
-        this.board.boardId = this.$route.query.boardId;
-
+        this.searchCondition.pageSize = this.$route.query.pageSize;
+        this.searchCondition.offset = this.$route.query.offset;
+        
         // 게시글 정보를 가져오는 API 호출
         this.fetchBoardData();
 
     },
     methods: {
         fetchBoardData() {
-            console.log("fetchBaord ")
             // 게시글 정보를 가져오는 API 호출 및 데이터 할당
-            const url = `board/view?boardId=${this.board.boardId}&categoryId=${this.searchCondition.categoryId}&searchText=${this.searchCondition.searchText}&startDate=${this.searchCondition.startDate}&endDate=${this.searchCondition.endDate}&currentPage=${this.searchCondition.currentPage}`;
+            const params = {
+                boardId: this.board.boardId,
+                categoryId: this.searchCondition.categoryId,
+                searchText: this.searchCondition.searchText,
+                startDate: this.searchCondition.startDate,
+                endDate: this.searchCondition.endDate,
+                currentPage: this.searchCondition.currentPage
+            };
+
+            const requestURL = `${BOARD_VIEW_URL}?${Object.entries(params).map(([key, value]) => `${key}=${value}`).join('&')}`;
+
             api
-                .get(url)
+                .get(requestURL)
                 .then(response => {
                     const responseData = response.data.data;
                     Object.assign(this.board, responseData.board);
@@ -151,13 +168,70 @@ export default {
                 })
 
         },
-        getCategoryName(categoryId) {
+        validatePassword() {
+
+            const hashedPassword = this.$CryptoJS.SHA256(this.password).toString();
+
+            if (hashedPassword === this.board.password) {
+                this.hidePasswordModal();
+                if (this.isEdit) {
+                    this.$router.push({ path: BOARD_UPDATE_URL, query: {
+                        boardId: this.board.boardId,
+                        categoryId: this.searchCondition.categoryId,
+                        searchText: this.searchCondition.searchText,
+                        startDate: this.searchCondition.startDate,
+                        endDate: this.searchCondition.endDate,
+                        currentPage: this.searchCondition.currentPage,
+                        pageSize : this.searchCondition.pageSize,
+                        offset : this.searchCondition.offset,
+                    } });
+                    
+
+                } else {
+                    try {
+                        api
+                            .post(BOARD_DELETE_URL, {
+                                boardId: this.board.boardId,
+                                password: this.password
+                            })
+                            .then(response => {
+                                const responseData = response.data.data;
+                                alert(responseData.data);
+                                this.$router.replace({ path: '/board/list', query: {} });
+                            })
+                            .catch(error => {
+                                console.log(error);
+                            })
+                    } catch (error) {
+                        alert(error);
+                    }
+                }
+            } else {
+                this.passwordError = '비밀번호가 일치하지 않습니다.';
+
+            }
+        },
+        addComment() {
+            // 새로운 댓글 등록 로직
+            api
+                .post(BOARD_ADD_COMMENT_URL, {
+                    content: this.commentContent,
+                    boardId: this.board.boardId
+                })
+                .then(response => {
+                    const responseData = response.data.data;
+                    this.comments = responseData.comments;
+                    this.commentContent = '';
+                })
+                .catch(error => {
+                    console.log(error);
+                })
+
+        }, getCategoryName(categoryId) {
             // 카테고리 ID를 기반으로 카테고리 이름을 가져오는 로직
             return this.categories.find((category) => category.id === categoryId)?.name || '';
         },
-        dateFormat(date) {
-            return moment(date).format('YYYY-MM-DD');
-        },
+
         hidePasswordModal() {
             this.showPasswordModal = false;
         },
@@ -165,52 +239,24 @@ export default {
             this.showPasswordModal = true;
             this.isEdit = action === 'edit';
         },
-        async validatePassword() {
-            // const enteredPassword = this.password;
-            const hashedPassword = this.$CryptoJS.SHA256(this.enteredPassword).toString();
-            // 비밀번호 해싱 로직 (예: CryptoJS.SHA256(enteredPassword).toString())
-
-            // 비밀번호 검증 API 호출
-            // 호출 결과에 따라 처리
-
-            if (hashedPassword === this.password) {
-                this.hidePasswordModal();
-                if (this.isEdit) {
-
-                    //TODO 
-                } else {
-                    try {
-
-                        //TODO 
-                    } catch (error) {
-                        alert(error);
-                    }
-                }
-            } else {
-                this.passwordError = '비밀번호가 일치하지 않습니다.';
-            }
+        dateFormat(date) {
+            return moment(date).format('YYYY-MM-DD');
         },
-        addComment() {
-            // 새로운 댓글 등록 로직
-            const requestBody = {
-                content: this.commentContent,
-                boardId: this.board.boardId
+        clickCancleButton() {
+
+            const params = {
+                categoryId: this.searchCondition.categoryId,
+                searchText: this.searchCondition.searchText,
+                startDate: this.searchCondition.startDate,
+                endDate: this.searchCondition.endDate,
+                currentPage: this.searchCondition.currentPage,
+                pageSize : this.searchCondition.pageSize,
+                offset : this.searchCondition.offset,
             };
 
-            const url = `board/add-comment`
-            api
-                .post(url, requestBody)
-                .then(response => {
-                    const responseData = response.data.data;
+            const listPage = `${BOARD_LIST_URL}?${Object.entries(params).map(([key, value]) => `${key}=${value}`).join('&')}`;
 
-                    this.comments = responseData.comments;
-                    this.commentContent = '';
-
-                })
-                .catch(error => {
-                    console.log(error);
-                })
-
+            return listPage;
         },
     },
 };

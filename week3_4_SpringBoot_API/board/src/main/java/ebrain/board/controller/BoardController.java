@@ -172,8 +172,7 @@ public class BoardController {
      * @throws SQLException SQL 예외 발생 시
      */
     @PostMapping("/board/add-comment")
-    public ResponseEntity<Map<String, Object>> addComment(
-            @ModelAttribute SearchConditionVO searchConditionParams,
+    public ResponseEntity<APIResponse> addComment(
             @RequestBody Map<String, Object> requestBody) throws SQLException {
 
         int boardId = (Integer) requestBody.get("boardId");
@@ -189,19 +188,16 @@ public class BoardController {
             BoardVO board = boardService.getBoardInfoByBoardId(boardId);
             List<CommentVO> comments = commentService.getCommentsByBoardId(boardId);
             List<AttachmentVO> attachments = attachmentService.getAttachmentsByBoardId(boardId);
-//            Map<String, Object> searchCondition = setSearchCondition(searchConditionParams);
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("board", board);
-            response.put("attachments", attachments);
-            response.put("comments", comments);
-//            response.put("searchCondition", searchCondition);
+            BoardInfoResponse boardInfoResponse = new BoardInfoResponse();
+            boardInfoResponse.setBoard(board);
+            boardInfoResponse.setComments(comments);
+            boardInfoResponse.setAttachments(attachments);
 
-            return ResponseEntity.ok(response);
+            return BoardUtils.createOkResponse(boardInfoResponse);
 
         } catch (SQLException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).
-                    body(Collections.singletonMap("error", SQL_ERROR_MESSAGE));
+            return BoardUtils.createInternalServerErrorResponse(SQL_ERROR_MESSAGE);
         }
 
     }
@@ -214,17 +210,18 @@ public class BoardController {
      * @return ResponseEntity 객체
      */
     @PostMapping("/board/delete")
-    public ResponseEntity<String> deleteBoard(
-            @RequestParam(value = "boardId", required = true) Integer boardId,
-            @RequestParam(value = "password", required = true) String password) {
+    public ResponseEntity<APIResponse> deleteBoard(
+            @RequestBody Map<String, Object> requestBody) {
+        int boardId = (Integer) requestBody.get("boardId");
+        String password = (String) requestBody.get("password");
+
         try {
             boardService.deleteBoard(boardId, password);
-            return ResponseEntity.ok("삭제에 성공하였습니다.");
+            return BoardUtils.createOkResponse("삭제에 성공하였습니다.");
         } catch (SQLException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).
-                    body(SQL_ERROR_MESSAGE);
+            return BoardUtils.createInternalServerErrorResponse(SQL_ERROR_MESSAGE);
         } catch (PasswordInvalidException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return BoardUtils.createBadRequestResponse(e.getMessage());
         }
     }
 

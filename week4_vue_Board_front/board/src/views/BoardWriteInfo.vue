@@ -69,7 +69,7 @@
 
                     <div class="row mt-3 justify-content-center">
                         <div class="col-md-6">
-                            <router-link :to="getCancelUrl()" class="btn btn-secondary btn-block">
+                            <router-link :to="clickCancleButton()" class="btn btn-secondary btn-block">
                                 취소
                             </router-link>
                         </div>
@@ -85,6 +85,7 @@
 
 <script>
 import { api, multipartApi } from "../scripts/APICreate.js";
+import { BOARD_LIST_URL, CATEOGRY_LIST_URL, BOARD_SAVE_URL } from "../scripts/URLs.js";
 
 export default {
     data() {
@@ -95,6 +96,8 @@ export default {
                 searchText: '',
                 startDate: '',
                 endDate: '',
+                pageSize: '',
+                offset: '',
             },
             formData: {
                 categoryId: '',
@@ -117,6 +120,8 @@ export default {
             searchText: to.query.searchText || '',
             startDate: to.query.startDate || '',
             endDate: to.query.endDate || '',
+            pageSize: to.query.pageSize || 10,
+            offset: to.query.offset || 0,
         };
         next(vm => {
             vm.searchCondition = searchCondition;
@@ -129,9 +134,8 @@ export default {
 
     methods: {
         getCategories() {
-            const url = `category/list`;
             api
-                .get(url)
+                .get(CATEOGRY_LIST_URL)
                 .then(response => {
                     const data = response.data;
                     this.categories = data.data;
@@ -188,29 +192,33 @@ export default {
                 summitFormData.append(`files`, file);
             });
 
-            const url = `board/save`;
 
             multipartApi
-                .post(url, summitFormData)
+                .post(BOARD_SAVE_URL, summitFormData)
                 .then(response => {
                     alert(response.data.data);
-                    this.$router.push('/board/list');
+                     this.$router.replace({ path: BOARD_LIST_URL, query: {} });
                 })
                 .catch(error => {
                     console.error('Error:', error);
                 });
 
         },
-        getCancelUrl() {
-            const {
-                currentPage,
-                categoryId,
-                searchText,
-                startDate,
-                endDate
-            } = this.searchCondition;
+        clickCancleButton() {
 
-            return `list?currentPage=${currentPage}&categoryId=${categoryId}&searchText=${searchText}&startDate=${startDate}&endDate=${endDate}`;
+            const params = {
+                categoryId: this.searchCondition.categoryId,
+                searchText: this.searchCondition.searchText,
+                startDate: this.searchCondition.startDate,
+                endDate: this.searchCondition.endDate,
+                currentPage: this.searchCondition.currentPage,
+                pageSize: this.searchCondition.pageSize,
+                offset: this.searchCondition.offset,
+            };
+
+            const listPage = `${BOARD_LIST_URL}?${Object.entries(params).map(([key, value]) => `${key}=${value}`).join('&')}`;
+
+            return listPage;
         },
     },
 };

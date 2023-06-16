@@ -55,12 +55,21 @@
             AND created_at BETWEEN DATE_SUB(NOW(), INTERVAL 1 YEAR) AND NOW()
         </if>
         <if test="startDate != null and endDate != null">
-            AND created_at BETWEEN #{startDate} AND #{endDate}
+            AND created_at BETWEEN #{startDate} AND DATE_ADD(#{endDate}, INTERVAL 1 DAY)
         </if>
-        ORDER BY created_at DESC
-        LIMIT #{pageSize}
-        OFFSET #{offset}
-
+            ORDER BY created_at DESC
+        <if test="pageSize == null">
+            LIMIT 10
+        </if>
+        <if test="pageSize != null">
+            LIMIT #{pageSize}
+        </if>
+        <if test="offset == null">
+            OFFSET 0
+        </if>
+        <if test="offset != null">
+            OFFSET #{offset}
+        </if>
     </select>
 
     <!-- 검색 조건에 맞는 게시글 수 조회 -->
@@ -78,9 +87,7 @@
             AND created_at BETWEEN DATE_SUB(NOW(), INTERVAL 1 YEAR) AND NOW()
         </if>
         <if test="startDate != null and endDate != null">
-            AND created_at
-            BETWEEN #{startDate}
-            AND #{endDate}
+            AND created_at BETWEEN #{startDate} AND DATE_ADD(#{endDate}, INTERVAL 1 DAY)
         </if>
     </select>
 

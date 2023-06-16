@@ -37,7 +37,7 @@
         <tr v-for="(boardItem) in searchBoards" :key="boardItem.boardId">
           <td>{{ getCategoryName(boardItem.categoryId) }}</td>
           <router-link
-            :to="`/board/view?boardId=${boardItem.boardId}&searchText=${this.searchCondition.searchText}&startDate=${this.searchCondition.startDate}&endDate=${this.searchCondition.endDate}&categoryId=${boardItem.categoryId}&currentPage=${this.searchCondition.currentPage}`">
+            :to="getBoardDetail(boardItem.boardId, boardItem.categoryId)">
             {{ boardItem.title }}
           </router-link>
           <td>{{ boardItem.writer }}</td>
@@ -64,7 +64,7 @@
         <a v-if="searchCondition.currentPage < totalPages" @click="getPageData(totalPages)">&nbsp;&gt;&gt;</a>
 
       </div>
-      <button @click="handleRegisterClick" class="btn btn-primary">등록</button>
+      <button @click="clickRegisterButton" class="btn btn-primary">등록</button>
 
     </div>
   </div>
@@ -72,6 +72,7 @@
 
 <script>
 import { api, } from "../scripts/APICreate.js";
+import { BOARD_LIST_URL, BOARD_WRITE_URL, BOARD_VIEW_URL } from "../scripts/URLs.js";
 
 export default {
 
@@ -130,10 +131,20 @@ export default {
     //현재 검색조건에 맞는 게시글을 가져오는 함수 
     getBoardList() {
 
-      const url = `board/list?currentPage=${this.searchCondition.currentPage}&categoryId=${this.searchCondition.categoryId}&searchText=${this.searchCondition.searchText}&startDate=${this.searchCondition.startDate}&endDate=${this.searchCondition.endDate}&pageSize=${this.searchCondition.pageSize}&offset=${this.searchCondition.offset}`;
+      const params = {
+        categoryId: this.searchCondition.categoryId,
+        searchText: this.searchCondition.searchText,
+        startDate: this.searchCondition.startDate,
+        endDate: this.searchCondition.endDate,
+        currentPage: this.searchCondition.currentPage,
+        pageSize : this.searchCondition.pageSize,
+        offset : this.searchCondition.offset,
+      };
+
+      const requestURL = `${BOARD_LIST_URL}?${Object.entries(params).map(([key, value]) => `${key}=${value}`).join('&')}`;
 
       api
-        .get(url)
+        .get(requestURL)
         .then(response => {
           const responseData = response.data.data;
 
@@ -149,15 +160,17 @@ export default {
         });
     },
 
-    handleRegisterClick() {
+    clickRegisterButton() {
       this.$router.push({
-        path: '/board/write',
+        path: BOARD_WRITE_URL,
         query: {
           currentPage: this.searchCondition.currentPage,
           categoryId: this.searchCondition.categoryId,
           searchText: this.searchCondition.searchText,
           startDate: this.searchCondition.startDate,
-          endDate: this.searchCondition.endDate
+          endDate: this.searchCondition.endDate,
+          pageSize: this.searchCondition.pageSize,
+          offset: this.searchCondition.offset,
         }
       });
     },
@@ -179,6 +192,23 @@ export default {
       this.searchCondition.offset = 0;
       this.getBoardList();
     },
+
+    getBoardDetail(boardId, categoryId) {
+
+      const params = {
+        boardId: boardId,
+        categoryId: categoryId,
+        searchText: this.searchCondition.searchText,
+        startDate: this.searchCondition.startDate,
+        endDate: this.searchCondition.endDate,
+        currentPage: this.searchCondition.currentPage,
+        pageSize: this.searchCondition.pageSize,
+        offset: this.searchCondition.offset,
+      };
+
+      return `${BOARD_VIEW_URL}?${Object.entries(params).map(([key, value]) => `${key}=${value}`).join('&')}`;
+
+    }
   },
 
 };
