@@ -1,15 +1,13 @@
 package ebrain.board.vo;
 
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.List;
 
-/**
- * 게시물 정보를 담는 VO 클래스
- */
 @Data
-public class BoardVO {
+public class BoardInfoVO {
     /**
      * 게시물 ID
      */
@@ -55,5 +53,11 @@ public class BoardVO {
      * 게시물 조회수
      */
     private int visitCount;
+
+    private List<Integer> deletedAttachmentIds;
+
+    private List<MultipartFile> files;
+
+
 
 }

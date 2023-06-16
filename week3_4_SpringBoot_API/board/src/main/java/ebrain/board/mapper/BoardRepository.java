@@ -1,5 +1,6 @@
 package ebrain.board.mapper;
 
+import ebrain.board.vo.BoardInfoVO;
 import ebrain.board.vo.BoardVO;
 import ebrain.board.vo.SearchConditionVO;
 import org.apache.ibatis.annotations.Mapper;
@@ -56,7 +57,7 @@ public interface BoardRepository {
      *
      * @param board 수정할 게시글의 정보
      */
-    void updateBoard(BoardVO board);
+    void updateBoard(BoardInfoVO board);
 
     /**
      * 주어진 게시글 ID에 해당하는 게시글을 삭제하는 메서드

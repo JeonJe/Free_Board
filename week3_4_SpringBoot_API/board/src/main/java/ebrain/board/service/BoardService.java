@@ -7,6 +7,7 @@ import ebrain.board.mapper.BoardRepository;
 
 import ebrain.board.utils.BoardUtils;
 import ebrain.board.vo.AttachmentVO;
+import ebrain.board.vo.BoardInfoVO;
 import ebrain.board.vo.BoardVO;
 
 
@@ -117,8 +118,7 @@ public class BoardService {
      * @param deletedAttachmentIds 삭제할 첨부 파일의 ID 목록을 담은 List<Integer> 객체
      * @throws Exception 게시글 수정 과정에서 발생하는 예외
      */
-    public void updateBoard(BoardVO board, List<MultipartFile> files,
-                            List<Integer> deletedAttachmentIds) throws Exception {
+    public void updateBoard(BoardInfoVO board) throws Exception {
 
         if (!BoardUtils.checkFormValidation(board.getWriter(), board.getPassword(),
                 board.getPassword(), board.getTitle(), board.getContent())) {
@@ -128,7 +128,7 @@ public class BoardService {
         String hashedPassword = BoardUtils.hashPassword(board.getPassword());
         board.setPassword(hashedPassword);
         board.setConfirmPassword(hashedPassword);
-
+        List<Integer> deletedAttachmentIds = board.getDeletedAttachmentIds();
         if (deletedAttachmentIds != null){
             for (Integer deletedId : deletedAttachmentIds) {
                 String deletedFileName = attachmentRepository.
@@ -147,6 +147,8 @@ public class BoardService {
         }
 
 
+
+        List<MultipartFile> files = board.getFiles();
         boardRepository.updateBoard(board);
         if (files != null) {
             for (MultipartFile file : files) {

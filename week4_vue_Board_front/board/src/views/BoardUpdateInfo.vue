@@ -1,54 +1,63 @@
 <template>
     <div class="container my-5">
         <h1 class="my-4">게시판 - 수정</h1>
-        
+
         <!-- 게시글 내용 -->
+        <form @submit.prevent="updateBoard" enctype="multipart/form-data">
         <div class="card mb-3">
             <div class="card-header bg-transparent pb-0">
                 <div class="d-flex justify-content-between">
-                    <input type="text" id="writer" name="writer" v-model="board.writer" class="form-control" >
-                    <input type="password" id="enteredPassword" v-model="enteredPassword" class="form-control" >
+                    <input type="text" id="writer" name="writer" v-model="board.writer" class="form-control">
+                    <input type="password" id="enteredPassword" v-model="enteredPassword" class="form-control">
                     <div class="d-flex">
                         <p class="mb-0 me-4 mr-2">등록일시: {{ dateFormat(board.createdAt) }}</p>
                         <p class="mb-0">수정일시: {{ dateFormat(board.modifiedAt) }}</p>
                     </div>
                 </div>
                 <div class="d-flex justify-content-between pt-2">
-                    <h5 class="card-title mb-4">{{ this.board.categoryName }}: 
-                    <input type="text" id="title" name="title" v-model="board.title" class="form-control"></h5>
+                    <h5 class="card-title mb-4">{{ this.board.categoryName }}:
+                        <input type="text" id="title" name="title" v-model="board.title" class="form-control">
+                    </h5>
                     <p class="card-text mb-4">조회수: {{ updatedVisitCount }}</p>
                 </div>
             </div>
         </div>
         <div class="card-body border">
-            <textarea id="content" name="content" v-model="board.content" class="form-control" ></textarea>
+            <textarea id="content" name="content" v-model="board.content" class="form-control"></textarea>
         </div>
         <br>
         <div>
-            <!-- <a v-for="attachment in attachments" :key="attachment.fileName"
-                :href="'download?fileName=' + attachment.fileName" class="mb-2 text-decoration-underline d-block">{{
-                    attachment.originName }}</a> -->
-            <a v-for="attachment in attachments" :key="attachment.attachmentId" :href="'download?attachmentId=' + attachment.attachmentId" class="mb-2 text-decoration-underline d-block">
-            {{ attachment.originName }}</a>
+            <div id="attachmentsList">
+            <!-- 첨부파일  -->
+            <div v-for="(attachment, index) in attachments" :key="attachment.attachmentId" class="file-block">
+                <span>{{ attachment.fileName }}</span>
+                 <a :href="`http://localhost:8080/attachment/download?attachmentId=${attachment.attachmentId}`" class="download-button" download>Download</a>
+                <button @click="deleteAttachment(index, attachment.attachmentId)" class="delete-button">X</button>
+            </div>
+            <div v-if="attachments.length < maxAttachments" class="file-block">
+                <input type="file" :id="'attachment' + attachmentCounter" :name="'files'" @change="handleFileChange($event)">
+            </div>
+            </div>
         </div>
         <br>
-       
+
         <!-- 버튼그룹 -->
         <div class="d-flex justify-content-center mt-3">
             <div class="buttons">
                 <router-link :to="clickCancleButton()" class="btn btn-secondary btn-block">
                     취소
                 </router-link>
-                 <button @click="updateBoard" class="btn btn-primary btn-block">
-                    저장
-                </button>
+                 <div class="col-md-6">
+                            <button type="submit" class="btn btn-primary btn-block">저장</button>
+                        </div>
             </div>
         </div>
+        </form>
     </div>
 </template>
 
 <script>
-import {  BOARD_VIEW_URL, BOARD_UPDATE_URL } from "../scripts/URLs.js";
+import { BOARD_VIEW_URL, BOARD_UPDATE_URL } from "../scripts/URLs.js";
 import { api, multipartApi, } from "../scripts/APICreate.js";
 import moment from 'moment'
 
@@ -75,10 +84,10 @@ export default {
                 startDate: '',
                 endDate: '',
                 pageSize: 10,
-                offset : 0
+                offset: 0
             },
 
-             formData: {
+            formData: {
                 categoryId: '',
                 writer: '',
                 password: '',
@@ -87,6 +96,9 @@ export default {
                 content: '',
                 files: []
             },
+            maxAttachments: 3,
+            attachmentCounter: 1,
+            deletedAttachmentIds: [],
 
         };
     },
@@ -129,8 +141,8 @@ export default {
                 })
 
         },
-      
-         getCategoryName(categoryId) {
+
+        getCategoryName(categoryId) {
             // 카테고리 ID를 기반으로 카테고리 이름을 가져오는 로직
             return this.categories.find((category) => category.id === categoryId)?.name || '';
         },
@@ -141,13 +153,13 @@ export default {
         clickCancleButton() {
 
             return this.getBoardDetail(this.board.boardId);
-            
+
         },
-        updateBoard(){  
-            
+        updateBoard() {
+
             //TODO : 업데이트 정보를 비밀번호와 함께 서버에 전달 
-     
-             const summitFormData = new FormData();
+
+            const summitFormData = new FormData();
 
             // formData에 폼 데이터 추가
             summitFormData.append('boardId', this.board.boardId);
@@ -157,23 +169,32 @@ export default {
             summitFormData.append('title', this.board.title);
             summitFormData.append('content', this.board.content);
 
-            // // 첨부 파일 추가
-            // this.formData.files.forEach((file,) => {
-            //     summitFormData.append(`files`, file);
-            // });
-     
+            // 첨부 파일 추가
+           this.formData.files.forEach((file) => {
+                summitFormData.append('files', file);
+            });
+            summitFormData.append('deletedAttachmentIds', this.deletedAttachmentIds);
+
+            // Log the form data contents
+            for (let pair of summitFormData.entries()) {
+                console.log(pair[0] + ':', pair[1]);
+                }
+
             multipartApi
                 .post(BOARD_UPDATE_URL, summitFormData)
                 .then(response => {
-                    alert(response.data);
+                    console.log(this.board.boardId);
+                    alert(response.data.data);
                     
+                      this.$router.push(this.getBoardDetail(this.board.boardId));
+
                 })
-               .catch(error => {
+                .catch(error => {
                     console.log(error);
                 });
 
         },
-         getBoardDetail(boardId) {
+        getBoardDetail(boardId) {
 
             const params = {
                 boardId: boardId,
@@ -187,8 +208,39 @@ export default {
             };
             return `${BOARD_VIEW_URL}?${Object.entries(params).map(([key, value]) => `${key}=${value}`).join('&')}`;
 
-        }
-         
+        },
+         deleteAttachment(index, attachmentId) {
+            this.attachments.splice(index, 1);
+            this.deletedAttachmentIds.push(attachmentId);
+            console.log(this.deletedAttachmentIds)
+
+            if (this.attachments.length < this.maxAttachments) {
+                this.drawNewAttachmentDiv();
+            }
+        },
+          drawNewAttachmentDiv() {
+            this.attachmentCounter++;
+            const fileBlock = document.createElement("div");
+            fileBlock.className = "file-block";
+
+            const fileInput = document.createElement("input");
+            fileInput.type = "file";
+            fileInput.id = `attachment${this.attachmentCounter}`;
+            fileInput.name = "files";
+            fileInput.addEventListener("change", this.handleFileChange);
+            console.log(fileInput);
+            fileBlock.appendChild(fileInput);
+            this.$el.querySelector("#attachmentsList").appendChild(fileBlock);
+        },
+        handleFileChange(event) {
+            
+            // 선택한 파일
+            const file = event.target.files[0];
+            // formData에 파일 추가
+            this.formData.files.push(file);
+            console.log(this.formData.files)
+        },
+
     },
 };
 </script>

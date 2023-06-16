@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import ebrain.board.service.BoardService;
 import org.springframework.web.bind.annotation.*;
@@ -239,17 +240,18 @@ public class BoardController {
      * @return 응답 상태와 메시지를 담고 있는 ResponseEntity 객체
      * @throws Exception 게시글 수정 과정에서 발생하는 예외
      */
-    @PostMapping("/board/update")
-    public ResponseEntity<APIResponse> updateBoard(@ModelAttribute BoardVO newBoard,
-                                              @RequestParam(value = "files", required = false ) List<MultipartFile> files,
-                                              @RequestParam(value = "deletedAttachmentIds", required = false) List<Integer> deletedAttachmentIds
+    @PostMapping(value = "/board/update")
+    public ResponseEntity<APIResponse> updateBoard(
+//    @RequestParam(value = "files", required = false ) List<MultipartFile> files,
+//   @RequestPart(value = "deletedAttachmentIds", required = false) List<Integer> deletedAttachmentIds,
+    @ModelAttribute BoardInfoVO newBoard
     ) throws Exception {
         if (newBoard == null) {
             return BoardUtils.createBadRequestResponse("저장하려는 정보가 없습니다");
         }
 
         try {
-            boardService.updateBoard(newBoard, files, deletedAttachmentIds);
+            boardService.updateBoard(newBoard);
             return BoardUtils.createOkResponse("수정에 성공하였습니다.");
 
         } catch (SQLException e) {
