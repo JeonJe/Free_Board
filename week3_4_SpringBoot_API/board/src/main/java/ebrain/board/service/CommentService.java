@@ -16,7 +16,9 @@ import java.util.Map;
 @Service
 public class CommentService {
 
-
+    /**
+     * 댓글 저장소 객체
+     */
     private final CommentRepository commentRepository;
 
     /**

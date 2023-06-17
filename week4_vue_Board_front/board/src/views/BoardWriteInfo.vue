@@ -3,6 +3,7 @@
         <h1 class="my-4">게시판 - 등록</h1>
         <div class="row justify-content-center">
             <div class="col-md-12 bg-light">
+                <!-- 폼  -->
                 <form @submit.prevent="saveBoardInfo" enctype="multipart/form-data">
                     <div class="form-group row border-bottom p-3">
                         <label for="category_id" class="col-sm-2 col-form-label d-flex align-items-center">카테고리:</label>
@@ -66,7 +67,7 @@
                                 @change="handleFileChange($event)">
                         </div>
                     </div>
-
+                    <!-- 버튼 그룹 -->
                     <div class="row mt-3 justify-content-center">
                         <div class="col-md-6">
                             <router-link :to="clickCancleButton()" class="btn btn-secondary btn-block">
@@ -90,6 +91,7 @@ import { BOARD_LIST_URL, CATEOGRY_LIST_URL, BOARD_SAVE_URL } from "../scripts/UR
 export default {
     data() {
         return {
+            // 검색 조건
             searchCondition: {
                 currentPage: '',
                 category: '',
@@ -99,6 +101,7 @@ export default {
                 pageSize: '',
                 offset: '',
             },
+            // 게시글 정보 
             formData: {
                 categoryId: '',
                 writer: '',
@@ -109,10 +112,9 @@ export default {
                 files: []
             },
             categories: [],
-
         };
     },
-    //컴포넌트 인스턴스 생성전에 호출, 초기화 작업 수행 
+    //컴포넌트 인스턴스 생성전에 호출하여 검색조건 초기화 작업 수행 
     beforeRouteEnter(to, from, next) {
         const searchCondition = {
             currentPage: to.query.currentPage || '',
@@ -127,12 +129,12 @@ export default {
             vm.searchCondition = searchCondition;
         });
     },
-    //컴포넌트 인스턴스 생성 후 호출  (DOM 마운트 후의 작업 수행)
     mounted() {
         this.getCategories();
     },
 
     methods: {
+        //서버에서 카테고리 목록을 받아옴
         getCategories() {
             api
                 .get(CATEOGRY_LIST_URL)
@@ -144,15 +146,18 @@ export default {
                     console.error('Error:', error);
                 });
         },
+        //첨부파일 추가 시 
         handleFileChange(event) {
             // 선택한 파일
             const file = event.target.files[0];
 
             // formData에 파일 추가
             this.formData.files.push(file);
-            console.log(this.formData.files)
+            
         },
+        //작성한 게시글 정보를 저장하는 함수 
         saveBoardInfo() {
+
             if (this.formData.writer.length < 3 || this.formData.writer.length >= 5) {
                 alert('작성자는 3글자 이상 5글자 미만이어야 합니다.');
                 return;
@@ -176,10 +181,9 @@ export default {
                 alert('내용은 4글자 이상 2000글자 미만이어야 합니다.');
                 return;
             }
-
+            //Multipart FormData 전송을 위해 FormData 사용
             const summitFormData = new FormData();
 
-            // formData에 폼 데이터 추가
             summitFormData.append('categoryId', this.formData.categoryId);
             summitFormData.append('writer', this.formData.writer);
             summitFormData.append('password', this.formData.password);
@@ -187,23 +191,25 @@ export default {
             summitFormData.append('title', this.formData.title);
             summitFormData.append('content', this.formData.content);
 
-            // 첨부 파일 추가
             this.formData.files.forEach((file,) => {
                 summitFormData.append(`files`, file);
             });
 
-
+            //게시글 저장 요청 
             multipartApi
                 .post(BOARD_SAVE_URL, summitFormData)
                 .then(response => {
                     alert(response.data.data);
-                     this.$router.replace({ path: BOARD_LIST_URL, query: {} });
+                    this.$router.replace({ path: BOARD_LIST_URL, query: {} });
                 })
                 .catch(error => {
+                    alert(error.response.data.message);
                     console.error('Error:', error);
+
                 });
 
         },
+        //취소버튼 클릭 시 검색 조건과 함께 리스트 페이지 이동 
         clickCancleButton() {
 
             const params = {
@@ -217,7 +223,6 @@ export default {
             };
 
             const listPage = `${BOARD_LIST_URL}?${Object.entries(params).map(([key, value]) => `${key}=${value}`).join('&')}`;
-
             return listPage;
         },
     },

@@ -27,8 +27,10 @@ import java.util.List;
 @Service
 public class AttachmentService {
 
+    /**
+     * 첨부 파일 저장소 객체
+     */
     private final AttachmentRepository attachmentMapper;
-
 
 
     /**
@@ -52,7 +54,13 @@ public class AttachmentService {
     public List<AttachmentVO> getAttachmentsByBoardId(int boardId) throws SQLException {
         return attachmentMapper.getAttachmentsByBoardId(boardId);
     }
-
+    /**
+     * 첨부파일 ID에 해당하는 첨부파일 정보를 가져옵니다.
+     *
+     * @param attachmentId 첨부파일 ID
+     * @return 첨부파일 정보
+     * @throws SQLException SQL 예외
+     */
     public AttachmentVO getAttachmentByAttachmentId(int attachmentId) throws SQLException{
         return attachmentMapper.getAttachmentInfoByAttachmentId(attachmentId);
     }

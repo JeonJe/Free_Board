@@ -10,7 +10,6 @@ import ebrain.board.vo.AttachmentVO;
 import ebrain.board.vo.BoardInfoVO;
 import ebrain.board.vo.BoardVO;
 
-
 import ebrain.board.vo.SearchConditionVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,16 +27,19 @@ import java.util.*;
 @Service
 public class BoardService {
 
+    /**
+     * 게시글 저장소 객체
+     */
     private final BoardRepository boardRepository;
 
     /**
-     * BoardService 생성자입니다.
-     *
-     * @param boardRepository      BoardRepository 객체
-     * @param attachmentRepository AttachmentRepository 객체
+     * 첨부 파일 저장소 객체
      */
     private final AttachmentRepository attachmentRepository;
 
+    /**
+     * 카테고리 서비스 객체
+     */
     private final CategoryService categoryService;
 
     /**
@@ -46,6 +48,13 @@ public class BoardService {
     @Value("${UPLOAD_PATH}")
     private String UPLOAD_PATH;
 
+    /**
+     * BoardService의 생성자입니다.
+     *
+     * @param boardRepository      BoardRepository 객체
+     * @param attachmentRepository AttachmentRepository 객체
+     * @param categoryService      CategoryService 객체
+     */
     @Autowired
     public BoardService(BoardRepository boardRepository, AttachmentRepository attachmentRepository, CategoryService categoryService) {
         this.boardRepository = boardRepository;
@@ -55,7 +64,7 @@ public class BoardService {
     /**
      * 검색 조건에 해당하는 게시글 목록을 조회하는 메서드입니다.
      *
-     * @param params 검색 조건을 담은 맵
+     * @param searchParams 검색 조건을 담은 SearchConditionVO 객체
      * @return 검색 결과로 조회된 게시글 목록
      * @throws SQLException SQL 예외 발생 시
      */
@@ -66,7 +75,7 @@ public class BoardService {
     /**
      * 검색 조건에 해당하는 게시글의 총 개수를 조회하는 메서드입니다.
      *
-     * @param searchParams 검색 조건을 담은 맵
+     * @param searchParams 검색 조건을 담은 SearchConditionVO 객체
      * @return 검색 결과로 조회된 게시글의 총 개수
      * @throws SQLException SQL 예외 발생 시
      */
@@ -74,14 +83,14 @@ public class BoardService {
         return boardRepository.countSearchBoards(searchParams);
     }
 
+
     /**
      * 게시글을 저장하는 메서드입니다.
      *
-     * @param board 게시글 정보를 담은 BoardVO 객체
-     * @param files 업로드된 첨부 파일 목록을 담은 List<MultipartFile> 객체
+     * @param board 게시글 정보를 담은 BoardInfoVO 객체
      * @throws Exception 예외 발생 시
      */
-    public void saveBoard(BoardVO board, List<MultipartFile> files) throws Exception {
+    public void saveBoard(BoardInfoVO board) throws Exception {
 
         if (!BoardUtils.checkFormValidation(board.getWriter(), board.getPassword(),
                 board.getConfirmPassword(), board.getTitle(), board.getContent())) {
@@ -91,6 +100,8 @@ public class BoardService {
         String hashedPassword = BoardUtils.hashPassword(board.getPassword());
         board.setPassword(hashedPassword);
         board.setConfirmPassword(hashedPassword);
+        List<MultipartFile> files = board.getFiles();
+
 
         boardRepository.saveBoard(board);
         int boardId = board.getBoardId();
@@ -113,9 +124,7 @@ public class BoardService {
     /**
      * 게시글을 수정하는 메서드입니다.
      *
-     * @param board                수정할 게시글 정보를 담은 BoardVO 객체
-     * @param files                업로드된 첨부 파일 목록을 담은 List<MultipartFile> 객체
-     * @param deletedAttachmentIds 삭제할 첨부 파일의 ID 목록을 담은 List<Integer> 객체
+     * @param board                수정할 게시글 정보를 담은 BoardInfoVO 객체
      * @throws Exception 게시글 수정 과정에서 발생하는 예외
      */
     public void updateBoard(BoardInfoVO board) throws Exception {
@@ -165,7 +174,6 @@ public class BoardService {
             }
         }
     }
-
 
     /**
      * 주어진 게시글 ID에 해당하는 게시글의 상세 정보를 조회하는 메서드입니다.

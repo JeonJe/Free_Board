@@ -14,6 +14,9 @@ import java.util.List;
 @Service
 public class CategoryService  {
 
+    /**
+     * 카테고리 저장소 객체
+     */
     private final CategoryRepository categoryMapper;
 
     /**

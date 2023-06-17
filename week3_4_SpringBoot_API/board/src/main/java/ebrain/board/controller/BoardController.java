@@ -1,5 +1,6 @@
 package ebrain.board.controller;
 
+import ebrain.board.exception.FormValidationInvalidException;
 import ebrain.board.reponse.APIResponse;
 import ebrain.board.exception.PasswordInvalidException;
 import ebrain.board.reponse.BoardInfoResponse;
@@ -29,13 +30,16 @@ import java.util.Map;
 
 /**
  * BoardController class
- * 게시판과 관련된 모든 요청을 처리하고 json 데이터 반환
+ * 게시판과 관련된 모든 요청을 처리하고 APIResponse 데이터 반환
  */
 @CrossOrigin(origins = "http://localhost:8082")
 @RestController
 
 public class BoardController {
 
+    /**
+     * SQL 에러 메시지
+     */
     private static final String SQL_ERROR_MESSAGE = "SQL 오류가 발생하였습니다.";
     /**
      * 게시글 관련 비지니스 로직 수행
@@ -54,6 +58,9 @@ public class BoardController {
      */
     private final AttachmentService attachmentService;
 
+    /**
+     * 파일 업로드 경로
+     */
     @Value("${UPLOAD_PATH}")
     private String UPLOAD_PATH;
 
@@ -73,15 +80,13 @@ public class BoardController {
         this.attachmentService = attachmentService;
     }
 
-
     /**
-     * 게시글 목록을 조회하는 요청을 처리하는 메소드입니다.
+     * 검색 조건에 따라 게시판 목록을 가져옵니다.
      *
-     * @param searchConditionParams 검색 조건 정보를 담고 있는 SearchConditionVO 객체
-     * @return 게시글 목록과 검색 조건을 담고 있는 ResponseEntity 객체
+     * @param searchConditionParams 검색 조건을 담고 있는 SearchConditionVO 객체
+     * @return 게시판 목록과 검색 조건을 담고 있는 ResponseEntity 객체
      * @throws SQLException SQL 예외 발생 시
      */
-
     @GetMapping("/board/list")
     public ResponseEntity<APIResponse> getBoardList(
             @ModelAttribute SearchConditionVO searchConditionParams) throws SQLException {
@@ -91,8 +96,8 @@ public class BoardController {
         }
 
         try {
-            List<BoardVO> searchBoards = boardService.searchBoards(searchConditionParams);
             List<CategoryVO> categories = categoryService.getAllCategory();
+            List<BoardVO> searchBoards = boardService.searchBoards(searchConditionParams);
             int totalCount = boardService.countSearchBoards(searchConditionParams);
 
             BoardSearchResponse boardSearchResponse = new BoardSearchResponse();
@@ -103,21 +108,19 @@ public class BoardController {
 
             return BoardUtils.createOkResponse(boardSearchResponse);
 
-
         } catch (SQLException e) {
             return BoardUtils.createInternalServerErrorResponse(SQL_ERROR_MESSAGE);
         }
     }
 
 
-
-
     /**
-     * 게시글 상세 정보를 조회하는 요청을 처리하는 메소드입니다.
+     * 게시판의 상세 정보를 조회합니다.
      *
-     * @param searchConditionParams 검색 조건 정보를 담고 있는 SearchConditionVO 객체
-     * @param boardId               조회할 게시글의 ID
-     * @return 게시글 상세 정보와 검색 조건을 담고 있는 ResponseEntity 객체
+     * @param searchConditionParams 검색 조건을 담고 있는 SearchConditionVO 객체
+     * @param boardId               조회할 게시판의 ID
+     * @return 게시판 상세 정보와 검색 조건을 담고 있는 ResponseEntity 객체
+     * @throws SQLException SQL 예외 발생 시
      */
     @GetMapping("/board/view")
     public ResponseEntity<APIResponse> getBoardInfo(@ModelAttribute SearchConditionVO searchConditionParams,
@@ -145,36 +148,38 @@ public class BoardController {
 
     }
 
+
     /**
-     * 게시글을 저장하는 요청을 처리합니다.
+     * 게시판을 저장합니다.
      *
-     * @param board 게시글 정보를 담고 있는 BoardVO 객체
-     * @param files 업로드된 첨부 파일 목록을 담고 있는 List<MultipartFile> 객체
+     * @param board 게시판 정보를 담고 있는 BoardInfoVO 객체
      * @return ResponseEntity 객체
      * @throws Exception 예외 발생 시
      */
     @PostMapping("/board/save")
-    public ResponseEntity<APIResponse> saveBoardInfo(@ModelAttribute BoardVO board,
-                                                             @RequestParam(value="files", required = false) List<MultipartFile> files) throws Exception {
+    public ResponseEntity<APIResponse> saveBoardInfo(@ModelAttribute BoardInfoVO board) throws Exception {
+
         if (board == null) {
             return BoardUtils.createBadRequestResponse("게시글 정보가 필요합니다.");
         }
 
         try {
-            boardService.saveBoard(board, files);
+            boardService.saveBoard(board);
             return BoardUtils.createOkResponse("게시글 저장 성공");
 
+        } catch (FormValidationInvalidException e) {
+            return BoardUtils.createBadRequestResponse(e.getMessage());
         } catch (SQLException e) {
             return BoardUtils.createInternalServerErrorResponse(SQL_ERROR_MESSAGE);
         }
     }
 
+
     /**
-     * 댓글을 추가하는 요청을 처리합니다.
+     * 댓글을 추가합니다.
      *
-     * @param searchConditionParams 검색 조건 정보를 담고 있는 SearchConditionVO 객체
-     * @param requestBody           요청 본문에 포함된 데이터를 담고 있는 Map 객체
-     * @return 게시글 상세 정보와 검색 조건을 담고 있는 ResponseEntity 객체
+     * @param requestBody 요청 본문에 포함된 데이터를 담고 있는 Map 객체
+     * @return 게시판 상세 정보와 검색 조건을 담고 있는 ResponseEntity 객체
      * @throws SQLException SQL 예외 발생 시
      */
     @PostMapping("/board/add-comment")
@@ -209,15 +214,15 @@ public class BoardController {
     }
 
     /**
-     * 게시글 삭제 요청을 처리합니다.
+     * 게시판을 삭제합니다.
      *
-     * @param boardId  삭제할 게시글의 ID를 나타내는 Integer 값
-     * @param password 게시글을 삭제하기 위한 비밀번호를 나타내는 String 값
+     * @param requestBody 요청 본문에 포함된 데이터를 담고 있는 Map 객체
      * @return ResponseEntity 객체
      */
-    @PostMapping("/board/delete")
+    @DeleteMapping("/board/delete")
     public ResponseEntity<APIResponse> deleteBoard(
             @RequestBody Map<String, Object> requestBody) {
+
         int boardId = (Integer) requestBody.get("boardId");
         String password = (String) requestBody.get("password");
 
@@ -232,20 +237,15 @@ public class BoardController {
     }
 
     /**
-     * 게시글을 수정하는 요청을 처리하는 메소드입니다.
+     * 게시판을 수정합니다.
      *
-     * @param newBoard             수정할 게시글 정보를 담고 있는 BoardVO 객체
-     * @param files                업로드된 첨부 파일 목록을 담고 있는 List<MultipartFile> 객체
-     * @param deletedAttachmentIds 삭제할 첨부 파일의 ID 목록을 담고 있는 List<Integer> 객체
+     * @param newBoard 수정할 게시판 정보를 담고 있는 BoardInfoVO 객체
      * @return 응답 상태와 메시지를 담고 있는 ResponseEntity 객체
-     * @throws Exception 게시글 수정 과정에서 발생하는 예외
+     * @throws Exception 게시판 수정 과정에서 발생하는 예외
      */
-    @PostMapping(value = "/board/update")
-    public ResponseEntity<APIResponse> updateBoard(
-//    @RequestParam(value = "files", required = false ) List<MultipartFile> files,
-//   @RequestPart(value = "deletedAttachmentIds", required = false) List<Integer> deletedAttachmentIds,
-    @ModelAttribute BoardInfoVO newBoard
-    ) throws Exception {
+    @PutMapping(value = "/board/update")
+    public ResponseEntity<APIResponse> updateBoard(@ModelAttribute BoardInfoVO newBoard) throws Exception {
+
         if (newBoard == null) {
             return BoardUtils.createBadRequestResponse("저장하려는 정보가 없습니다");
         }
@@ -256,20 +256,25 @@ public class BoardController {
 
         } catch (SQLException e) {
             return BoardUtils.createInternalServerErrorResponse(SQL_ERROR_MESSAGE);
+
         } catch (PasswordInvalidException e) {
             return BoardUtils.createBadRequestResponse(e.getMessage());
         }
     }
 
+    /**
+     * 첨부 파일을 다운로드합니다.
+     *
+     * @param attachmentId 다운로드할 첨부 파일의 ID
+     * @return ResponseEntity 객체
+     * @throws Exception 예외 발생 시
+     */
     @GetMapping("/attachment/download")
     public ResponseEntity<Resource> attachmentDownload(@RequestParam(value = "attachmentId", required = true ) Integer attachmentId)
      throws Exception{
 
         try {
             AttachmentVO attachment = attachmentService.getAttachmentByAttachmentId(attachmentId);
-            if (attachment == null) {
-                return ResponseEntity.notFound().build();
-            }
             return BoardUtils.fileDownload(attachment, UPLOAD_PATH);
 
         } catch (SQLException e) {
@@ -277,9 +282,14 @@ public class BoardController {
         }
     }
 
-
+    /**
+     * 카테고리 목록을 가져옵니다.
+     *
+     * @return ResponseEntity 객체
+     */
     @GetMapping("/category/list")
     public ResponseEntity<APIResponse> getCategoryList(){
+
         try{
             List<CategoryVO> categories = categoryService.getAllCategory();
             return BoardUtils.createOkResponse(categories);

@@ -7,7 +7,7 @@
       <input type="date" id="startDate" name="startDate" class="form-control mr-2" v-model="searchCondition.startDate" />
 
       <input type="date" id="endDate" name="endDate" class="form-control mr-2" v-model="searchCondition.endDate" />
-
+      <!-- 카테고리 -->
       <select id="category" name="categoryId" class="form-control mr-2" v-model="searchCondition.categoryId">
         <option value="0">전체 카테고리</option>
         <option v-for="category in categories" :value="category.categoryId" :key="category.categoryId"
@@ -15,13 +15,16 @@
           {{ category.categoryName }}
         </option>
       </select>
-
+      <!-- 검색어  입력 -->
       <input type="text" id="searchText" name="searchText" class="form-control mr-2" placeholder="카테고리 + 제목 + 내용"
         v-model="searchCondition.searchText" />
 
       <button type="submit" class="btn btn-primary">검색</button>
     </form>
+    <!-- 총 조회 건수 -->
     <p>총 {{ this.totalCount }} 건</p>
+
+    <!-- 게시글 리스트 -->
     <table class="table table-striped text-center">
       <thead class="text-center">
         <tr>
@@ -36,8 +39,7 @@
       <tbody>
         <tr v-for="(boardItem) in searchBoards" :key="boardItem.boardId">
           <td>{{ getCategoryName(boardItem.categoryId) }}</td>
-          <router-link
-            :to="getBoardDetail(boardItem.boardId, boardItem.categoryId)">
+          <router-link :to="getBoardDetail(boardItem.boardId, boardItem.categoryId)">
             {{ boardItem.title }}
           </router-link>
           <td>{{ boardItem.writer }}</td>
@@ -48,7 +50,7 @@
       </tbody>
     </table>
 
-    <!-- pagination -->
+    <!-- 페이지네이션 -->
     <div class="d-flex justify-content-between">
       <div class="text-center mx-auto">
         <a v-if="searchCondition.currentPage > 1" @click="getPageData(searchCondition.currentPage - 1)">&lt;&nbsp;</a>
@@ -76,7 +78,7 @@ import { BOARD_LIST_URL, BOARD_WRITE_URL, BOARD_VIEW_URL } from "../scripts/URLs
 
 export default {
 
-  // 컴포넌트 인스턴스 생성시점 호출
+  // 데이터 초기화
   data() {
     return {
       searchCondition: this.createDefaultSearchCondition(),
@@ -87,7 +89,7 @@ export default {
     };
   },
   computed: {
-    //카테고리 id에 따른 이름을 가져오는 함수
+    //카테고리 ID에 따른 이름을 가져오는 함수
     getCategoryName() {
       return (categoryId) => {
         const category = this.categories.find((category) => category.categoryId === categoryId);
@@ -97,6 +99,7 @@ export default {
   },
 
   mounted() {
+    //현재 검색 조건을 만족하는 게시글 리스트 요청 
     this.getBoardList();
   },
 
@@ -137,8 +140,8 @@ export default {
         startDate: this.searchCondition.startDate,
         endDate: this.searchCondition.endDate,
         currentPage: this.searchCondition.currentPage,
-        pageSize : this.searchCondition.pageSize,
-        offset : this.searchCondition.offset,
+        pageSize: this.searchCondition.pageSize,
+        offset: this.searchCondition.offset,
       };
 
       const requestURL = `${BOARD_LIST_URL}?${Object.entries(params).map(([key, value]) => `${key}=${value}`).join('&')}`;
@@ -153,14 +156,14 @@ export default {
           this.totalPages = Math.ceil(responseData.totalCount / this.searchCondition.pageSize);
           this.searchBoards = responseData.searchBoards;
           this.categories = responseData.categories;
-
         })
         .catch(error => {
           console.error('Error:', error);
         });
     },
-
+    //게시글 등록 버튼 클릭 함수 
     clickRegisterButton() {
+      //검색 조건과 함께 게시글 정보를 입력할 수 있는 페이지로 이동
       this.$router.push({
         path: BOARD_WRITE_URL,
         query: {
@@ -174,6 +177,7 @@ export default {
         }
       });
     },
+    //날짜 출력 포맷 변경 함수
     dateFormat(dateString) {
       const date = new Date(dateString);
       const year = date.getFullYear();
@@ -181,20 +185,21 @@ export default {
       const day = String(date.getDate()).padStart(2, '0');
       return `${year}-${month}-${day}`;
     },
+    //페이지 번호 이동 시 새로운 검색 조건으로 게시글 정보를 호출하는 함수 
     getPageData(currentPage) {
       this.searchCondition.currentPage = currentPage;
       this.searchCondition.offset = (currentPage - 1) * this.searchCondition.pageSize;
       this.getBoardList();
     },
-
+    //검색 클릭 시 현재 페이지와 오프셋 초기화 후 게시글을 정보를 호출하는 함수
     searchBoardsAction() {
       this.searchCondition.currentPage = 1;
       this.searchCondition.offset = 0;
       this.getBoardList();
     },
 
+    //검색 조건과 함께 게시글 상세 정보 페이지로 이동하는 함수 
     getBoardDetail(boardId, categoryId) {
-
       const params = {
         boardId: boardId,
         categoryId: categoryId,

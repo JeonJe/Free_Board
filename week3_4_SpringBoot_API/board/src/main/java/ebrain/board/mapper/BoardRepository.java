@@ -15,7 +15,7 @@ public interface BoardRepository {
     /**
      * 주어진 검색 조건에 맞는 게시글을 검색하는 메서드
      *
-     * @param params 검색 조건을 담은 맵 객체
+     * @param searchParams 검색 조건을 담은 SearchConditionVO 객체
      * @return 검색된 게시글의 리스트
      */
     List<BoardVO> searchBoards(SearchConditionVO searchParams);
@@ -23,7 +23,7 @@ public interface BoardRepository {
     /**
      * 주어진 검색 조건에 맞는 게시글의 개수를 반환하는 메서드
      *
-     * @param params 검색 조건을 담은 맵 객체
+     * @param searchParams 검색 조건을 담은 SearchConditionVO 객체
      * @return 검색된 게시글의 개수
      */
     int countSearchBoards(SearchConditionVO searchParams);
@@ -72,6 +72,6 @@ public interface BoardRepository {
      * @param board 저장할 게시글의 정보
      * @return 저장된 게시글의 ID
      */
-    int saveBoard(BoardVO board);
+    int saveBoard(BoardInfoVO board);
 
 }

@@ -11,7 +11,6 @@ public class SearchConditionVO {
      */
     private Integer categoryId;
 
-
     /**
      * 검색 키워드
      */
