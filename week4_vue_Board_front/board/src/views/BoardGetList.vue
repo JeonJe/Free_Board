@@ -163,6 +163,7 @@ export default {
     },
     //게시글 등록 버튼 클릭 함수 
     clickRegisterButton() {
+      //TODO : searchCondtion으로 코드 줄이기
       //검색 조건과 함께 게시글 정보를 입력할 수 있는 페이지로 이동
       this.$router.push({
         path: BOARD_WRITE_URL,
@@ -178,6 +179,7 @@ export default {
       });
     },
     //날짜 출력 포맷 변경 함수
+    //TODO : 함수설명은 javadoc 스타일로 주석처리
     dateFormat(dateString) {
       const date = new Date(dateString);
       const year = date.getFullYear();

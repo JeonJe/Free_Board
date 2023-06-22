@@ -71,6 +71,7 @@
           </button>
         </div>
 
+        // TODO : computed 확인
         <div
           v-for="index in Math.max(maxAttachments - attachments.length, 0)"
           :key="index"
@@ -150,6 +151,7 @@ export default {
   },
   mounted() {
     //URL로부터 게시글ID와 검색조건 파싱
+    //TODO : 한줄로 가능
     this.board.boardId = this.$route.query.boardId;
     this.searchCondition.currentPage = this.$route.query.currentPage;
     this.searchCondition.categoryId = this.$route.query.categoryId;
@@ -235,7 +237,7 @@ export default {
       this.attachments.splice(index, 1);
       this.deletedAttachmentIds.push(attachmentId);
     },
-    
+
     //첨부파일 추가 시
     handleFileChange(event) {
       // 선택한 파일

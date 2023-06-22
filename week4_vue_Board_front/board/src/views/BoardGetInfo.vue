@@ -196,6 +196,7 @@ export default {
         .get(requestURL)
         .then((response) => {
           const responseData = response.data.data;
+          //TODO : = 로 사용해도 테스트
           Object.assign(this.board, responseData.board);
           Object.assign(this.comments, responseData.comments);
           Object.assign(this.attachments, responseData.attachments);
@@ -229,6 +230,7 @@ export default {
           //삭제 버튼 클릭 시 삭제 요청
         } else {
           try {
+            //TODO :  await async
             api
               .delete(BOARD_DELETE_URL, {
                 boardId: this.board.boardId,

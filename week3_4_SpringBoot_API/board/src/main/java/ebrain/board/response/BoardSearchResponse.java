@@ -1,4 +1,4 @@
-package ebrain.board.reponse;
+package ebrain.board.response;
 
 import ebrain.board.vo.BoardVO;
 import ebrain.board.vo.CategoryVO;
@@ -10,6 +10,8 @@ import java.util.List;
 /**
  * 게시글 검색 결과 응답을 나타내는 클래스입니다.
  */
+//TODO : 한군데에서 묶어서 처리해도 됨,ignore json 패턴 참고
+
 @Data
 public class BoardSearchResponse {
     /**

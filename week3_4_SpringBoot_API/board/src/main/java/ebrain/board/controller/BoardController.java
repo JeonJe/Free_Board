@@ -1,29 +1,25 @@
 package ebrain.board.controller;
 
 import ebrain.board.exception.FormValidationInvalidException;
-import ebrain.board.reponse.APIResponse;
+import ebrain.board.response.APIResponse;
 import ebrain.board.exception.PasswordInvalidException;
-import ebrain.board.reponse.BoardInfoResponse;
-import ebrain.board.reponse.BoardSearchResponse;
+import ebrain.board.response.BoardInfoResponse;
+import ebrain.board.response.BoardSearchResponse;
 import ebrain.board.service.AttachmentService;
 import ebrain.board.service.CategoryService;
 import ebrain.board.service.CommentService;
 import ebrain.board.utils.BoardUtils;
 import ebrain.board.vo.*;
 
-import org.apache.ibatis.jdbc.SQL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import ebrain.board.service.BoardService;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -156,6 +152,7 @@ public class BoardController {
      * @return ResponseEntity 객체
      * @throws Exception 예외 발생 시
      */
+    //TODO : 파일 base64인코딩해서 보낼 수도 있음
     @PostMapping("/board/save")
     public ResponseEntity<APIResponse> saveBoardInfo(@ModelAttribute BoardInfoVO board) throws Exception {
 
@@ -243,7 +240,7 @@ public class BoardController {
      * @return 응답 상태와 메시지를 담고 있는 ResponseEntity 객체
      * @throws Exception 게시판 수정 과정에서 발생하는 예외
      */
-    @PutMapping(value = "/board/update")
+    @PutMapping("/board/update")
     public ResponseEntity<APIResponse> updateBoard(@ModelAttribute BoardInfoVO newBoard) throws Exception {
 
         if (newBoard == null) {

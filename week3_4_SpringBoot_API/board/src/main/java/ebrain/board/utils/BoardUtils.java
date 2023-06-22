@@ -1,6 +1,6 @@
 package ebrain.board.utils;
 
-import ebrain.board.reponse.APIResponse;
+import ebrain.board.response.APIResponse;
 import ebrain.board.vo.AttachmentVO;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.core.io.InputStreamResource;
@@ -90,6 +90,7 @@ public class BoardUtils {
      * @return 업로드된 파일의 이름
      * @throws Exception 파일 업로드 중 발생한 예외
      */
+    //TODO : 이름만 넘겨주기보다 파일로 넘겨서 나중에 사용하기 용이하게 처리
     public static String uploadFile(MultipartFile file, String uploadPath) throws Exception {
         String fileName = file.getOriginalFilename();
         String baseName = FilenameUtils.getBaseName(fileName);
@@ -110,6 +111,7 @@ public class BoardUtils {
         file.transferTo(uploadedFile);
         //파일 고유 식별번호를 반환합니다.
         return uploadedFile.getName();
+//        return uploadedFile;
     }
     /**
      * 첨부 파일을 다운로드하기 위한 ResponseEntity를 생성합니다.

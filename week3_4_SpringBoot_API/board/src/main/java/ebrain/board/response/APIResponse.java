@@ -1,4 +1,4 @@
-package ebrain.board.reponse;
+package ebrain.board.response;
 
 import lombok.Data;
 

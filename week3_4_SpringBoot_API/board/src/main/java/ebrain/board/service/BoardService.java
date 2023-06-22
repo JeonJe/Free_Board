@@ -155,8 +155,6 @@ public class BoardService {
             }
         }
 
-
-
         List<MultipartFile> files = board.getFiles();
         boardRepository.updateBoard(board);
         if (files != null) {
