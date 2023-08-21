@@ -1,9 +1,8 @@
-# 자유게시판
-
-Tags: JAVA, Mybatis, SpringBoot, Servlet, Vue.js, JSP
+# 자유게시판 (23.05.20 ~ 23.06.17, 1인)
 
 
-# 서비스 소개 & 주요 기능
+
+## 서비스 소개 & 주요 기능
 
 
 아래와 같은 기능을 제공하는 게시판 서비스입니다.
@@ -26,9 +25,13 @@ Tags: JAVA, Mybatis, SpringBoot, Servlet, Vue.js, JSP
     ![SCR-20230622-jjqx](https://github.com/JeonJe/Board/assets/43032391/ad7e2584-9704-41e4-8eed-935dd51579a9)
 
     
-# 개발 기간 & 범위
-
-2023.05.20 ~ 2023.06.17, 1인
+## 아키텍쳐
+- Front-End
+   - @vue/cli 5.0.8(사용자), JSP
+- Back-End
+  - SpringBoot v3.1.0, JDK17, Mybatis3
+- Database
+  - MariaDB 10.11.3
 
 1. JSP 게시판 (Model-1)
     - JSP,  JAVA, JDBC,  MariaDB(Docker)
@@ -41,7 +44,7 @@ Tags: JAVA, Mybatis, SpringBoot, Servlet, Vue.js, JSP
     - SpringBoot, Vue.js, MariaDB, Mybatis
 
 
-# **사전학습**
+## **사전학습**
 
 Code Condtion(Java, Javascript) - [링크](https://www.notion.so/Code-Convention-Java-Javscript-68d31ecf66a14cf3bfe7dbf3ac46ea1e?pvs=21) 
 
@@ -49,7 +52,7 @@ JSP & Servlet 개념 - [링크](https://www.notion.so/JSP-Servlet-581c9b517fb049
 
 Design Pattern - [링크](https://www.notion.so/Design-Pattern-17de6ff6001d4876a382e5f68dd3ca71?pvs=21)
 
-# 어려웠던 점
+## 어려웠던 점
 **Multipart/FormData 수신** 
 
 게시글 내용 저장/수정 시, 게시글에 포함된 첨부파일 정보도 함께 서버로 전송되어야 하기 때문에 클라이언트에서 서버로 보내는 HTTP Request의 `HTTP Header`의 `Content-Type`을 `Multipart/form-data`으로 지정하여 정해진 형식에 따라 메시지를 인코딩하여 전송해야합니다
@@ -71,13 +74,13 @@ Postman을 통한 데이터 전달은 정상적으로 수신하였지만, Vue.js
 이 과정에서 문제를 해결하기 위해 Multipart 학습 진행하였고, BoardVO와 List<MultipartFile> files, List<Integer> deletedAttachmentIds를 가지고 있는 VO를 통해 폼데이터를 값을 수신할 수 있도록 변경하여 문제를 해결할 수 있었습니다.
 
    
-# 배운점
+## 배운점
 - JSP, Servlet, JAVA, Spring, Mybatis, Multipart, Command Pattern 등 `새로운 프로그래밍 언어`, `프레임워크` 등을 학습하여 게시판 서비스를 구현하였습니다.
 - 주말마다 실무에 계신 개발자님으로부터 제가 작성한 코드에 대해 피드백을 받으며 코드의 가독성과 품질이 많이 부족하다는 것을 깨달았습니다. 이 과정을 통해 `협업을 위한 주석 작성, 코드 컨벤션 학습, 변수/함수 네이밍 고민` 등 어떤 부분을 더 많이 보완해야 할지 방향성을 잡을 수 있었습니다.
 - 동일한 기능을 JSP Model-1 버전부터 스프링에서 제공하는 Annotation과 Lombok 라이브러리를 활용한 버전까지 개발해 보며 프레임워크, 라이브러리가 왜 필요한지에 대해 몸소 깨달을 수 있었고 프로젝트를 진행하면서 `불필요한 코드의 양을 줄이면서 코드의 품질을 높이는 경험`을 하였습니다.
   
 
-# 주차별 코드 리뷰
+## 주차별 코드 리뷰
 
 
 *공통 피드백*
